@@ -1479,6 +1479,14 @@
   // se envía directamente por WhatsApp, sin mostrar errores.
   function comprobarServicios() {
     if (promesaServicios) return promesaServicios;
+    var metaEntorno = document.querySelector('meta[name="enruta-backend"]');
+    if (metaEntorno && String(metaEntorno.content || '').toLowerCase() === 'none') {
+      state.apiDisponible = false;
+      state.apiComprobada = true;
+      $$('.btn-admin, .footer-admin').forEach((el) => { el.hidden = true; });
+      promesaServicios = Promise.resolve(false);
+      return promesaServicios;
+    }
     promesaServicios = (async () => {
       let disponible = false;
       try {

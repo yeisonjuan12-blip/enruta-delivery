@@ -1,0 +1,8 @@
+User-agent: *
+Allow: /
+Disallow: /admin/
+Disallow: /server/
+Disallow: /tools/
+Disallow: /data/
+
+Sitemap: https://yeisonjuan12-blip.github.io/enruta-delivery/sitemap.xml

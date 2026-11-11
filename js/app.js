@@ -1647,6 +1647,7 @@
       boton.disabled = false;
       boton.innerHTML = textoOriginal;
     }
+    setTimeout(cerrarTodo, 700);
   }
 
   /* ---------------- Toast ---------------- */

@@ -952,6 +952,32 @@ a { color: inherit; text-decoration: none; }
   border-bottom: 1px dashed rgba(74, 63, 0, .4);
 }
 .footer-admin:hover { color: #000; border-bottom-color: #000; }
+/* Acceso discreto al panel: 5 toques en el logo o en este punto */
+.admin-dot {
+  width: 30px;
+  height: 30px;
+  margin: 0 0 -8px 2px;
+  padding: 0;
+  border: 0;
+  background: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  vertical-align: middle;
+  cursor: default;
+  -webkit-tap-highlight-color: transparent;
+}
+.admin-dot::before {
+  content: "";
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: currentColor;
+  opacity: .1;
+  transition: opacity .2s;
+}
+.admin-dot:hover::before,
+.admin-dot:focus-visible::before { opacity: .45; }
 .footer .btn-wa { margin-top: 4px; font-size: 13px; padding: 11px 18px; }
 
 /* ---------------- Overlay ---------------- */

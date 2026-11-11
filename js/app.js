@@ -1483,7 +1483,7 @@
     if (metaEntorno && String(metaEntorno.content || '').toLowerCase() === 'none') {
       state.apiDisponible = false;
       state.apiComprobada = true;
-      $$('.btn-admin, .footer-admin').forEach((el) => { el.hidden = true; });
+      $$('.btn-admin, .footer-admin, .admin-dot').forEach((el) => { el.hidden = true; });
       promesaServicios = Promise.resolve(false);
       return promesaServicios;
     }
@@ -1512,11 +1512,46 @@
       state.apiDisponible = disponible;
       state.apiComprobada = true;
       if (!disponible) {
-        $$('.btn-admin, .footer-admin').forEach((el) => { el.hidden = true; });
+        $$('.btn-admin, .footer-admin, .admin-dot').forEach((el) => { el.hidden = true; });
       }
       return disponible;
     })();
     return promesaServicios;
+  }
+
+  // Acceso oculto al panel: 5 toques seguidos en el logo (cabecera o pie)
+  // o un clic en el punto casi invisible del pie. Solo navega si el backend
+  // está disponible; en la copia estática no lleva a una página inexistente.
+  let toquesLogo = 0;
+  let temporizadorLogo = null;
+
+  async function abrirPanelOculto() {
+    toquesLogo = 0;
+    if (temporizadorLogo) {
+      clearTimeout(temporizadorLogo);
+      temporizadorLogo = null;
+    }
+    const disponible = await comprobarServicios();
+    if (disponible) window.location.href = 'admin/';
+  }
+
+  function activarAccesoOculto() {
+    $$('.brand').forEach((logo) => {
+      logo.addEventListener('click', () => {
+        toquesLogo += 1;
+        if (temporizadorLogo) clearTimeout(temporizadorLogo);
+        temporizadorLogo = setTimeout(() => { toquesLogo = 0; }, 1800);
+        if (toquesLogo >= 5) abrirPanelOculto();
+      });
+    });
+
+    const punto = document.getElementById('adminDot');
+    if (punto) {
+      punto.addEventListener('click', (e) => {
+        e.preventDefault();
+        abrirPanelOculto();
+      });
+    }
   }
 
   async function registrarPedido(pedido) {
@@ -1990,6 +2025,7 @@
     renderCategorias();
     renderCart();
     enlazarEventos();
+    activarAccesoOculto();
     actualizarEstadoZona();
     setInterval(actualizarEstadoZona, 60000);
     comprobarServicios();

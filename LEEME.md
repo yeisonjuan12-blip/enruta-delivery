@@ -656,14 +656,17 @@ powershell -ExecutionPolicy Bypass -File tools\importar-tambo.ps1 -Simular
 
 ---
 
-## 16. Servicios: recojo/envío y Taximoto
+## 16. Servicios: Taximoto y recojo/envío
 
-- **Recojo y envío**: formulario público en `#recojo-envio`. Guarda la solicitud en `server/datos/servicios.json` (arreglo `envios`) con estado `pendiente`.
-- **Taximoto**: formulario público en `#taximoto`. Guarda en el mismo archivo (arreglo `taximotos`) con estado `pendiente`.
+- Los dos servicios aparecen como **tarjetas destacadas** al inicio de `#locales`, dentro del contenedor `#servicios` (ancla `#servicios`). Ya no son una sección aparte.
+- Al tocar una tarjeta se abre un **bottom sheet** (`#serviceSheet`) con el formulario correspondiente, su botón de cierre y validación de campos obligatorios.
+- **Taximoto** (`#taximotoForm`): punto de recojo, destino y referencia opcional. Guarda en `server/datos/servicios.json` (arreglo `taximotos`) con estado `pendiente`. Como el contacto llega por WhatsApp, `nombreCliente` y `telefono` son opcionales en el backend.
+- **Recojo y envío** (`#envioForm`): qué se recoge, direcciones de recojo y entrega, nombre, teléfono y observaciones opcionales. El mismo contacto se guarda como remitente y destinatario para conservar el panel actual.
 - Endpoints públicos: `POST /api/envios` y `POST /api/taximotos`.
 - Endpoints del panel: `GET /api/admin/servicios?tipo=envio|taximoto` y `POST /api/admin/servicios/estado`.
 - Estados: `pendiente`, `en camino`, `entregado`. Se cambian desde las vistas **Recojo y envío** y **Taximoto** del panel.
-- Validación: direcciones de 6+ caracteres, teléfonos de 9 a 15 dígitos y fecha futura cuando se programa el servicio.
+- Validación: direcciones de 6+ caracteres, teléfono de 9 a 15 dígitos en recojo/envío y fecha futura cuando se programa el servicio.
+- Al enviar se abre WhatsApp con el resumen. Si la web se publica sin backend, el formulario igualmente abre WhatsApp, pero no registra la solicitud.
 
 ## 17. Locales de prueba
 

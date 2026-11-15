@@ -2789,3 +2789,211 @@ fieldset.when .field {
   color: var(--muted);
 }
 .servicio-presets .chip { font-size: 12px; padding: 5px 10px; }
+
+/* ============================================================
+   SERVICIOS DESTACADOS + BOTTOM SHEET
+   ============================================================ */
+.services {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 16px;
+  margin: 22px 0 20px;
+  scroll-margin-top: 88px;
+}
+.service-card {
+  position: relative;
+  isolation: isolate;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 14px;
+  min-height: 280px;
+  padding: 24px;
+  border: 0;
+  border-radius: 22px;
+  overflow: hidden;
+  text-align: left;
+  color: #fff;
+  font-family: inherit;
+  cursor: pointer;
+  box-shadow: 0 18px 40px rgba(20, 26, 31, .16);
+  transition: transform .22s, box-shadow .22s;
+  -webkit-tap-highlight-color: transparent;
+}
+.service-card::before {
+  content: "";
+  position: absolute;
+  z-index: 0;
+  right: -46px;
+  bottom: -70px;
+  width: 190px;
+  height: 190px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, .09);
+  pointer-events: none;
+}
+.service-card > * { position: relative; z-index: 1; }
+.service-card:hover { transform: translateY(-3px); box-shadow: 0 26px 54px rgba(20, 26, 31, .22); }
+.service-card:active { transform: translateY(-1px); }
+.service-card:focus-visible { outline: 3px solid #1b1b1f; outline-offset: 3px; }
+.service-taxi { background: linear-gradient(135deg, #17181d 0%, #2e2f37 58%, #4b3c00 100%); }
+.service-envio { background: linear-gradient(135deg, #f97316 0%, #fb923c 48%, #fdd303 100%); color: #2b1a00; }
+.service-icon {
+  display: grid;
+  place-items: center;
+  width: 58px;
+  height: 58px;
+  border-radius: 18px;
+  background: rgba(255, 255, 255, .16);
+  font-size: 30px;
+  line-height: 1;
+  backdrop-filter: blur(2px);
+}
+.service-envio .service-icon { background: rgba(255, 255, 255, .42); }
+.service-copy { display: flex; flex-direction: column; gap: 4px; }
+.service-kicker {
+  font-size: 10.5px;
+  font-weight: 800;
+  letter-spacing: .12em;
+  text-transform: uppercase;
+  opacity: .78;
+}
+.service-title {
+  font-size: clamp(20px, 2.4vw, 26px);
+  font-weight: 800;
+  line-height: 1.12;
+  letter-spacing: -.03em;
+}
+.service-text { font-size: 13px; line-height: 1.45; opacity: .86; max-width: 32ch; }
+.service-cta {
+  margin-top: auto;
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  padding: 9px 15px;
+  border-radius: 999px;
+  background: #fff;
+  color: #1b1b1f;
+  font-size: 12.5px;
+  font-weight: 800;
+  box-shadow: 0 8px 18px rgba(10, 18, 22, .14);
+}
+.service-envio .service-cta { background: #1b1b1f; color: #fff; }
+.service-card:hover .service-cta span { transform: translateX(2px); }
+.service-cta span { transition: transform .2s; }
+
+/* ---------------- Bottom sheet de servicios ---------------- */
+.sheet {
+  position: fixed;
+  inset: 0;
+  z-index: 75;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  visibility: hidden;
+  pointer-events: none;
+}
+.sheet.open { visibility: visible; pointer-events: auto; }
+.sheet-card {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  width: min(560px, 100%);
+  max-height: 92vh;
+  max-height: min(92dvh, 780px);
+  background: #fff;
+  border-radius: 26px 26px 0 0;
+  box-shadow: 0 -18px 60px rgba(10, 18, 22, .32);
+  overflow: hidden;
+  outline: none;
+  transform: translateY(105%);
+  transition: transform .32s cubic-bezier(.32, .72, .3, 1);
+}
+.sheet.open .sheet-card { transform: none; }
+.sheet-grab {
+  display: block;
+  flex-shrink: 0;
+  width: 46px;
+  height: 5px;
+  margin: 10px auto 0;
+  border-radius: 999px;
+  background: #e2d8ca;
+}
+.sheet-head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+  flex-shrink: 0;
+  padding: 10px 18px 12px;
+  border-bottom: 1px solid var(--line);
+}
+.sheet-kicker {
+  margin-bottom: 2px;
+  font-size: 10.5px;
+  font-weight: 800;
+  letter-spacing: .11em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+.sheet-head h2 { font-size: 23px; line-height: 1.1; letter-spacing: -.03em; }
+.sheet-close { flex-shrink: 0; background: #f7f1e9; }
+.sheet-body {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  -webkit-overflow-scrolling: touch;
+  padding: 16px 18px max(20px, env(safe-area-inset-bottom));
+}
+.sheet-intro { margin: 0 0 14px; font-size: 13px; line-height: 1.5; color: var(--muted); }
+.sheet-form[hidden] { display: none; }
+.sheet-form .field { margin-bottom: 12px; }
+.sheet-form .field-row .field { margin-bottom: 12px; }
+.sheet-form .btn-block { width: 100%; }
+.sheet-form .privacy-note { margin: 10px 0 0; }
+.sheet-when { margin: 2px 0 14px; }
+.field-label {
+  display: block;
+  margin-bottom: 5px;
+  font-size: 11.5px;
+  font-weight: 700;
+  color: #3f4a51;
+}
+.sheet-when .seg { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+.sheet-when .mode-opt span { padding: 10px 6px; font-size: 12px; }
+.sheet-subfield { margin: 10px 0 0; }
+.sheet .servicio-presets { margin: 8px 0 0; }
+.sheet .servicio-presets .chip { border: 1px solid var(--line); background: #fff; cursor: pointer; }
+.sheet .servicio-presets .chip:hover { border-color: #e8c94b; background: var(--brand-soft); }
+.form-error {
+  margin: 0 0 12px;
+  padding: 10px 12px;
+  border: 1px solid #fecaca;
+  border-radius: 10px;
+  background: #fef2f2;
+  color: #991b1b;
+  font-size: 12.5px;
+  font-weight: 600;
+  line-height: 1.45;
+}
+
+@media (min-width: 720px) {
+  .sheet-card { margin-bottom: 32px; border-radius: 26px; }
+}
+
+@media (max-width: 720px) {
+  .services { grid-template-columns: 1fr; gap: 12px; margin: 16px 0 16px; }
+  .service-card { min-height: 240px; padding: 20px 20px 18px; gap: 11px; }
+  .service-icon { width: 48px; height: 48px; border-radius: 15px; font-size: 25px; }
+  .service-title { font-size: 21px; }
+  .service-text { font-size: 12.5px; }
+  .service-cta { padding: 8px 13px; font-size: 12px; }
+  .sheet-head h2 { font-size: 21px; }
+}
+
+@media (max-width: 380px) {
+  .service-card { min-height: 166px; padding: 18px; }
+  .service-title { font-size: 19.5px; }
+  .sheet-body { padding-left: 15px; padding-right: 15px; }
+}

@@ -21,7 +21,7 @@
        <meta name="google-adsense-account" content="ca-pub-XXXXXXXXXXXXXXXX"> -->
   <link rel="icon" type="image/jpeg" href="assets/marca.jpg">
   <link rel="apple-touch-icon" href="assets/marca.jpg">
-  <link rel="stylesheet" href="css/styles.css?v=6">
+  <link rel="stylesheet" href="css/styles.css?v=7">
 </head>
 <body>
 
@@ -44,8 +44,7 @@
         <a href="#locales">Locales</a>
         <a href="#licores">Licores</a>
         <a href="#primera-necesidad">Primera necesidad</a>
-        <a href="#recojo-envio">Recojo y envío</a>
-        <a href="#taximoto">Taximoto</a>
+        <a href="#servicios">Servicios</a>
         <a href="#nosotros">Nosotros</a>
       </nav>
 
@@ -85,8 +84,7 @@
             <a href="#locales">🍗 Locales</a>
             <a href="#licores">🥃 Licores</a>
             <a href="#primera-necesidad">🧺 Primera necesidad</a>
-            <a href="#recojo-envio">📦 Recojo y envío</a>
-            <a href="#taximoto">🛵 Taximoto</a>
+            <a href="#servicios">🛵 Servicios</a>
             <a href="#nosotros">ℹ️ Sobre nosotros</a>
           </div>
 
@@ -115,7 +113,7 @@
       </div>
     </section>
 
-    <!-- Publicidad (solo se muestra si configuras AdSense en js/google-config.js?v=6) -->
+    <!-- Publicidad (solo se muestra si configuras AdSense en js/google-config.js?v=7) -->
     <aside class="ad-wrap" id="adInicio" aria-label="Publicidad" hidden>
       <span class="ad-label">Publicidad</span>
       <ins class="adsbygoogle" data-slot-key="inicio" data-ad-format="auto" data-full-width-responsive="true"></ins>
@@ -134,6 +132,28 @@
             <button class="tab" role="tab" aria-selected="false" data-tab="comida">🍽️ Comida</button>
             <button class="tab" role="tab" aria-selected="false" data-tab="productos">🛍️ Productos</button>
           </div>
+        </div>
+
+        <div class="services" id="servicios" aria-label="Servicios EnRuta">
+          <button type="button" class="service-card service-taxi" data-service-open="taximoto" aria-haspopup="dialog" aria-controls="serviceSheet">
+            <span class="service-icon" aria-hidden="true">🛵</span>
+            <span class="service-copy">
+              <span class="service-kicker">Taximoto</span>
+              <strong class="service-title">Pide tu moto en minutos</strong>
+              <span class="service-text">De un punto A a un punto B, rápido y seguro.</span>
+            </span>
+            <span class="service-cta">Pedir moto <span aria-hidden="true">→</span></span>
+          </button>
+
+          <button type="button" class="service-card service-envio" data-service-open="envio" aria-haspopup="dialog" aria-controls="serviceSheet">
+            <span class="service-icon" aria-hidden="true">📦</span>
+            <span class="service-copy">
+              <span class="service-kicker">Recojo y envío</span>
+              <strong class="service-title">Lo recogemos y lo llevamos</strong>
+              <span class="service-text">Documentos, paquetes y compras de un punto a otro.</span>
+            </span>
+            <span class="service-cta">Solicitar <span aria-hidden="true">→</span></span>
+          </button>
         </div>
 
         <div class="chips" id="chips" aria-label="Filtrar por rubro"></div>
@@ -216,195 +236,7 @@
       </div>
     </section>
 
-    <!-- ============ RECOJO Y ENVÍO ============ -->
-    <section class="servicio" id="recojo-envio">
-      <div class="wrap">
-        <div class="section-head">
-          <div>
-            <p class="eyebrow">Servicio adicional</p>
-            <h2>Recojo y envío</h2>
-            <p>Recogemos tu producto en un punto y lo entregamos en otro. Ideal para documentos, paquetes y compras entre locales.</p>
-          </div>
-          <span class="count">Pago por cotizar</span>
-        </div>
-
-        <div class="servicio-grid">
-          <div class="servicio-info">
-            <h3>¿Cómo funciona?</h3>
-            <ol class="servicio-steps">
-              <li><b>Completa los datos.</b> Dinos de dónde recogemos y a dónde llevamos.</li>
-              <li><b>Elige cuándo.</b> Urgente o programa fecha y hora.</li>
-              <li><b>Confirmamos por WhatsApp.</b> Te avisamos el costo y el tiempo estimado.</li>
-            </ol>
-            <p class="servicio-note">El costo depende de la distancia y del tamaño del paquete. La solicitud queda registrada con estado <b>pendiente</b> hasta que la confirmemos.</p>
-            <button type="button" class="btn btn-ghost" id="envioWaBtn">Prefiero pedirlo por WhatsApp</button>
-          </div>
-
-          <form class="servicio-form" id="envioForm" novalidate>
-            <h3>Datos del envío</h3>
-
-            <div class="field-row">
-              <div class="field">
-                <label for="eNombreEnvia">Nombre de quien envía *</label>
-                <input id="eNombreEnvia" name="nombreEnvia" type="text" autocomplete="name" placeholder="Ej: Rosa Flores">
-                <span class="err" id="errENombreEnvia"></span>
-              </div>
-              <div class="field">
-                <label for="eTelefonoEnvia">Teléfono de quien envía *</label>
-                <input id="eTelefonoEnvia" name="telefonoEnvia" type="tel" inputmode="tel" autocomplete="tel" placeholder="Ej: 987 654 321">
-                <span class="err" id="errETelefonoEnvia"></span>
-              </div>
-            </div>
-
-            <div class="field">
-              <label for="eOrigen">Dirección de recojo *</label>
-              <input id="eOrigen" name="origen" type="text" placeholder="Calle, número, referencia o local">
-              <span class="err" id="errEOrigen"></span>
-            </div>
-
-            <div class="field">
-              <label for="eDestino">Dirección de entrega *</label>
-              <input id="eDestino" name="destino" type="text" placeholder="Calle, número, referencia o local">
-              <span class="err" id="errEDestino"></span>
-            </div>
-
-            <div class="field-row">
-              <div class="field">
-                <label for="eNombreRecibe">Nombre de quien recibe *</label>
-                <input id="eNombreRecibe" name="nombreRecibe" type="text" placeholder="Ej: Luis Pérez">
-                <span class="err" id="errENombreRecibe"></span>
-              </div>
-              <div class="field">
-                <label for="eTelefonoRecibe">Teléfono de quien recibe *</label>
-                <input id="eTelefonoRecibe" name="telefonoRecibe" type="tel" inputmode="tel" placeholder="Ej: 912 345 678">
-                <span class="err" id="errETelefonoRecibe"></span>
-              </div>
-            </div>
-
-            <div class="field">
-              <label for="eDescripcion">¿Qué se envía? *</label>
-              <textarea id="eDescripcion" name="descripcion" rows="2" placeholder="Ej: sobre con documentos, caja de 30 × 20 cm, comida sellada…"></textarea>
-              <span class="err" id="errEDescripcion"></span>
-            </div>
-
-            <div class="field">
-              <label for="eObservaciones">Observaciones <span class="opt">(opcional)</span></label>
-              <textarea id="eObservaciones" name="observaciones" rows="2" placeholder="Ej: llamar al llegar, es frágil, entregar en recepción…"></textarea>
-            </div>
-
-            <fieldset class="when">
-              <legend>¿Cuándo lo recogemos?</legend>
-              <label class="mode-opt">
-                <input type="radio" name="envioCuando" value="urgente" id="eUrgente" checked>
-                <span>⚡ Urgente (lo antes posible)</span>
-              </label>
-              <label class="mode-opt">
-                <input type="radio" name="envioCuando" value="programado" id="eProgramado">
-                <span>📅 Programar fecha y hora</span>
-              </label>
-              <div class="field" id="eFechaField" hidden>
-                <label for="eFecha">Fecha y hora *</label>
-                <input id="eFecha" name="fecha" type="datetime-local">
-                <span class="err" id="errEFecha"></span>
-              </div>
-            </fieldset>
-
-            <p class="form-error" id="envioError" role="alert" hidden></p>
-            <p class="form-ok" id="envioOk" role="status" hidden></p>
-
-            <button class="btn btn-brand btn-block" type="submit" id="envioBtn">Solicitar recojo y envío</button>
-            <p class="privacy-note">Guardamos la solicitud y abrimos WhatsApp para confirmar disponibilidad y costo. <a href="privacidad.html" target="_blank" rel="noopener">Aviso de privacidad</a>.</p>
-          </form>
-        </div>
-      </div>
-    </section>
-
-    <!-- ============ TAXIMOTO ============ -->
-    <section class="servicio servicio-alt" id="taximoto">
-      <div class="wrap">
-        <div class="section-head">
-          <div>
-            <p class="eyebrow">Transporte de personas</p>
-            <h2>Taximoto</h2>
-            <p>Te llevamos de un punto A a un punto B de forma rápida y segura. Ideal para tus diligencias y traslados cortos.</p>
-          </div>
-          <span class="count">Pago por cotizar</span>
-        </div>
-
-        <div class="servicio-grid">
-          <div class="servicio-info">
-            <h3>¿Cómo funciona?</h3>
-            <ol class="servicio-steps">
-              <li><b>Indica origen y destino.</b> Escribe el punto A y el punto B.</li>
-              <li><b>Elige cuándo.</b> Urgente, en una hora o una hora exacta.</li>
-              <li><b>Confirmamos por WhatsApp.</b> Te avisamos la unidad y el costo del viaje.</li>
-            </ol>
-            <p class="servicio-note">Viaja solo con lo necesario. El costo depende de la distancia. La solicitud queda registrada con estado <b>pendiente</b> hasta que asignemos la unidad.</p>
-            <button type="button" class="btn btn-ghost" id="taximotoWaBtn">Prefiero pedirlo por WhatsApp</button>
-          </div>
-
-          <form class="servicio-form" id="taximotoForm" novalidate>
-            <h3>Datos del viaje</h3>
-
-            <div class="field">
-              <label for="tOrigen">Origen (A) *</label>
-              <input id="tOrigen" name="origen" type="text" placeholder="Ej: Mercado Buenos Aires, puerta principal">
-              <span class="err" id="errTOrigen"></span>
-            </div>
-
-            <div class="field">
-              <label for="tDestino">Destino (B) *</label>
-              <input id="tDestino" name="destino" type="text" placeholder="Ej: Hospital Regional, emergencia">
-              <span class="err" id="errTDestino"></span>
-            </div>
-
-            <div class="field-row">
-              <div class="field">
-                <label for="tNombre">Nombre del cliente *</label>
-                <input id="tNombre" name="nombre" type="text" autocomplete="name" placeholder="Ej: Ana Torres">
-                <span class="err" id="errTNombre"></span>
-              </div>
-              <div class="field">
-                <label for="tTelefono">Teléfono del cliente *</label>
-                <input id="tTelefono" name="telefono" type="tel" inputmode="tel" autocomplete="tel" placeholder="Ej: 987 654 321">
-                <span class="err" id="errTTelefono"></span>
-              </div>
-            </div>
-
-            <fieldset class="when">
-              <legend>¿Cuándo necesitas el viaje?</legend>
-              <label class="mode-opt">
-                <input type="radio" name="taximotoCuando" value="urgente" id="tUrgente" checked>
-                <span>⚡ Urgente (lo antes posible)</span>
-              </label>
-              <label class="mode-opt">
-                <input type="radio" name="taximotoCuando" value="programado" id="tProgramado">
-                <span>📅 Programar fecha y hora</span>
-              </label>
-              <div class="field" id="tFechaField" hidden>
-                <label for="tFecha">Fecha y hora *</label>
-                <input id="tFecha" name="fecha" type="datetime-local">
-                <span class="err" id="errTFecha"></span>
-              </div>
-            </fieldset>
-
-            <div class="servicio-presets">
-              <span>Atajos:</span>
-              <button type="button" class="chip" id="tEnUnaHora">En 1 hora</button>
-              <button type="button" class="chip" id="tEnDosHoras">En 2 horas</button>
-            </div>
-
-            <p class="form-error" id="taximotoError" role="alert" hidden></p>
-            <p class="form-ok" id="taximotoOk" role="status" hidden></p>
-
-            <button class="btn btn-brand btn-block" type="submit" id="taximotoBtn">Solicitar taximoto</button>
-            <p class="privacy-note">Guardamos la solicitud y abrimos WhatsApp para confirmar la unidad y el costo. <a href="privacidad.html" target="_blank" rel="noopener">Aviso de privacidad</a>.</p>
-          </form>
-        </div>
-      </div>
-    </section>
-
-    <!-- Publicidad (solo se muestra si configuras AdSense en js/google-config.js?v=6) -->
+    <!-- Publicidad (solo se muestra si configuras AdSense en js/google-config.js?v=7) -->
     <aside class="ad-wrap" id="adCatalogo" aria-label="Publicidad" hidden>
       <span class="ad-label">Publicidad</span>
       <ins class="adsbygoogle" data-slot-key="catalogo" data-ad-format="auto" data-full-width-responsive="true"></ins>
@@ -682,6 +514,142 @@
     </div>
   </div>
 
+  <!-- Servicios: formulario deslizable desde abajo -->
+  <div class="sheet" id="serviceSheet" aria-hidden="true" role="dialog" aria-modal="true" aria-labelledby="sheetTitle">
+    <div class="sheet-card" role="document" tabindex="-1">
+      <span class="sheet-grab" aria-hidden="true"></span>
+
+      <div class="sheet-head">
+        <div>
+          <p class="sheet-kicker" id="sheetKicker">Servicio</p>
+          <h2 id="sheetTitle">Taximoto</h2>
+        </div>
+        <button class="icon-btn sheet-close" id="sheetClose" type="button" aria-label="Cerrar formulario">
+          <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="m6 6 12 12M18 6 6 18"/></svg>
+        </button>
+      </div>
+
+      <div class="sheet-body">
+        <form class="sheet-form" id="taximotoForm" data-service-form="taximoto" novalidate>
+          <p class="sheet-intro">Dinos de dónde a dónde vas y confirmamos la unidad y el costo por WhatsApp.</p>
+
+          <div class="field">
+            <label for="tOrigen">Punto de recojo *</label>
+            <input id="tOrigen" name="origen" type="text" placeholder="Ej: Mercado Buenos Aires, puerta principal">
+            <span class="err" id="errTOrigen"></span>
+          </div>
+
+          <div class="field">
+            <label for="tDestino">Destino *</label>
+            <input id="tDestino" name="destino" type="text" placeholder="Ej: Hospital Regional, emergencia">
+            <span class="err" id="errTDestino"></span>
+          </div>
+
+          <div class="field">
+            <label for="tReferencia">Referencia <span class="opt">(opcional)</span></label>
+            <input id="tReferencia" name="referencia" type="text" placeholder="Ej: portón negro, frente al parque">
+            <span class="err" id="errTReferencia"></span>
+          </div>
+
+          <div class="sheet-when">
+            <span class="field-label" id="tCuandoLabel">¿Cuándo?</span>
+            <div class="seg" role="group" aria-labelledby="tCuandoLabel">
+              <label class="mode-opt">
+                <input type="radio" name="taximotoCuando" value="urgente" id="tUrgente" checked>
+                <span>⚡ Ahora</span>
+              </label>
+              <label class="mode-opt">
+                <input type="radio" name="taximotoCuando" value="programado" id="tProgramado">
+                <span>📅 Programar</span>
+              </label>
+            </div>
+            <div class="field sheet-subfield" id="tFechaField" hidden>
+              <label for="tFecha">Fecha y hora *</label>
+              <input id="tFecha" name="fecha" type="datetime-local">
+              <span class="err" id="errTFecha"></span>
+            </div>
+            <div class="servicio-presets">
+              <button type="button" class="chip" id="tEnUnaHora">En 1 hora</button>
+              <button type="button" class="chip" id="tEnDosHoras">En 2 horas</button>
+            </div>
+          </div>
+
+          <p class="form-error" id="taximotoError" role="alert" hidden></p>
+          <p class="form-ok" id="taximotoOk" role="status" hidden></p>
+
+          <button class="btn btn-brand btn-block" type="submit" id="taximotoBtn">Pedir moto</button>
+          <p class="privacy-note">Guardamos tu solicitud y abrimos WhatsApp para confirmar unidad y costo. <a href="privacidad.html" target="_blank" rel="noopener">Aviso de privacidad</a>.</p>
+        </form>
+
+        <form class="sheet-form" id="envioForm" data-service-form="envio" novalidate hidden>
+          <p class="sheet-intro">Recogemos tu producto en un punto y lo entregamos en otro. Confirmamos el costo por WhatsApp.</p>
+
+          <div class="field">
+            <label for="eDescripcion">¿Qué se recoge? *</label>
+            <textarea id="eDescripcion" name="descripcion" rows="2" placeholder="Ej: sobre con documentos, caja de 30 × 20 cm, comida sellada…"></textarea>
+            <span class="err" id="errEDescripcion"></span>
+          </div>
+
+          <div class="field">
+            <label for="eOrigen">Dirección de recojo *</label>
+            <input id="eOrigen" name="origen" type="text" placeholder="Calle, número, referencia o local">
+            <span class="err" id="errEOrigen"></span>
+          </div>
+
+          <div class="field">
+            <label for="eDestino">Dirección de entrega *</label>
+            <input id="eDestino" name="destino" type="text" placeholder="Calle, número, referencia o local">
+            <span class="err" id="errEDestino"></span>
+          </div>
+
+          <div class="field-row">
+            <div class="field">
+              <label for="eNombre">Tu nombre *</label>
+              <input id="eNombre" name="nombre" type="text" autocomplete="name" placeholder="Ej: Rosa Flores">
+              <span class="err" id="errENombre"></span>
+            </div>
+            <div class="field">
+              <label for="eTelefono">Tu teléfono *</label>
+              <input id="eTelefono" name="telefono" type="tel" inputmode="tel" autocomplete="tel" placeholder="Ej: 987 654 321">
+              <span class="err" id="errETelefono"></span>
+            </div>
+          </div>
+
+          <div class="field">
+            <label for="eObservaciones">Observaciones <span class="opt">(opcional)</span></label>
+            <textarea id="eObservaciones" name="observaciones" rows="2" placeholder="Ej: llamar al llegar, es frágil, entregar en recepción…"></textarea>
+            <span class="err" id="errEObservaciones"></span>
+          </div>
+
+          <div class="sheet-when">
+            <span class="field-label" id="eCuandoLabel">¿Cuándo lo recogemos?</span>
+            <div class="seg" role="group" aria-labelledby="eCuandoLabel">
+              <label class="mode-opt">
+                <input type="radio" name="envioCuando" value="urgente" id="eUrgente" checked>
+                <span>⚡ Urgente</span>
+              </label>
+              <label class="mode-opt">
+                <input type="radio" name="envioCuando" value="programado" id="eProgramado">
+                <span>📅 Programar</span>
+              </label>
+            </div>
+            <div class="field sheet-subfield" id="eFechaField" hidden>
+              <label for="eFecha">Fecha y hora *</label>
+              <input id="eFecha" name="fecha" type="datetime-local">
+              <span class="err" id="errEFecha"></span>
+            </div>
+          </div>
+
+          <p class="form-error" id="envioError" role="alert" hidden></p>
+          <p class="form-ok" id="envioOk" role="status" hidden></p>
+
+          <button class="btn btn-brand btn-block" type="submit" id="envioBtn">Solicitar</button>
+          <p class="privacy-note">Guardamos tu solicitud y abrimos WhatsApp para confirmar disponibilidad y costo. <a href="privacidad.html" target="_blank" rel="noopener">Aviso de privacidad</a>.</p>
+        </form>
+      </div>
+    </div>
+  </div>
+
   <div class="toast" id="toast" role="status" aria-live="polite"></div>
 
   <noscript>
@@ -690,10 +658,10 @@
     </div>
   </noscript>
 
-  <script src="js/catalogo.js?v=6" defer></script>
-  <script src="js/locales-prueba.js?v=6" defer></script>
-  <script src="js/google-config.js?v=6" defer></script>
-  <script src="js/google.js?v=6" defer></script>
-  <script src="js/app.js?v=6" defer></script>
+  <script src="js/catalogo.js?v=7" defer></script>
+  <script src="js/locales-prueba.js?v=7" defer></script>
+  <script src="js/google-config.js?v=7" defer></script>
+  <script src="js/google.js?v=7" defer></script>
+  <script src="js/app.js?v=7" defer></script>
 </body>
 </html>

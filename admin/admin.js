@@ -3297,7 +3297,7 @@
         <td class="small"><div><b>De:</b> ${esc(s.origen)}</div><div><b>A:</b> ${esc(s.destino)}</div></td>
         <td>${esEnvio
           ? `<div>${esc(s.nombreEnvia)} <span class="sub">envía</span></div><div class="sub">${esc(s.telefonoEnvia)}</div><div>${esc(s.nombreRecibe)} <span class="sub">recibe</span></div><div class="sub">${esc(s.telefonoRecibe)}</div>`
-          : `<div>${esc(s.nombreCliente)}</div><div class="sub">${esc(s.telefono)}</div>`}</td>
+          : `<div>${esc(s.nombreCliente)}</div><div class="sub">${esc(s.telefono || 'Sin teléfono')}</div>`}</td>
         <td class="small">${esc(s.cuandoTexto || s.cuando || '')}</td>
         <td>${badgeServicio(s.estado)}</td>
         <td><div class="acciones"><button class="btn btn-sm" data-ver-servicio="${esc(s.id)}">Ver detalle</button></div></td>
@@ -3334,7 +3334,7 @@
           <p class="mt-8"><b>Recibe:</b> ${esc(s.nombreRecibe)}</p><p>${esc(s.telefonoRecibe)}</p></div>
         <div class="detail-box"><h4>Producto</h4><p>${esc(s.descripcion)}</p>
           ${s.observaciones ? `<p class="small muted mt-8">Observaciones: ${esc(s.observaciones)}</p>` : ''}</div>`
-      : `<div class="detail-box"><h4>Cliente</h4><p><b>${esc(s.nombreCliente)}</b></p><p>${esc(s.telefono)}</p></div>`;
+      : `<div class="detail-box"><h4>Cliente</h4><p><b>${esc(s.nombreCliente)}</b></p><p>${esc(s.telefono || 'No indicó teléfono')}</p>${s.referencia ? `<p class="small muted mt-8">Referencia: ${esc(s.referencia)}</p>` : ''}</div>`;
     abrirModal({
       titulo: (esEnvio ? 'Envío ' : 'Taximoto ') + s.id,
       ancho: 'wide',

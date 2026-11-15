@@ -1331,9 +1331,14 @@ function Guardar-ServicioPublico {
   $doc = Leer-Servicios
   if ($Tipo -eq 'taximoto') {
     $nombre = ([string]$Datos.nombreCliente).Trim()
-    if ($nombre.Length -lt 3 -or $nombre.Length -gt 120) { Lanzar-ErrorHttp 400 'Nombre del cliente invalido.' }
-    $servicio.nombreCliente = $nombre
-    $servicio.telefono = Validar-TelefonoServicio ([string]$Datos.telefono) 'del cliente'
+    if ($nombre.Length -gt 0 -and ($nombre.Length -lt 3 -or $nombre.Length -gt 120)) { Lanzar-ErrorHttp 400 'Nombre del cliente invalido.' }
+    $telefono = ([string]$Datos.telefono).Trim()
+    if ($telefono.Length -gt 0) { $telefono = Validar-TelefonoServicio $telefono 'del cliente' }
+    $referencia = ([string]$Datos.referencia).Trim()
+    if ($referencia.Length -gt 240) { Lanzar-ErrorHttp 400 'La referencia es demasiado larga.' }
+    $servicio.nombreCliente = if ($nombre.Length -gt 0) { $nombre } else { 'Cliente web' }
+    $servicio.telefono = $telefono
+    $servicio.referencia = $referencia
     $doc.taximotos = @($doc.taximotos) + @($servicio)
     Guardar-JsonAtomico $script:RutaServicios $doc
     Registrar-Auditoria 'cliente-web' 'publico' 'taximoto.crear' "Taximoto $id de $origen a $destino" (Obtener-IpCliente $Contexto)

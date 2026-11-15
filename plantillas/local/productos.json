@@ -1,0 +1,18 @@
+{
+  "version": 1,
+  "localId": "mi-local",
+  "productos": [
+    {
+      "id": "mi-local-001",
+      "nombre": "Nombre real del producto",
+      "descripcion": "Descripción breve. Puedes dejarla vacía.",
+      "precio": null,
+      "grupo": "Principales",
+      "emoji": "🍽️",
+      "etiqueta": "",
+      "imagen": "img/producto-001.jpg",
+      "disponible": true,
+      "publicado": false
+    }
+  ]
+}

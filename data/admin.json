@@ -1,0 +1,5 @@
+{
+    "version":  1,
+    "deshabilitado":  true,
+    "nota":  "Este archivo pertenece al panel antiguo y ya no se usa. La autenticacion real esta en server/datos/usuarios.json."
+}

@@ -1,0 +1,74 @@
+{
+    "version":  1,
+    "marca":  "EnRuta Delivery",
+    "ciudad":  "Nuevo Chimbote",
+    "zonaPrincipal":  "nuevo-chimbote",
+    "moneda":  "S/",
+    "whatsapp":  {
+                     "numero":  "51922504223",
+                     "visible":  "922 504 223"
+                 },
+    "email":  "enrutadelivery@gmail.com",
+    "redes":  {
+                  "tiktok":  {
+                                 "usuario":  "@EnRutaDelivery0",
+                                 "url":  "https://www.tiktok.com/@EnRutaDelivery0",
+                                 "verificado":  false,
+                                 "nota":  ""
+                             },
+                  "instagram":  {
+                                    "usuario":  "@EnRutaDelivery0",
+                                    "url":  "https://www.instagram.com/EnRutaDelivery0/",
+                                    "verificado":  false,
+                                    "nota":  ""
+                                }
+              },
+    "zonas":  [
+                  {
+                      "id":  "nuevo-chimbote",
+                      "nombre":  "Nuevo Chimbote",
+                      "horarioTexto":  "12:00 a. m. - 1:00 a. m. (madrugada)",
+                      "dias":  [
+                                   0,
+                                   1,
+                                   2,
+                                   3,
+                                   4,
+                                   5,
+                                   6
+                               ],
+                      "apertura":  "00:00",
+                      "cierre":  "01:00",
+                      "nota":  "Atención durante la medianoche y la primera hora del día siguiente."
+                  },
+                  {
+                      "id":  "chimbote",
+                      "nombre":  "Chimbote",
+                      "horarioTexto":  "12:00 a. m. - 1:00 a. m. (madrugada)",
+                      "dias":  [
+                                   0,
+                                   1,
+                                   2,
+                                   3,
+                                   4,
+                                   5,
+                                   6
+                               ],
+                      "apertura":  "00:00",
+                      "cierre":  "01:00",
+                      "nota":  "Atención durante la medianoche y la primera hora del día siguiente."
+                  }
+              ],
+    "delivery":  {
+                     "cotizacionPendiente":  true,
+                     "mensaje":  "¡Tu pedido está casi listo! EnRuta Delivery confirmará el costo del envío después de recibir tu solicitud. El pedido quedará pendiente de confirmación hasta que nuestro equipo te indique el precio final.",
+                     "nota":  "No calculamos el delivery automáticamente. El importe mostrado es solo el subtotal de productos y empaquetado."
+                 },
+    "avisoEjemplos":  false,
+    "plazavea":  {
+                     "tienda":  "Plaza Vea",
+                     "dominio":  "https://www.plazavea.com.pe",
+                     "metodoConsulta":  "Catálogo público de Plaza Vea (API VTEX)",
+                     "nota":  "Los precios de referencia son informativos y pueden variar por ubicación, canal o promoción. El precio de venta se configura por separado."
+                 }
+}

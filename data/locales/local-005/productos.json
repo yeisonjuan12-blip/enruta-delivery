@@ -1,0 +1,77 @@
+{
+    "localId":  "chifa",
+    "productos":  [
+                      {
+                          "id":  "chifa-1",
+                          "nombre":  "Arroz chaufa especial",
+                          "descripcion":  "Con pollo, cerdo, huevo y verduras.",
+                          "precio":  18.9,
+                          "grupo":  "Carta",
+                          "emoji":  "🍚",
+                          "etiqueta":  "Más vendido",
+                          "imagen":  null,
+                          "publicado":  true,
+                          "disponible":  true
+                      },
+                      {
+                          "id":  "chifa-2",
+                          "nombre":  "Tallarín saltado",
+                          "descripcion":  "Fideos salteados con carne y verduras.",
+                          "precio":  20.9,
+                          "grupo":  "Carta",
+                          "emoji":  "🍜",
+                          "etiqueta":  null,
+                          "imagen":  null,
+                          "publicado":  true,
+                          "disponible":  true
+                      },
+                      {
+                          "id":  "chifa-3",
+                          "nombre":  "Pollo con verduras",
+                          "descripcion":  "Pechuga salteada con salsa de ostión.",
+                          "precio":  22.9,
+                          "grupo":  "Carta",
+                          "emoji":  "🍗",
+                          "etiqueta":  null,
+                          "imagen":  null,
+                          "publicado":  true,
+                          "disponible":  true
+                      },
+                      {
+                          "id":  "chifa-4",
+                          "nombre":  "Wantán frito (8 u)",
+                          "descripcion":  "Con salsa agridulce.",
+                          "precio":  12.9,
+                          "grupo":  "Carta",
+                          "emoji":  "🥟",
+                          "etiqueta":  null,
+                          "imagen":  null,
+                          "publicado":  true,
+                          "disponible":  true
+                      },
+                      {
+                          "id":  "chifa-5",
+                          "nombre":  "Sopa wantán",
+                          "descripcion":  "Caldo de pollo con wantanes y verduras.",
+                          "precio":  14.9,
+                          "grupo":  "Carta",
+                          "emoji":  "🍲",
+                          "etiqueta":  null,
+                          "imagen":  null,
+                          "publicado":  true,
+                          "disponible":  true
+                      },
+                      {
+                          "id":  "chifa-6",
+                          "nombre":  "Combo chaufa + wantán",
+                          "descripcion":  "Chaufa especial y 4 wantanes fritos.",
+                          "precio":  28.9,
+                          "grupo":  "Carta",
+                          "emoji":  "🥡",
+                          "etiqueta":  "Combo",
+                          "imagen":  null,
+                          "publicado":  true,
+                          "disponible":  true
+                      }
+                  ]
+}

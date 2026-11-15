@@ -1,0 +1,33 @@
+{
+    "id":  "moda",
+    "nombre":  "Moda Urbana",
+    "tipo":  "productos",
+    "categoriaId":  "ropa",
+    "descripcion":  "Ropa urbana de algodón, cortes cómodos y colores neutros. Coordinamos talla por WhatsApp.",
+    "publicado":  false,
+    "disponible":  true,
+    "esEjemplo":  true,
+    "emoji":  "👕",
+    "colores":  [
+                    "#a78bfa",
+                    "#5b21b6"
+                ],
+    "logo":  null,
+    "portada":  null,
+    "cartaOriginal":  null,
+    "tiempo":  "40–60 min",
+    "pedidoMinimo":  30,
+    "horarioLocal":  "10:00 – 21:00",
+    "etiquetas":  [
+                      "Tallas S–XL",
+                      "Cambio en 7 días"
+                  ],
+    "empaquetado":  {
+                        "porUnidad":  false,
+                        "aplica":  false,
+                        "monto":  0,
+                        "concepto":  "Sin recargo"
+                    },
+    "notas":  "Local de demostración. Reemplazar por un establecimiento real antes de publicar.",
+    "cerradoTemporal":  false
+}

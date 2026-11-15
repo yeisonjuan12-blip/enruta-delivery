@@ -1,0 +1,38 @@
+{
+    "version":  1,
+    "catalogoId":  "licores",
+    "categorias":  [
+                       {
+                           "id":  "whisky",
+                           "nombre":  "Whisky"
+                       },
+                       {
+                           "id":  "ron",
+                           "nombre":  "Ron"
+                       },
+                       {
+                           "id":  "vodka",
+                           "nombre":  "Vodka"
+                       },
+                       {
+                           "id":  "pisco",
+                           "nombre":  "Pisco"
+                       },
+                       {
+                           "id":  "cerveza",
+                           "nombre":  "Cerveza"
+                       },
+                       {
+                           "id":  "vino",
+                           "nombre":  "Vino"
+                       },
+                       {
+                           "id":  "rtd",
+                           "nombre":  "RTD y cócteles"
+                       },
+                       {
+                           "id":  "licor",
+                           "nombre":  "Licores y aperitivos"
+                       }
+                   ]
+}

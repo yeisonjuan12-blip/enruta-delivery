@@ -1,0 +1,65 @@
+{
+    "localId":  "flores",
+    "productos":  [
+                      {
+                          "id":  "flores-1",
+                          "nombre":  "Ramo de 12 rosas",
+                          "descripcion":  "Rosas rojas con envoltura y lazo.",
+                          "precio":  55,
+                          "grupo":  "Productos",
+                          "emoji":  "🌹",
+                          "etiqueta":  "Más vendido",
+                          "imagen":  null,
+                          "publicado":  true,
+                          "disponible":  true
+                      },
+                      {
+                          "id":  "flores-2",
+                          "nombre":  "Peluche mediano",
+                          "descripcion":  "30 cm, suave, varios modelos.",
+                          "precio":  45,
+                          "grupo":  "Productos",
+                          "emoji":  "🧸",
+                          "etiqueta":  null,
+                          "imagen":  null,
+                          "publicado":  true,
+                          "disponible":  true
+                      },
+                      {
+                          "id":  "flores-3",
+                          "nombre":  "Caja de chocolates",
+                          "descripcion":  "12 bombones surtidos.",
+                          "precio":  32,
+                          "grupo":  "Productos",
+                          "emoji":  "🍫",
+                          "etiqueta":  null,
+                          "imagen":  null,
+                          "publicado":  true,
+                          "disponible":  true
+                      },
+                      {
+                          "id":  "flores-4",
+                          "nombre":  "Globo + tarjeta",
+                          "descripcion":  "Globo metalizado con dedicatoria.",
+                          "precio":  18,
+                          "grupo":  "Productos",
+                          "emoji":  "🎈",
+                          "etiqueta":  null,
+                          "imagen":  null,
+                          "publicado":  true,
+                          "disponible":  true
+                      },
+                      {
+                          "id":  "flores-5",
+                          "nombre":  "Combo enamorados",
+                          "descripcion":  "Ramo, peluche y chocolates.",
+                          "precio":  89,
+                          "grupo":  "Productos",
+                          "emoji":  "💝",
+                          "etiqueta":  "Para regalar",
+                          "imagen":  null,
+                          "publicado":  true,
+                          "disponible":  true
+                      }
+                  ]
+}

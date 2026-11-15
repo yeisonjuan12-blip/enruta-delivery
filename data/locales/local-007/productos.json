@@ -1,0 +1,77 @@
+{
+    "localId":  "moda",
+    "productos":  [
+                      {
+                          "id":  "moda-1",
+                          "nombre":  "Polera oversize de algodón",
+                          "descripcion":  "Tallas S, M, L y XL. Colores neutros.",
+                          "precio":  49.9,
+                          "grupo":  "Productos",
+                          "emoji":  "👕",
+                          "etiqueta":  "Nuevo",
+                          "imagen":  null,
+                          "publicado":  true,
+                          "disponible":  true
+                      },
+                      {
+                          "id":  "moda-2",
+                          "nombre":  "Polo piqué",
+                          "descripcion":  "Corte regular, tela transpirable.",
+                          "precio":  45,
+                          "grupo":  "Productos",
+                          "emoji":  "👔",
+                          "etiqueta":  null,
+                          "imagen":  null,
+                          "publicado":  true,
+                          "disponible":  true
+                      },
+                      {
+                          "id":  "moda-3",
+                          "nombre":  "Jean mom fit",
+                          "descripcion":  "Tiro alto, denim rígido.",
+                          "precio":  89.9,
+                          "grupo":  "Productos",
+                          "emoji":  "👖",
+                          "etiqueta":  null,
+                          "imagen":  null,
+                          "publicado":  true,
+                          "disponible":  true
+                      },
+                      {
+                          "id":  "moda-4",
+                          "nombre":  "Casaca de jean",
+                          "descripcion":  "Unisex, lavado medio.",
+                          "precio":  129,
+                          "grupo":  "Productos",
+                          "emoji":  "🧥",
+                          "etiqueta":  null,
+                          "imagen":  null,
+                          "publicado":  true,
+                          "disponible":  true
+                      },
+                      {
+                          "id":  "moda-5",
+                          "nombre":  "Gorra bordada",
+                          "descripcion":  "Ajustable, varios colores.",
+                          "precio":  39.9,
+                          "grupo":  "Productos",
+                          "emoji":  "🧢",
+                          "etiqueta":  null,
+                          "imagen":  null,
+                          "publicado":  true,
+                          "disponible":  true
+                      },
+                      {
+                          "id":  "moda-6",
+                          "nombre":  "Pack 3 pares de medias",
+                          "descripcion":  "Algodón, talla única.",
+                          "precio":  25,
+                          "grupo":  "Productos",
+                          "emoji":  "🧦",
+                          "etiqueta":  null,
+                          "imagen":  null,
+                          "publicado":  true,
+                          "disponible":  true
+                      }
+                  ]
+}

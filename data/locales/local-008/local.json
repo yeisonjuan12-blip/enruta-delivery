@@ -1,0 +1,33 @@
+{
+    "id":  "tecno",
+    "nombre":  "TecnoStore",
+    "tipo":  "productos",
+    "categoriaId":  "tecnologia",
+    "descripcion":  "Accesorios y audio para el día a día. Todos los equipos se prueban antes de la entrega.",
+    "publicado":  false,
+    "disponible":  true,
+    "esEjemplo":  true,
+    "emoji":  "🎧",
+    "colores":  [
+                    "#60a5fa",
+                    "#1e3a8a"
+                ],
+    "logo":  null,
+    "portada":  null,
+    "cartaOriginal":  null,
+    "tiempo":  "40–60 min",
+    "pedidoMinimo":  30,
+    "horarioLocal":  "10:00 – 21:00",
+    "etiquetas":  [
+                      "Garantía 3 meses",
+                      "Probado antes de enviar"
+                  ],
+    "empaquetado":  {
+                        "porUnidad":  false,
+                        "aplica":  false,
+                        "monto":  0,
+                        "concepto":  "Sin recargo"
+                    },
+    "notas":  "Local de demostración. Reemplazar por un establecimiento real antes de publicar.",
+    "cerradoTemporal":  false
+}

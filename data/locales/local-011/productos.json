@@ -1,0 +1,77 @@
+{
+    "localId":  "farmacia",
+    "productos":  [
+                      {
+                          "id":  "farm-1",
+                          "nombre":  "Paracetamol 500 mg (10 tab)",
+                          "descripcion":  "Para dolor y fiebre.",
+                          "precio":  4.5,
+                          "grupo":  "Productos",
+                          "emoji":  "💊",
+                          "etiqueta":  null,
+                          "imagen":  null,
+                          "publicado":  true,
+                          "disponible":  true
+                      },
+                      {
+                          "id":  "farm-2",
+                          "nombre":  "Alcohol 70° 500 ml",
+                          "descripcion":  "Uso externo, con pulverizador.",
+                          "precio":  8,
+                          "grupo":  "Productos",
+                          "emoji":  "🧴",
+                          "etiqueta":  null,
+                          "imagen":  null,
+                          "publicado":  true,
+                          "disponible":  true
+                      },
+                      {
+                          "id":  "farm-3",
+                          "nombre":  "Mascarillas quirúrgicas (10 u)",
+                          "descripcion":  "Triple capa, con elástico.",
+                          "precio":  10,
+                          "grupo":  "Productos",
+                          "emoji":  "😷",
+                          "etiqueta":  null,
+                          "imagen":  null,
+                          "publicado":  true,
+                          "disponible":  true
+                      },
+                      {
+                          "id":  "farm-4",
+                          "nombre":  "Suero oral",
+                          "descripcion":  "Sobre hidratante, sabor neutro.",
+                          "precio":  6,
+                          "grupo":  "Productos",
+                          "emoji":  "🥤",
+                          "etiqueta":  null,
+                          "imagen":  null,
+                          "publicado":  true,
+                          "disponible":  true
+                      },
+                      {
+                          "id":  "farm-5",
+                          "nombre":  "Termómetro digital",
+                          "descripcion":  "Lectura rápida, con estuche.",
+                          "precio":  25,
+                          "grupo":  "Productos",
+                          "emoji":  "🌡️",
+                          "etiqueta":  null,
+                          "imagen":  null,
+                          "publicado":  true,
+                          "disponible":  true
+                      },
+                      {
+                          "id":  "farm-6",
+                          "nombre":  "Botiquín básico",
+                          "descripcion":  "Gasas, vendas, alcohol y curitas.",
+                          "precio":  39,
+                          "grupo":  "Productos",
+                          "emoji":  "🩹",
+                          "etiqueta":  null,
+                          "imagen":  null,
+                          "publicado":  true,
+                          "disponible":  true
+                      }
+                  ]
+}

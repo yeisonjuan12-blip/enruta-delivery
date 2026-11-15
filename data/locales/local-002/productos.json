@@ -1,0 +1,101 @@
+{
+    "localId":  "burger",
+    "productos":  [
+                      {
+                          "id":  "burger-1",
+                          "nombre":  "Clásica",
+                          "descripcion":  "Carne 120 g, queso, lechuga, tomate y salsa de la casa.",
+                          "precio":  16.9,
+                          "grupo":  "Carta",
+                          "emoji":  "🍔",
+                          "etiqueta":  "Más vendido",
+                          "imagen":  null,
+                          "publicado":  true,
+                          "disponible":  true
+                      },
+                      {
+                          "id":  "burger-2",
+                          "nombre":  "Doble cheddar",
+                          "descripcion":  "Dos carnes, doble cheddar y cebolla caramelizada.",
+                          "precio":  24.9,
+                          "grupo":  "Carta",
+                          "emoji":  "🍔",
+                          "etiqueta":  null,
+                          "imagen":  null,
+                          "publicado":  true,
+                          "disponible":  true
+                      },
+                      {
+                          "id":  "burger-3",
+                          "nombre":  "BBQ bacon",
+                          "descripcion":  "Carne, tocino crocante, cheddar y salsa BBQ.",
+                          "precio":  26.9,
+                          "grupo":  "Carta",
+                          "emoji":  "🥓",
+                          "etiqueta":  null,
+                          "imagen":  null,
+                          "publicado":  true,
+                          "disponible":  true
+                      },
+                      {
+                          "id":  "burger-4",
+                          "nombre":  "Veggie",
+                          "descripcion":  "Medallón de lentejas, palta, tomate y alioli.",
+                          "precio":  18.9,
+                          "grupo":  "Carta",
+                          "emoji":  "🥬",
+                          "etiqueta":  "Vegetariano",
+                          "imagen":  null,
+                          "publicado":  true,
+                          "disponible":  true
+                      },
+                      {
+                          "id":  "burger-5",
+                          "nombre":  "Papas rústicas",
+                          "descripcion":  "Con cáscara, romero y sal de mar.",
+                          "precio":  9.9,
+                          "grupo":  "Carta",
+                          "emoji":  "🍟",
+                          "etiqueta":  null,
+                          "imagen":  null,
+                          "publicado":  true,
+                          "disponible":  true
+                      },
+                      {
+                          "id":  "burger-6",
+                          "nombre":  "Alitas 6 u",
+                          "descripcion":  "BBQ o buffalo, con dip de queso.",
+                          "precio":  21.9,
+                          "grupo":  "Carta",
+                          "emoji":  "🍗",
+                          "etiqueta":  null,
+                          "imagen":  null,
+                          "publicado":  true,
+                          "disponible":  true
+                      },
+                      {
+                          "id":  "burger-7",
+                          "nombre":  "Combo clásico",
+                          "descripcion":  "Clásica + papas rústicas + limonada.",
+                          "precio":  26.9,
+                          "grupo":  "Carta",
+                          "emoji":  "🥡",
+                          "etiqueta":  "Ahorra S/ 5",
+                          "imagen":  null,
+                          "publicado":  true,
+                          "disponible":  true
+                      },
+                      {
+                          "id":  "burger-8",
+                          "nombre":  "Limonada frozen",
+                          "descripcion":  "Limón, hierbabuena y hielo frappé.",
+                          "precio":  7.9,
+                          "grupo":  "Carta",
+                          "emoji":  "🍋",
+                          "etiqueta":  null,
+                          "imagen":  null,
+                          "publicado":  true,
+                          "disponible":  true
+                      }
+                  ]
+}

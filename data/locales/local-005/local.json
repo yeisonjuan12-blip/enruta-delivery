@@ -1,0 +1,33 @@
+{
+    "id":  "chifa",
+    "nombre":  "Chifa El Dragón",
+    "tipo":  "comida",
+    "categoriaId":  "chifa",
+    "descripcion":  "Chifa de barrio con wok al fuego alto. Porciones generosas y combinaciones para toda la familia.",
+    "publicado":  false,
+    "disponible":  true,
+    "esEjemplo":  true,
+    "emoji":  "🥡",
+    "colores":  [
+                    "#34d399",
+                    "#065f46"
+                ],
+    "logo":  null,
+    "portada":  null,
+    "cartaOriginal":  null,
+    "tiempo":  "25–40 min",
+    "pedidoMinimo":  18,
+    "horarioLocal":  "11:30 – 22:30",
+    "etiquetas":  [
+                      "Porciones grandes",
+                      "Comida caliente"
+                  ],
+    "empaquetado":  {
+                        "porUnidad":  false,
+                        "aplica":  false,
+                        "monto":  0,
+                        "concepto":  "Sin recargo"
+                    },
+    "notas":  "Local de demostración. Reemplazar por un establecimiento real antes de publicar.",
+    "cerradoTemporal":  false
+}

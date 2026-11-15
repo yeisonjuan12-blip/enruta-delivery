@@ -1,0 +1,33 @@
+{
+    "id":  "marino",
+    "nombre":  "Sabor Marino",
+    "tipo":  "comida",
+    "categoriaId":  "ceviche-mariscos",
+    "descripcion":  "Ceviches y mariscos preparados al momento con pescado del día. Atendemos hasta agotar stock.",
+    "publicado":  false,
+    "disponible":  true,
+    "esEjemplo":  true,
+    "emoji":  "🐟",
+    "colores":  [
+                    "#38bdf8",
+                    "#075985"
+                ],
+    "logo":  null,
+    "portada":  null,
+    "cartaOriginal":  null,
+    "tiempo":  "30–45 min",
+    "pedidoMinimo":  25,
+    "horarioLocal":  "11:00 – 17:00",
+    "etiquetas":  [
+                      "Pescado fresco",
+                      "Al mediodía"
+                  ],
+    "empaquetado":  {
+                        "porUnidad":  false,
+                        "aplica":  false,
+                        "monto":  0,
+                        "concepto":  "Sin recargo"
+                    },
+    "notas":  "Local de demostración. Reemplazar por un establecimiento real antes de publicar.",
+    "cerradoTemporal":  false
+}

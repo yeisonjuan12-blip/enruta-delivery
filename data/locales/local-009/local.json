@@ -1,0 +1,33 @@
+{
+    "id":  "bodega",
+    "nombre":  "Bodega Doña Rosa",
+    "tipo":  "productos",
+    "categoriaId":  "abarrotes",
+    "descripcion":  "Lo que falta en la cocina, sin salir de casa. Abarrotes, limpieza y básicos de todos los días.",
+    "publicado":  false,
+    "disponible":  true,
+    "esEjemplo":  true,
+    "emoji":  "🛒",
+    "colores":  [
+                    "#fbbf24",
+                    "#b45309"
+                ],
+    "logo":  null,
+    "portada":  null,
+    "cartaOriginal":  null,
+    "tiempo":  "30–45 min",
+    "pedidoMinimo":  20,
+    "horarioLocal":  "08:00 – 22:00",
+    "etiquetas":  [
+                      "Compra diaria",
+                      "Precios de bodega"
+                  ],
+    "empaquetado":  {
+                        "porUnidad":  false,
+                        "aplica":  false,
+                        "monto":  0,
+                        "concepto":  "Sin recargo"
+                    },
+    "notas":  "Local de demostración. Reemplazar por un establecimiento real antes de publicar.",
+    "cerradoTemporal":  false
+}

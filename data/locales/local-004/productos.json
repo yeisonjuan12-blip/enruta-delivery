@@ -1,0 +1,978 @@
+{
+    "localId":  "pizza",
+    "productos":  [
+                      {
+                          "id":  "pizza-5",
+                          "nombre":  "Familiar mitad y mitad",
+                          "descripcion":  "Elige 2 sabores al confirmar por WhatsApp.",
+                          "precio":  52,
+                          "grupo":  "Carta",
+                          "emoji":  "🍕",
+                          "etiqueta":  "Para compartir",
+                          "imagen":  null,
+                          "publicado":  true,
+                          "disponible":  true
+                      },
+                      {
+                          "id":  "pizza-americana-6",
+                          "nombre":  "Americana",
+                          "descripcion":  "Italiana / Peperoni",
+                          "precio":  42,
+                          "grupo":  "Combos",
+                          "subcategoria":  "",
+                          "emoji":  "",
+                          "etiqueta":  "",
+                          "imagen":  null,
+                          "publicado":  false,
+                          "disponible":  true,
+                          "revisar":  false,
+                          "variantes":  [
+
+                                        ],
+                          "extras":  [
+
+                                     ],
+                          "origen":  "ocr",
+                          "camposDudosos":  [
+                                                "mismo nombre con otro precio en la carta",
+                                                "posible duplicado en el mismo lote"
+                                            ]
+                      },
+                      {
+                          "id":  "pizza-portuguesa-16",
+                          "nombre":  "Portuguesa",
+                          "descripcion":  "ahumado, chorizo español, salame, aceitunas, pimientos",
+                          "precio":  49,
+                          "grupo":  "Carta",
+                          "subcategoria":  "",
+                          "emoji":  "",
+                          "etiqueta":  "",
+                          "imagen":  null,
+                          "publicado":  false,
+                          "disponible":  true,
+                          "revisar":  false,
+                          "variantes":  [
+
+                                        ],
+                          "extras":  [
+
+                                     ],
+                          "origen":  "ocr",
+                          "camposDudosos":  [
+                                                "mismo nombre con otro precio en la carta",
+                                                "posible duplicado en el mismo lote"
+                                            ]
+                      },
+                      {
+                          "id":  "pizza-mozzarella-salsa-de-tomate-jamon-ing-25",
+                          "nombre":  "Mozzarella, salsa de tomate, jamón inglés, tocino",
+                          "descripcion":  "cebolla blanca, aceitunas",
+                          "precio":  50,
+                          "grupo":  "Carta",
+                          "subcategoria":  "",
+                          "emoji":  "",
+                          "etiqueta":  "",
+                          "imagen":  null,
+                          "publicado":  false,
+                          "disponible":  true,
+                          "revisar":  false,
+                          "variantes":  [
+
+                                        ],
+                          "extras":  [
+
+                                     ],
+                          "origen":  "ocr",
+                          "camposDudosos":  [
+                                                "mismo nombre con otro precio en la carta",
+                                                "posible duplicado en el mismo lote"
+                                            ]
+                      },
+                      {
+                          "id":  "pizza-7",
+                          "nombre":  "Gaseosa 1.5 L",
+                          "descripcion":  "Inca Kola o Coca-Cola.",
+                          "precio":  10,
+                          "grupo":  "Carta",
+                          "emoji":  "🥤",
+                          "etiqueta":  null,
+                          "imagen":  null,
+                          "publicado":  true,
+                          "disponible":  true
+                      },
+                      {
+                          "id":  "pizza-espanola-20",
+                          "nombre":  "Española",
+                          "descripcion":  "Californiano",
+                          "precio":  48,
+                          "grupo":  "Carta",
+                          "subcategoria":  "",
+                          "emoji":  "",
+                          "etiqueta":  "",
+                          "imagen":  null,
+                          "publicado":  false,
+                          "disponible":  true,
+                          "revisar":  false,
+                          "variantes":  [
+
+                                        ],
+                          "extras":  [
+
+                                     ],
+                          "origen":  "ocr",
+                          "camposDudosos":  [
+                                                "mismo nombre con otro precio en la carta",
+                                                "posible duplicado en el mismo lote"
+                                            ]
+                      },
+                      {
+                          "id":  "pizza-mozzarella-salsa-de-tomate-lomo-salt-31",
+                          "nombre":  "Mozzarella, salsa de tomate, lomo saltado con finas hierba",
+                          "descripcion":  "Tentación",
+                          "precio":  23,
+                          "grupo":  "Carta",
+                          "subcategoria":  "Amantes De La Carne",
+                          "emoji":  "",
+                          "etiqueta":  "",
+                          "imagen":  null,
+                          "publicado":  false,
+                          "disponible":  true,
+                          "revisar":  false,
+                          "variantes":  [
+
+                                        ],
+                          "extras":  [
+
+                                     ],
+                          "origen":  "ocr",
+                          "camposDudosos":  [
+                                                "texto adicional despues del precio"
+                                            ]
+                      },
+                      {
+                          "id":  "pizza-coca-cola-inca-kola-2-l-8",
+                          "nombre":  "Coca-Cola / Inca Kola 2 L",
+                          "descripcion":  "Agua personal —",
+                          "precio":  14,
+                          "grupo":  "Carta",
+                          "subcategoria":  "Frías",
+                          "emoji":  "",
+                          "etiqueta":  "",
+                          "imagen":  null,
+                          "publicado":  true,
+                          "disponible":  true,
+                          "revisar":  false,
+                          "variantes":  [
+
+                                        ],
+                          "extras":  [
+
+                                     ],
+                          "origen":  "ocr",
+                          "camposDudosos":  [
+
+                                            ]
+                      },
+                      {
+                          "id":  "pizza-mozzarella-salsa-de-tomate-picado-de-14",
+                          "nombre":  "Mozzarella, salsa de tomate. picado de jamón inglés, tocino",
+                          "descripcion":  "",
+                          "precio":  21,
+                          "grupo":  "Carta",
+                          "subcategoria":  "",
+                          "emoji":  "",
+                          "etiqueta":  "",
+                          "imagen":  null,
+                          "publicado":  false,
+                          "disponible":  true,
+                          "revisar":  false,
+                          "variantes":  [
+
+                                        ],
+                          "extras":  [
+
+                                     ],
+                          "origen":  "ocr",
+                          "camposDudosos":  [
+
+                                            ]
+                      },
+                      {
+                          "id":  "pizza-mozzarello-satsa-de-tomate-peperoni-18",
+                          "nombre":  "Mozzarelló}satsa de tomate, peperoni",
+                          "descripcion":  "",
+                          "precio":  20,
+                          "grupo":  "Carta",
+                          "subcategoria":  "",
+                          "emoji":  "",
+                          "etiqueta":  "",
+                          "imagen":  null,
+                          "publicado":  false,
+                          "disponible":  true,
+                          "revisar":  false,
+                          "variantes":  [
+
+                                        ],
+                          "extras":  [
+
+                                     ],
+                          "origen":  "ocr",
+                          "camposDudosos":  [
+
+                                            ]
+                      },
+                      {
+                          "id":  "pizza-mozzarella-salsa-de-tomate-jamon-ing-8",
+                          "nombre":  "Mozzarella, salsa de tomate, jamón inglés, rodajas",
+                          "descripcion":  "de tomate, albahaca",
+                          "precio":  19,
+                          "grupo":  "Combos",
+                          "subcategoria":  "",
+                          "emoji":  "",
+                          "etiqueta":  "",
+                          "imagen":  null,
+                          "publicado":  false,
+                          "disponible":  true,
+                          "revisar":  false,
+                          "variantes":  [
+
+                                        ],
+                          "extras":  [
+
+                                     ],
+                          "origen":  "ocr",
+                          "camposDudosos":  [
+
+                                            ]
+                      },
+                      {
+                          "id":  "pizza-mozzarella-salsa-de-tomate-carne-a-l-20",
+                          "nombre":  "Mozzarella, salsa de tomate, carne a la bolognesa, albahaca",
+                          "descripcion":  "",
+                          "precio":  22,
+                          "grupo":  "Carta",
+                          "subcategoria":  "",
+                          "emoji":  "",
+                          "etiqueta":  "",
+                          "imagen":  null,
+                          "publicado":  false,
+                          "disponible":  true,
+                          "revisar":  false,
+                          "variantes":  [
+
+                                        ],
+                          "extras":  [
+
+                                     ],
+                          "origen":  "ocr",
+                          "camposDudosos":  [
+
+                                            ]
+                      },
+                      {
+                          "id":  "pizza-mozzarella-salsa-de-tomate-jamon-ing-9",
+                          "nombre":  "Mozzarella, salsa de tomate, jamón inglés",
+                          "descripcion":  "",
+                          "precio":  19,
+                          "grupo":  "Combos",
+                          "subcategoria":  "",
+                          "emoji":  "",
+                          "etiqueta":  "",
+                          "imagen":  null,
+                          "publicado":  false,
+                          "disponible":  true,
+                          "revisar":  false,
+                          "variantes":  [
+
+                                        ],
+                          "extras":  [
+
+                                     ],
+                          "origen":  "ocr",
+                          "camposDudosos":  [
+                                                "mismo nombre con otro precio en la carta",
+                                                "posible duplicado en el mismo lote"
+                                            ]
+                      },
+                      {
+                          "id":  "pizza-macarrones-2",
+                          "nombre":  "Macarrones",
+                          "descripcion":  "a la Bolognesa",
+                          "precio":  22,
+                          "grupo":  "Carta",
+                          "subcategoria":  "Clásico Especial De La Casa",
+                          "emoji":  "",
+                          "etiqueta":  "",
+                          "imagen":  null,
+                          "publicado":  false,
+                          "disponible":  true,
+                          "revisar":  false,
+                          "variantes":  [
+
+                                        ],
+                          "extras":  [
+
+                                     ],
+                          "origen":  "ocr",
+                          "camposDudosos":  [
+
+                                            ]
+                      },
+                      {
+                          "id":  "pizza-ravioles-rellenos-de-carne-3",
+                          "nombre":  "Ravioles rellenos de carne",
+                          "descripcion":  "a la Bolognesa",
+                          "precio":  28,
+                          "grupo":  "Carta",
+                          "subcategoria":  "Clásico Especial De La Casa",
+                          "emoji":  "",
+                          "etiqueta":  "",
+                          "imagen":  null,
+                          "publicado":  false,
+                          "disponible":  true,
+                          "revisar":  false,
+                          "variantes":  [
+
+                                        ],
+                          "extras":  [
+
+                                     ],
+                          "origen":  "ocr",
+                          "camposDudosos":  [
+
+                                            ]
+                      },
+                      {
+                          "id":  "pizza-argentina-19",
+                          "nombre":  "Argentina",
+                          "descripcion":  "la casa), pimientos asados, cebolla blanca",
+                          "precio":  50,
+                          "grupo":  "Carta",
+                          "subcategoria":  "",
+                          "emoji":  "",
+                          "etiqueta":  "",
+                          "imagen":  null,
+                          "publicado":  false,
+                          "disponible":  true,
+                          "revisar":  false,
+                          "variantes":  [
+
+                                        ],
+                          "extras":  [
+
+                                     ],
+                          "origen":  "ocr",
+                          "camposDudosos":  [
+                                                "mismo nombre con otro precio en la carta",
+                                                "posible duplicado en el mismo lote"
+                                            ]
+                      },
+                      {
+                          "id":  "pizza-bolognesa-21",
+                          "nombre":  "Bolognesa",
+                          "descripcion":  "",
+                          "precio":  40,
+                          "grupo":  "Carta",
+                          "subcategoria":  "",
+                          "emoji":  "",
+                          "etiqueta":  "",
+                          "imagen":  null,
+                          "publicado":  false,
+                          "disponible":  true,
+                          "revisar":  false,
+                          "variantes":  [
+
+                                        ],
+                          "extras":  [
+
+                                     ],
+                          "origen":  "ocr",
+                          "camposDudosos":  [
+
+                                            ]
+                      },
+                      {
+                          "id":  "pizza-lasagna-bolognesa-1",
+                          "nombre":  "Lasagna Bolognesa",
+                          "descripcion":  "Fetuccini — s,'25",
+                          "precio":  24,
+                          "grupo":  "Carta",
+                          "subcategoria":  "Clásico Especial De La Casa",
+                          "emoji":  "",
+                          "etiqueta":  "",
+                          "imagen":  null,
+                          "publicado":  false,
+                          "disponible":  true,
+                          "revisar":  false,
+                          "variantes":  [
+
+                                        ],
+                          "extras":  [
+
+                                     ],
+                          "origen":  "ocr",
+                          "camposDudosos":  [
+
+                                            ]
+                      },
+                      {
+                          "id":  "pizza-alemana-9",
+                          "nombre":  "Alemana",
+                          "descripcion":  "",
+                          "precio":  39,
+                          "grupo":  "Carta",
+                          "subcategoria":  "",
+                          "emoji":  "",
+                          "etiqueta":  "",
+                          "imagen":  null,
+                          "publicado":  false,
+                          "disponible":  true,
+                          "revisar":  false,
+                          "variantes":  [
+
+                                        ],
+                          "extras":  [
+
+                                     ],
+                          "origen":  "ocr",
+                          "camposDudosos":  [
+
+                                            ]
+                      },
+                      {
+                          "id":  "pizza-mozzarella-salsa-de-tomate-pollo-ade-17",
+                          "nombre":  "Mozzarella, salsa de tomate, pollo aderezado con finas sao",
+                          "descripcion":  "hierbas. pimientos asados",
+                          "precio":  38,
+                          "grupo":  "Pollo a la brasa",
+                          "subcategoria":  "",
+                          "emoji":  "",
+                          "etiqueta":  "",
+                          "imagen":  null,
+                          "publicado":  false,
+                          "disponible":  true,
+                          "revisar":  false,
+                          "variantes":  [
+
+                                        ],
+                          "extras":  [
+
+                                     ],
+                          "origen":  "ocr",
+                          "camposDudosos":  [
+
+                                            ]
+                      },
+                      {
+                          "id":  "pizza-mozzarella-salsa-de-tomate-salame-to-28",
+                          "nombre":  "Mozzarella. salsa de tomate, salame, tocino ahumado. s,'22",
+                          "descripcion":  "",
+                          "precio":  40,
+                          "grupo":  "Carta",
+                          "subcategoria":  "",
+                          "emoji":  "",
+                          "etiqueta":  "",
+                          "imagen":  null,
+                          "publicado":  false,
+                          "disponible":  true,
+                          "revisar":  false,
+                          "variantes":  [
+
+                                        ],
+                          "extras":  [
+
+                                     ],
+                          "origen":  "ocr",
+                          "camposDudosos":  [
+
+                                            ]
+                      },
+                      {
+                          "id":  "pizza-mozzarella-salsa-de-tomate-jamon-ing-11",
+                          "nombre":  "Mozzarella, salsa de tomate, jamón inglés, tocino ahumado",
+                          "descripcion":  "",
+                          "precio":  21,
+                          "grupo":  "Carta",
+                          "subcategoria":  "",
+                          "emoji":  "",
+                          "etiqueta":  "",
+                          "imagen":  null,
+                          "publicado":  false,
+                          "disponible":  true,
+                          "revisar":  false,
+                          "variantes":  [
+
+                                        ],
+                          "extras":  [
+
+                                     ],
+                          "origen":  "ocr",
+                          "camposDudosos":  [
+
+                                            ]
+                      },
+                      {
+                          "id":  "pizza-2",
+                          "nombre":  "Pepperoni",
+                          "descripcion":  "Mozzarella y pepperoni picante.",
+                          "precio":  29,
+                          "grupo":  "Carta",
+                          "subcategoria":  "",
+                          "emoji":  "🍕",
+                          "etiqueta":  "Más vendido",
+                          "imagen":  null,
+                          "publicado":  false,
+                          "disponible":  true,
+                          "revisar":  false,
+                          "variantes":  [
+
+                                        ],
+                          "extras":  [
+
+                                     ],
+                          "origen":  "manual",
+                          "camposDudosos":  [
+                                                null
+                                            ]
+                      },
+                      {
+                          "id":  "pizza-mozzarella-salsa-de-tomate-carne-de-26",
+                          "nombre":  "Mozzarella, salsa de tomate, carne de res, pollo, tocino",
+                          "descripcion":  "",
+                          "precio":  22,
+                          "grupo":  "Pollo a la brasa",
+                          "subcategoria":  "",
+                          "emoji":  "",
+                          "etiqueta":  "",
+                          "imagen":  null,
+                          "publicado":  false,
+                          "disponible":  true,
+                          "revisar":  false,
+                          "variantes":  [
+
+                                        ],
+                          "extras":  [
+
+                                     ],
+                          "origen":  "ocr",
+                          "camposDudosos":  [
+
+                                            ]
+                      },
+                      {
+                          "id":  "pizza-de-la-casa-luperdi-29",
+                          "nombre":  "De la Casa Luperdi",
+                          "descripcion":  "champiñones, carne de res",
+                          "precio":  50,
+                          "grupo":  "Carta",
+                          "subcategoria":  "",
+                          "emoji":  "",
+                          "etiqueta":  "",
+                          "imagen":  null,
+                          "publicado":  false,
+                          "disponible":  true,
+                          "revisar":  false,
+                          "variantes":  [
+
+                                        ],
+                          "extras":  [
+
+                                     ],
+                          "origen":  "ocr",
+                          "camposDudosos":  [
+
+                                            ]
+                      },
+                      {
+                          "id":  "pizza-s-38-3",
+                          "nombre":  "s,'38",
+                          "descripcion":  "Vegetariana",
+                          "precio":  48,
+                          "grupo":  "Carta",
+                          "subcategoria":  "",
+                          "emoji":  "",
+                          "etiqueta":  "",
+                          "imagen":  null,
+                          "publicado":  false,
+                          "disponible":  true,
+                          "revisar":  false,
+                          "variantes":  [
+
+                                        ],
+                          "extras":  [
+
+                                     ],
+                          "origen":  "ocr",
+                          "camposDudosos":  [
+
+                                            ]
+                      },
+                      {
+                          "id":  "pizza-4",
+                          "nombre":  "Cuatro Quesos",
+                          "descripcion":  "queso gouda",
+                          "precio":  48,
+                          "grupo":  "Carta",
+                          "subcategoria":  "",
+                          "emoji":  "",
+                          "etiqueta":  "",
+                          "imagen":  null,
+                          "publicado":  false,
+                          "disponible":  true,
+                          "revisar":  false,
+                          "variantes":  [
+
+                                        ],
+                          "extras":  [
+
+                                     ],
+                          "origen":  "ocr",
+                          "camposDudosos":  [
+                                                "mismo nombre con otro precio en la carta",
+                                                "posible duplicado con otro precio",
+                                                "posible duplicado en el mismo lote"
+                                            ]
+                      },
+                      {
+                          "id":  "pizza-americana-5",
+                          "nombre":  "Americana",
+                          "descripcion":  "",
+                          "precio":  32,
+                          "grupo":  "Combos",
+                          "subcategoria":  "",
+                          "emoji":  "",
+                          "etiqueta":  "",
+                          "imagen":  null,
+                          "publicado":  false,
+                          "disponible":  true,
+                          "revisar":  false,
+                          "variantes":  [
+
+                                        ],
+                          "extras":  [
+
+                                     ],
+                          "origen":  "ocr",
+                          "camposDudosos":  [
+
+                                            ]
+                      },
+                      {
+                          "id":  "pizza-espanola-19",
+                          "nombre":  "Española",
+                          "descripcion":  "",
+                          "precio":  38,
+                          "grupo":  "Carta",
+                          "subcategoria":  "",
+                          "emoji":  "",
+                          "etiqueta":  "",
+                          "imagen":  null,
+                          "publicado":  false,
+                          "disponible":  true,
+                          "revisar":  false,
+                          "variantes":  [
+
+                                        ],
+                          "extras":  [
+
+                                     ],
+                          "origen":  "ocr",
+                          "camposDudosos":  [
+
+                                            ]
+                      },
+                      {
+                          "id":  "pizza-sao-27",
+                          "nombre":  "sao",
+                          "descripcion":  "ahumado",
+                          "precio":  50,
+                          "grupo":  "Pollo a la brasa",
+                          "subcategoria":  "",
+                          "emoji":  "",
+                          "etiqueta":  "",
+                          "imagen":  null,
+                          "publicado":  false,
+                          "disponible":  true,
+                          "revisar":  false,
+                          "variantes":  [
+
+                                        ],
+                          "extras":  [
+
+                                     ],
+                          "origen":  "ocr",
+                          "camposDudosos":  [
+                                                "nombre muy corto",
+                                                "posible duplicado en el mismo lote"
+                                            ]
+                      },
+                      {
+                          "id":  "pizza-mozzarella-salsa-de-tomate-peperoni-32",
+                          "nombre":  "Mozzarella, salsa de tomate, peperoni picante, jamón",
+                          "descripcion":  "chorizo español, champiñones, carne de res, aceitunas,",
+                          "precio":  142,
+                          "grupo":  "Carta",
+                          "subcategoria":  "",
+                          "emoji":  "",
+                          "etiqueta":  "",
+                          "imagen":  null,
+                          "publicado":  false,
+                          "disponible":  true,
+                          "revisar":  false,
+                          "variantes":  [
+
+                                        ],
+                          "extras":  [
+
+                                     ],
+                          "origen":  "ocr",
+                          "camposDudosos":  [
+
+                                            ]
+                      },
+                      {
+                          "id":  "pizza-mozzarella-salsa-de-tomate-peperoni-7",
+                          "nombre":  "Mozzarella, salsa de tomate, peperoni",
+                          "descripcion":  "Napolitana",
+                          "precio":  18,
+                          "grupo":  "Combos",
+                          "subcategoria":  "",
+                          "emoji":  "",
+                          "etiqueta":  "",
+                          "imagen":  null,
+                          "publicado":  false,
+                          "disponible":  true,
+                          "revisar":  false,
+                          "variantes":  [
+
+                                        ],
+                          "extras":  [
+
+                                     ],
+                          "origen":  "ocr",
+                          "camposDudosos":  [
+
+                                            ]
+                      },
+                      {
+                          "id":  "pizza-mozzarella-salsa-de-tomate-jamon-ing-4",
+                          "nombre":  "Mozzarella, salsa de tomate, jamón inglés",
+                          "descripcion":  "",
+                          "precio":  18,
+                          "grupo":  "Combos",
+                          "subcategoria":  "",
+                          "emoji":  "",
+                          "etiqueta":  "",
+                          "imagen":  null,
+                          "publicado":  false,
+                          "disponible":  true,
+                          "revisar":  false,
+                          "variantes":  [
+
+                                        ],
+                          "extras":  [
+
+                                     ],
+                          "origen":  "ocr",
+                          "camposDudosos":  [
+
+                                            ]
+                      },
+                      {
+                          "id":  "pizza-c-papas-fritas-5",
+                          "nombre":  "c papas fritas",
+                          "descripcion":  "fMuestras bebidas",
+                          "precio":  30,
+                          "grupo":  "Papas y acompañamientos",
+                          "subcategoria":  "Clásico Especial De La Casa",
+                          "emoji":  "",
+                          "etiqueta":  "",
+                          "imagen":  null,
+                          "publicado":  false,
+                          "disponible":  true,
+                          "revisar":  false,
+                          "variantes":  [
+
+                                        ],
+                          "extras":  [
+
+                                     ],
+                          "origen":  "ocr",
+                          "camposDudosos":  [
+
+                                            ]
+                      },
+                      {
+                          "id":  "pizza-continental-12",
+                          "nombre":  "Continental",
+                          "descripcion":  "",
+                          "precio":  39,
+                          "grupo":  "Carta",
+                          "subcategoria":  "",
+                          "emoji":  "",
+                          "etiqueta":  "",
+                          "imagen":  null,
+                          "publicado":  false,
+                          "disponible":  true,
+                          "revisar":  false,
+                          "variantes":  [
+
+                                        ],
+                          "extras":  [
+
+                                     ],
+                          "origen":  "ocr",
+                          "camposDudosos":  [
+
+                                            ]
+                      },
+                      {
+                          "id":  "pizza-3",
+                          "nombre":  "Hawaiana",
+                          "descripcion":  "Tropical",
+                          "precio":  47,
+                          "grupo":  "Combos",
+                          "subcategoria":  "",
+                          "emoji":  "",
+                          "etiqueta":  "",
+                          "imagen":  null,
+                          "publicado":  false,
+                          "disponible":  true,
+                          "revisar":  false,
+                          "variantes":  [
+
+                                        ],
+                          "extras":  [
+
+                                     ],
+                          "origen":  "ocr",
+                          "camposDudosos":  [
+                                                "mismo nombre con otro precio en la carta",
+                                                "posible duplicado con otro precio",
+                                                "posible duplicado en el mismo lote"
+                                            ]
+                      },
+                      {
+                          "id":  "pizza-chicha-morada-1-l-6",
+                          "nombre":  "Chicha morada 1 L",
+                          "descripcion":  "Chicha morada 1/2 L",
+                          "precio":  12,
+                          "grupo":  "Bebidas",
+                          "subcategoria":  "Naturales",
+                          "emoji":  "",
+                          "etiqueta":  "",
+                          "imagen":  null,
+                          "publicado":  false,
+                          "disponible":  true,
+                          "revisar":  false,
+                          "variantes":  [
+
+                                        ],
+                          "extras":  [
+
+                                     ],
+                          "origen":  "ocr",
+                          "camposDudosos":  [
+
+                                            ]
+                      },
+                      {
+                          "id":  "pizza-continental-13",
+                          "nombre":  "Continental",
+                          "descripcion":  "champiñones, cebolla blanca, aceitunas, pimientos asados",
+                          "precio":  49,
+                          "grupo":  "Carta",
+                          "subcategoria":  "",
+                          "emoji":  "",
+                          "etiqueta":  "",
+                          "imagen":  null,
+                          "publicado":  true,
+                          "disponible":  true,
+                          "revisar":  false,
+                          "variantes":  [
+
+                                        ],
+                          "extras":  [
+
+                                     ],
+                          "origen":  "ocr",
+                          "camposDudosos":  [
+                                                "mismo nombre con otro precio en la carta",
+                                                "posible duplicado en el mismo lote"
+                                            ]
+                      },
+                      {
+                          "id":  "pizza-francesa-11",
+                          "nombre":  "Francesa",
+                          "descripcion":  "champiñones, aceitunas, pimientos asados",
+                          "precio":  45,
+                          "grupo":  "Combos",
+                          "subcategoria":  "",
+                          "emoji":  "",
+                          "etiqueta":  "",
+                          "imagen":  null,
+                          "publicado":  false,
+                          "disponible":  true,
+                          "revisar":  false,
+                          "variantes":  [
+
+                                        ],
+                          "extras":  [
+
+                                     ],
+                          "origen":  "ocr",
+                          "camposDudosos":  [
+                                                "mismo nombre con otro precio en la carta",
+                                                "posible duplicado en el mismo lote"
+                                            ]
+                      },
+                      {
+                          "id":  "pizza-cabanos-1",
+                          "nombre":  "Cabanos",
+                          "descripcion":  "tajadas 8 tajadas 12 tajadas",
+                          "precio":  4,
+                          "grupo":  "Carta",
+                          "subcategoria":  "Grande",
+                          "emoji":  "",
+                          "etiqueta":  "",
+                          "imagen":  null,
+                          "publicado":  false,
+                          "disponible":  true,
+                          "revisar":  false,
+                          "variantes":  [
+
+                                        ],
+                          "extras":  [
+
+                                     ],
+                          "origen":  "ocr",
+                          "camposDudosos":  [
+
+                                            ]
+                      },
+                      {
+                          "id":  "pizza-6",
+                          "nombre":  "Pan de ajo",
+                          "descripcion":  "Con mantequilla, ajo y perejil.",
+                          "precio":  9,
+                          "grupo":  "Carta",
+                          "emoji":  "🥖",
+                          "etiqueta":  null,
+                          "imagen":  null,
+                          "publicado":  true,
+                          "disponible":  true
+                      },
+                      {
+                          "id":  "pizza-1",
+                          "nombre":  "Margarita",
+                          "descripcion":  "Salsa de tomate, mozzarella y albahaca.",
+                          "precio":  24,
+                          "grupo":  "Carta",
+                          "emoji":  "🍕",
+                          "etiqueta":  null,
+                          "imagen":  null,
+                          "publicado":  true,
+                          "disponible":  true
+                      }
+                  ]
+}

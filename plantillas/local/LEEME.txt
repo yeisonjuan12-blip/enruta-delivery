@@ -1,0 +1,45 @@
+PLANTILLA DE LOCAL · EnRuta Delivery
+====================================
+
+Esta carpeta es solo una referencia. No se publica ni se valida.
+Para crear un local real usa:
+
+  powershell -ExecutionPolicy Bypass -File tools\crear-local.ps1 ^
+    -Id "mi-local" ^
+    -Nombre "Nombre real del local" ^
+    -CategoriaId "pollo-brasa" ^
+    -Tipo "comida"
+
+El comando crea data\locales\mi-local con local.json,
+productos.json vacío y una carpeta img\.
+
+ARCHIVOS
+--------
+local.json       Datos del local. Las rutas logo/portada/cartaOriginal
+                 son relativas a la carpeta del local.
+productos.json   Productos con precio en soles (solo número, sin "S/").
+                 localId debe coincidir con el id del local.
+img\             Fotos de productos.
+
+REGLAS IMPORTANTES
+------------------
+- No inventes precios, logos, cartas ni redes sociales.
+- Si no tienes precio confirmado, no publiques el producto.
+- El precio de venta es el único importe que se cobra.
+- El empaquetado se configura aparte y nunca se suma dos veces.
+- El delivery NO se calcula en la web: se cotiza por WhatsApp.
+- Los productos con "disponible": false se conservan en datos
+  pero se ocultan en la web (no se borran).
+- Los productos con "publicado": false no aparecen en la web.
+
+DESPUÉS DE EDITAR
+-----------------
+  powershell -ExecutionPolicy Bypass -File tools\importar.ps1
+
+El importador valida IDs duplicados, precios, categorías, imágenes
+y fuentes. Si hay errores, no regenera js/catalogo.js.
+Revisa data\reporte-validacion.json para ver el detalle.
+
+CUANDO ESTÉ TODO LISTO
+----------------------
+Cambia "publicado": false a true en local.json y vuelve a importar.

@@ -1,0 +1,35 @@
+{
+    "id":  "pizza",
+    "nombre":  "Pizza Nostra",
+    "tipo":  "comida",
+    "categoriaId":  "pizzas",
+    "descripcion":  "Masa fermentada 24 horas y horno de piedra. Pizzas medianas y familiares para compartir.",
+    "publicado":  true,
+    "disponible":  true,
+    "esEjemplo":  true,
+    "emoji":  "🍕",
+    "colores":  [
+                    "#271616",
+                    "#b40f04"
+                ],
+    "logo":  "img/logo-20261027083430-ad47ea80-7a64-4707-a231-b699fa6871b2.jpg",
+    "portada":  "img/portada-20261027084210-images-2.jpg",
+    "cartaOriginal":  "img/cartaOriginal-20261027084408-whatsapp-image-2026-10-27-at-8-29-08-am.jpg",
+    "tiempo":  "35–50 min",
+    "pedidoMinimo":  25,
+    "horarioLocal":  "17:00 – 23:30",
+    "etiquetas":  [
+                      "Masa artesanal",
+                      "Horno de piedra"
+                  ],
+    "empaquetado":  {
+                        "porUnidad":  false,
+                        "aplica":  true,
+                        "monto":  2,
+                        "concepto":  "Empaquetado por pedido"
+                    },
+    "notas":  "Local de demostración. Reemplazar por un establecimiento real antes de publicar.",
+    "cerradoTemporal":  false,
+    "direccion":  "",
+    "telefono":  ""
+}

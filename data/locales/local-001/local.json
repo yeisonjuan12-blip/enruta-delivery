@@ -1,0 +1,35 @@
+{
+    "id":  "brasa",
+    "nombre":  "El brasero",
+    "tipo":  "comida",
+    "categoriaId":  "pollo-brasa",
+    "descripcion":  "Pollo al carbon con papas crocantes y las cremas de la casa. El clasico",
+    "publicado":  true,
+    "disponible":  true,
+    "esEjemplo":  true,
+    "emoji":  "??",
+    "colores":  [
+                    "#fb923c",
+                    "#b91c1c"
+                ],
+    "logo":  "img/logo-20261027080247-d5e65b3c-b541-44e3-b533-aa55d3bfa4ff.jpg",
+    "portada":  "img/portada-20261027080457-images.jpg",
+    "cartaOriginal":  null,
+    "tiempo":  "30-35 min",
+    "pedidoMinimo":  25,
+    "horarioLocal":  "17:00 - 23:00",
+    "etiquetas":  [
+                      "Mas pedido",
+                      "Combos familiares"
+                  ],
+    "empaquetado":  {
+                        "porUnidad":  true,
+                        "aplica":  true,
+                        "monto":  1,
+                        "concepto":  "Empaquetado por unidad"
+                    },
+    "notas":  "",
+    "cerradoTemporal":  false,
+    "direccion":  "",
+    "telefono":  ""
+}

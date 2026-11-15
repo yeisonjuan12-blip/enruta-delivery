@@ -1,0 +1,77 @@
+{
+    "localId":  "tecno",
+    "productos":  [
+                      {
+                          "id":  "tec-1",
+                          "nombre":  "Audífonos bluetooth",
+                          "descripcion":  "Estuche de carga, hasta 20 h de batería.",
+                          "precio":  79.9,
+                          "grupo":  "Productos",
+                          "emoji":  "🎧",
+                          "etiqueta":  "Más vendido",
+                          "imagen":  null,
+                          "publicado":  true,
+                          "disponible":  true
+                      },
+                      {
+                          "id":  "tec-2",
+                          "nombre":  "Cable USB-C 1 m",
+                          "descripcion":  "Carga rápida y datos, trenzado.",
+                          "precio":  19.9,
+                          "grupo":  "Productos",
+                          "emoji":  "🔌",
+                          "etiqueta":  null,
+                          "imagen":  null,
+                          "publicado":  true,
+                          "disponible":  true
+                      },
+                      {
+                          "id":  "tec-3",
+                          "nombre":  "Cargador rápido 20 W",
+                          "descripcion":  "Compatible con USB-C y Lightning.",
+                          "precio":  45,
+                          "grupo":  "Productos",
+                          "emoji":  "⚡",
+                          "etiqueta":  null,
+                          "imagen":  null,
+                          "publicado":  true,
+                          "disponible":  true
+                      },
+                      {
+                          "id":  "tec-4",
+                          "nombre":  "Parlante mini bluetooth",
+                          "descripcion":  "Resistente a salpicaduras.",
+                          "precio":  89,
+                          "grupo":  "Productos",
+                          "emoji":  "🔊",
+                          "etiqueta":  null,
+                          "imagen":  null,
+                          "publicado":  true,
+                          "disponible":  true
+                      },
+                      {
+                          "id":  "tec-5",
+                          "nombre":  "Power bank 10.000 mAh",
+                          "descripcion":  "Dos salidas USB y carga rápida.",
+                          "precio":  99,
+                          "grupo":  "Productos",
+                          "emoji":  "🔋",
+                          "etiqueta":  null,
+                          "imagen":  null,
+                          "publicado":  true,
+                          "disponible":  true
+                      },
+                      {
+                          "id":  "tec-6",
+                          "nombre":  "Mouse inalámbrico",
+                          "descripcion":  "Silencioso, USB receptor.",
+                          "precio":  39,
+                          "grupo":  "Productos",
+                          "emoji":  "🖱️",
+                          "etiqueta":  null,
+                          "imagen":  null,
+                          "publicado":  true,
+                          "disponible":  true
+                      }
+                  ]
+}

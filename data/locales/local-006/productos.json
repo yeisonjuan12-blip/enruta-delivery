@@ -1,0 +1,77 @@
+{
+    "localId":  "dulce",
+    "productos":  [
+                      {
+                          "id":  "dulce-1",
+                          "nombre":  "Porción de torta de chocolate",
+                          "descripcion":  "Bizcocho húmedo con ganache.",
+                          "precio":  9.9,
+                          "grupo":  "Carta",
+                          "emoji":  "🍫",
+                          "etiqueta":  null,
+                          "imagen":  null,
+                          "publicado":  true,
+                          "disponible":  true
+                      },
+                      {
+                          "id":  "dulce-2",
+                          "nombre":  "Cheesecake de maracuyá",
+                          "descripcion":  "Base de galleta y salsa de maracuyá.",
+                          "precio":  11.9,
+                          "grupo":  "Carta",
+                          "emoji":  "🍰",
+                          "etiqueta":  "Más vendido",
+                          "imagen":  null,
+                          "publicado":  true,
+                          "disponible":  true
+                      },
+                      {
+                          "id":  "dulce-3",
+                          "nombre":  "Brownie con nueces",
+                          "descripcion":  "Servido tibio, con nueces tostadas.",
+                          "precio":  7.5,
+                          "grupo":  "Carta",
+                          "emoji":  "🍪",
+                          "etiqueta":  null,
+                          "imagen":  null,
+                          "publicado":  true,
+                          "disponible":  true
+                      },
+                      {
+                          "id":  "dulce-4",
+                          "nombre":  "Alfajor de manjar",
+                          "descripcion":  "Relleno generoso de manjar blanco.",
+                          "precio":  5,
+                          "grupo":  "Carta",
+                          "emoji":  "🥮",
+                          "etiqueta":  null,
+                          "imagen":  null,
+                          "publicado":  true,
+                          "disponible":  true
+                      },
+                      {
+                          "id":  "dulce-5",
+                          "nombre":  "Torta entera (8 porciones)",
+                          "descripcion":  "Elige el sabor al confirmar por WhatsApp.",
+                          "precio":  75,
+                          "grupo":  "Carta",
+                          "emoji":  "🎂",
+                          "etiqueta":  "Para compartir",
+                          "imagen":  null,
+                          "publicado":  true,
+                          "disponible":  true
+                      },
+                      {
+                          "id":  "dulce-6",
+                          "nombre":  "Café helado",
+                          "descripcion":  "Café pasado con leche y hielo.",
+                          "precio":  8.9,
+                          "grupo":  "Carta",
+                          "emoji":  "🧋",
+                          "etiqueta":  null,
+                          "imagen":  null,
+                          "publicado":  true,
+                          "disponible":  true
+                      }
+                  ]
+}

@@ -1,0 +1,197 @@
+{
+    "localId":  "brasa",
+    "productos":  [
+                      {
+                          "id":  "brasa-1",
+                          "nombre":  "1/4 de pollo + papas",
+                          "descripcion":  "Pollo al carbon, papas fritas y cremas de la casa.",
+                          "precio":  15,
+                          "grupo":  "Carta",
+                          "subcategoria":  "",
+                          "emoji":  "??",
+                          "etiqueta":  "",
+                          "imagen":  null,
+                          "publicado":  true,
+                          "disponible":  true,
+                          "revisar":  false,
+                          "variantes":  [
+
+                                        ],
+                          "extras":  [
+
+                                     ],
+                          "origen":  "manual",
+                          "camposDudosos":  [
+                                                null
+                                            ]
+                      },
+                      {
+                          "id":  "brasa-2",
+                          "nombre":  "1/2 pollo + papas",
+                          "descripcion":  "Media unidad de pollo con papas y ensalada.",
+                          "precio":  30,
+                          "grupo":  "Carta",
+                          "subcategoria":  "",
+                          "emoji":  "??",
+                          "etiqueta":  "",
+                          "imagen":  null,
+                          "publicado":  true,
+                          "disponible":  true,
+                          "revisar":  false,
+                          "variantes":  [
+
+                                        ],
+                          "extras":  [
+
+                                     ],
+                          "origen":  "manual",
+                          "camposDudosos":  [
+                                                null
+                                            ]
+                      },
+                      {
+                          "id":  "brasa-3",
+                          "nombre":  "Pollo entero + papas",
+                          "descripcion":  "Para toda la familia, con cremas surtidas.",
+                          "precio":  48,
+                          "grupo":  "Carta",
+                          "subcategoria":  "",
+                          "emoji":  "??",
+                          "etiqueta":  "Mas Vendido",
+                          "imagen":  null,
+                          "publicado":  true,
+                          "disponible":  true,
+                          "revisar":  false,
+                          "variantes":  [
+
+                                        ],
+                          "extras":  [
+
+                                     ],
+                          "origen":  "manual",
+                          "camposDudosos":  [
+                                                null
+                                            ]
+                      },
+                      {
+                          "id":  "brasa-4",
+                          "nombre":  "Combo familiar",
+                          "descripcion":  "Pollo entero, papas 1 kg, ensalada y gaseosa 1.5 L.",
+                          "precio":  79.9,
+                          "grupo":  "Carta",
+                          "subcategoria":  "",
+                          "emoji":  "??",
+                          "etiqueta":  "Para compartir",
+                          "imagen":  null,
+                          "publicado":  false,
+                          "disponible":  true,
+                          "revisar":  false,
+                          "variantes":  [
+
+                                        ],
+                          "extras":  [
+
+                                     ],
+                          "origen":  "manual",
+                          "camposDudosos":  [
+                                                null
+                                            ]
+                      },
+                      {
+                          "id":  "brasa-5",
+                          "nombre":  "Papas fritas extra",
+                          "descripcion":  "Porcion grande, recien hechas.",
+                          "precio":  8,
+                          "grupo":  "Carta",
+                          "subcategoria":  "",
+                          "emoji":  "??",
+                          "etiqueta":  "",
+                          "imagen":  null,
+                          "publicado":  true,
+                          "disponible":  true,
+                          "revisar":  false,
+                          "variantes":  [
+
+                                        ],
+                          "extras":  [
+
+                                     ],
+                          "origen":  "manual",
+                          "camposDudosos":  [
+                                                null
+                                            ]
+                      },
+                      {
+                          "id":  "brasa-6",
+                          "nombre":  "Ensalada fresca extra",
+                          "descripcion":  "Lechuga, tomate, zanahoria y limon.",
+                          "precio":  6,
+                          "grupo":  "Carta",
+                          "subcategoria":  "",
+                          "emoji":  "??",
+                          "etiqueta":  "",
+                          "imagen":  null,
+                          "publicado":  true,
+                          "disponible":  true,
+                          "revisar":  false,
+                          "variantes":  [
+
+                                        ],
+                          "extras":  [
+
+                                     ],
+                          "origen":  "manual",
+                          "camposDudosos":  [
+                                                null
+                                            ]
+                      },
+                      {
+                          "id":  "brasa-7",
+                          "nombre":  "Gaseosa 1.5 L",
+                          "descripcion":  "Inca Kola helada.",
+                          "precio":  8,
+                          "grupo":  "Carta",
+                          "subcategoria":  "",
+                          "emoji":  "",
+                          "etiqueta":  "",
+                          "imagen":  "img/prod-20261027082024-images-1.jpg",
+                          "publicado":  true,
+                          "disponible":  true,
+                          "revisar":  false,
+                          "variantes":  [
+
+                                        ],
+                          "extras":  [
+
+                                     ],
+                          "origen":  "manual",
+                          "camposDudosos":  [
+                                                null
+                                            ]
+                      },
+                      {
+                          "id":  "brasa-8",
+                          "nombre":  "Cremas extra (4)",
+                          "descripcion":  "Mayonesa, aji, ketchup y mostaza.",
+                          "precio":  2.5,
+                          "grupo":  "Carta",
+                          "subcategoria":  "",
+                          "emoji":  "",
+                          "etiqueta":  "",
+                          "imagen":  null,
+                          "publicado":  true,
+                          "disponible":  true,
+                          "revisar":  false,
+                          "variantes":  [
+
+                                        ],
+                          "extras":  [
+
+                                     ],
+                          "origen":  "manual",
+                          "camposDudosos":  [
+                                                null
+                                            ]
+                      }
+                  ]
+}

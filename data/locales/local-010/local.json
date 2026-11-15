@@ -1,0 +1,33 @@
+{
+    "id":  "flores",
+    "nombre":  "Flores & Detalles",
+    "tipo":  "productos",
+    "categoriaId":  "flores-regalos",
+    "descripcion":  "Ramos frescos, peluches y detalles para sorprender. Podemos incluir tu dedicatoria.",
+    "publicado":  false,
+    "disponible":  true,
+    "esEjemplo":  true,
+    "emoji":  "💐",
+    "colores":  [
+                    "#fb7185",
+                    "#881337"
+                ],
+    "logo":  null,
+    "portada":  null,
+    "cartaOriginal":  null,
+    "tiempo":  "40–70 min",
+    "pedidoMinimo":  30,
+    "horarioLocal":  "09:00 – 20:00",
+    "etiquetas":  [
+                      "Regalos",
+                      "Tarjeta incluida"
+                  ],
+    "empaquetado":  {
+                        "porUnidad":  false,
+                        "aplica":  false,
+                        "monto":  0,
+                        "concepto":  "Sin recargo"
+                    },
+    "notas":  "Local de demostración. Reemplazar por un establecimiento real antes de publicar.",
+    "cerradoTemporal":  false
+}

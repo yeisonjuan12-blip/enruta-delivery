@@ -1,0 +1,77 @@
+{
+    "localId":  "bodega",
+    "productos":  [
+                      {
+                          "id":  "bodega-1",
+                          "nombre":  "Arroz 5 kg",
+                          "descripcion":  "Arroz extra, grano largo.",
+                          "precio":  27.9,
+                          "grupo":  "Productos",
+                          "emoji":  "🍚",
+                          "etiqueta":  null,
+                          "imagen":  null,
+                          "publicado":  true,
+                          "disponible":  true
+                      },
+                      {
+                          "id":  "bodega-2",
+                          "nombre":  "Aceite vegetal 1 L",
+                          "descripcion":  "Para cocinar y freír.",
+                          "precio":  9.9,
+                          "grupo":  "Productos",
+                          "emoji":  "🫗",
+                          "etiqueta":  null,
+                          "imagen":  null,
+                          "publicado":  true,
+                          "disponible":  true
+                      },
+                      {
+                          "id":  "bodega-3",
+                          "nombre":  "Leche evaporada 1 L",
+                          "descripcion":  "Lata, entera.",
+                          "precio":  5.5,
+                          "grupo":  "Productos",
+                          "emoji":  "🥛",
+                          "etiqueta":  null,
+                          "imagen":  null,
+                          "publicado":  true,
+                          "disponible":  true
+                      },
+                      {
+                          "id":  "bodega-4",
+                          "nombre":  "Huevos 30 unidades",
+                          "descripcion":  "Pardos, frescos de granja.",
+                          "precio":  14.9,
+                          "grupo":  "Productos",
+                          "emoji":  "🥚",
+                          "etiqueta":  "Más vendido",
+                          "imagen":  null,
+                          "publicado":  true,
+                          "disponible":  true
+                      },
+                      {
+                          "id":  "bodega-5",
+                          "nombre":  "Azúcar 1 kg",
+                          "descripcion":  "Rubia, bolsa sellada.",
+                          "precio":  4.9,
+                          "grupo":  "Productos",
+                          "emoji":  "🧂",
+                          "etiqueta":  null,
+                          "imagen":  null,
+                          "publicado":  true,
+                          "disponible":  true
+                      },
+                      {
+                          "id":  "bodega-6",
+                          "nombre":  "Papel higiénico 4 rollos",
+                          "descripcion":  "Doble hoja, suave.",
+                          "precio":  7.9,
+                          "grupo":  "Productos",
+                          "emoji":  "🧻",
+                          "etiqueta":  null,
+                          "imagen":  null,
+                          "publicado":  true,
+                          "disponible":  true
+                      }
+                  ]
+}

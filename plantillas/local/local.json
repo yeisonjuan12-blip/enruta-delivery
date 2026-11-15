@@ -1,0 +1,26 @@
+{
+  "id": "mi-local",
+  "nombre": "Nombre real del local",
+  "tipo": "comida",
+  "categoriaId": "pollo-brasa",
+  "descripcion": "Descripción breve y real del local.",
+  "publicado": false,
+  "disponible": true,
+  "esEjemplo": false,
+  "emoji": "🍽️",
+  "colores": ["#fdd303", "#f59e0b"],
+  "logo": "logo.jpg",
+  "portada": "portada.jpg",
+  "cartaOriginal": "carta.jpg",
+  "tiempo": "25–35 min",
+  "pedidoMinimo": 0,
+  "horarioLocal": "12:00 – 23:00",
+  "etiquetas": [],
+  "empaquetado": {
+    "aplica": false,
+    "monto": 0,
+    "porUnidad": false,
+    "concepto": "Empaquetado"
+  },
+  "notas": "Plantilla. Copia esta carpeta con tools\\crear-local.ps1 y completa datos reales."
+}

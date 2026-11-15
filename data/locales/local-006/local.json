@@ -1,0 +1,32 @@
+{
+    "id":  "dulce",
+    "nombre":  "Dulce Antojo",
+    "tipo":  "comida",
+    "categoriaId":  "postres-cafe",
+    "descripcion":  "Postres caseros, tortas por porción y café helado. Ideal para el antojo de la tarde.",
+    "publicado":  true,
+    "disponible":  true,
+    "esEjemplo":  true,
+    "emoji":  "🍰",
+    "colores":  [
+                    "#f9a8d4",
+                    "#9d174d"
+                ],
+    "logo":  null,
+    "portada":  null,
+    "cartaOriginal":  null,
+    "tiempo":  "20–30 min",
+    "pedidoMinimo":  12,
+    "horarioLocal":  "10:00 – 22:00",
+    "etiquetas":  [
+                      "Casero",
+                      "Tortas por porción"
+                  ],
+    "empaquetado":  {
+                        "porUnidad":  false,
+                        "aplica":  false,
+                        "monto":  0,
+                        "concepto":  "Sin recargo"
+                    },
+    "notas":  "Local de demostración. Reemplazar por un establecimiento real antes de publicar."
+}

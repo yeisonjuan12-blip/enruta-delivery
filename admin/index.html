@@ -1,0 +1,127 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="robots" content="noindex, nofollow">
+  <title>Panel · EnRuta Delivery</title>
+  <link rel="icon" type="image/jpeg" href="../assets/marca.jpg">
+  <link rel="stylesheet" href="admin.css">
+</head>
+<body>
+
+  <!-- ============ LOGIN ============ -->
+  <div class="login" id="loginScreen" hidden>
+    <div class="login-card">
+      <div class="login-brand">
+        <img src="../assets/marca.jpg" alt="" width="56" height="56">
+        <div>
+          <p class="login-name">Enruta <span>Delivery</span></p>
+          <p class="login-sub">Panel privado</p>
+        </div>
+      </div>
+
+      <h1>Acceso al panel</h1>
+      <p class="muted">Gestiona locales, catálogos, cartas y pedidos. La sesión se valida en el servidor.</p>
+
+      <form id="loginForm" autocomplete="on" novalidate>
+        <label class="field">
+          <span>Usuario</span>
+          <input id="loginUsuario" name="username" type="text" autocomplete="username" required>
+        </label>
+        <label class="field">
+          <span>Contraseña</span>
+          <input id="loginPassword" name="password" type="password" autocomplete="current-password" required>
+        </label>
+        <p class="form-error" id="loginError" hidden></p>
+        <button class="btn btn-primary btn-block" id="loginBtn" type="submit">Ingresar</button>
+      </form>
+
+      <p class="login-note">Tras 5 intentos fallidos la cuenta se bloquea 10 minutos. No compartas tu contraseña.</p>
+      <p class="login-foot"><a href="../index.html">← Volver a la web pública</a></p>
+    </div>
+  </div>
+
+  <!-- ============ APP ============ -->
+  <div class="app" id="app" hidden>
+    <aside class="sidebar" id="sidebar">
+      <div class="side-brand">
+        <img src="../assets/marca.jpg" alt="" width="38" height="38">
+        <div>
+          <p class="side-name">Enruta <span>Delivery</span></p>
+          <p class="side-tag">Administración</p>
+        </div>
+      </div>
+
+      <nav class="nav" id="nav" aria-label="Secciones del panel">
+        <button class="nav-item" type="button" data-vista="resumen"><span>▤</span> Resumen</button>
+        <button class="nav-item" type="button" data-vista="locales"><span>▦</span> Locales</button>
+        <button class="nav-item" type="button" data-vista="ocr"><span>◫</span> Importar carta</button>
+        <button class="nav-item" type="button" data-vista="ventas"><span>↗</span> Ventas</button>
+        <button class="nav-item solo-admin" type="button" data-vista="catalogos"><span>▥</span> Catálogos</button>
+        <button class="nav-item solo-admin" type="button" data-vista="pagina"><span>✎</span> Página</button>
+        <button class="nav-item" type="button" data-vista="pedidos"><span>▤</span> Pedidos</button>
+        <button class="nav-item solo-admin" type="button" data-vista="usuarios"><span>◉</span> Usuarios</button>
+        <button class="nav-item solo-admin" type="button" data-vista="auditoria"><span>≡</span> Auditoría</button>
+        <button class="nav-item" type="button" data-vista="cuenta"><span>⚙</span> Mi cuenta</button>
+      </nav>
+
+      <div class="side-foot">
+        <p class="side-user" id="sideUser">—</p>
+        <p class="side-rol" id="sideRol">—</p>
+        <a class="side-link" href="../index.html" target="_blank" rel="noopener">Ver web pública ↗</a>
+        <button class="side-logout" id="logoutBtn" type="button">Cerrar sesión</button>
+      </div>
+    </aside>
+
+    <div class="backdrop" id="backdrop" hidden></div>
+
+    <main class="main">
+      <header class="topbar">
+        <button class="icon-btn menu-btn" id="menuBtn" type="button" aria-label="Abrir menú">☰</button>
+        <div class="topbar-title">
+          <h1 id="viewTitle">Resumen</h1>
+          <p id="viewSubtitle"></p>
+        </div>
+        <div class="topbar-user">
+          <span class="avatar" id="avatar">A</span>
+          <div class="topbar-user-text">
+            <b id="userName">—</b>
+            <span id="userRol">—</span>
+          </div>
+        </div>
+      </header>
+
+      <div class="system-note" id="systemNote" hidden></div>
+
+      <section class="view" id="view-resumen" hidden></section>
+      <section class="view" id="view-locales" hidden></section>
+      <section class="view" id="view-local" hidden></section>
+      <section class="view" id="view-ocr" hidden></section>
+      <section class="view" id="view-ventas" hidden></section>
+      <section class="view" id="view-catalogos" hidden></section>
+      <section class="view" id="view-pagina" hidden></section>
+      <section class="view" id="view-pedidos" hidden></section>
+      <section class="view" id="view-usuarios" hidden></section>
+      <section class="view" id="view-auditoria" hidden></section>
+      <section class="view" id="view-cuenta" hidden></section>
+    </main>
+  </div>
+
+  <!-- ============ MODAL ============ -->
+  <div class="modal" id="modal" hidden>
+    <div class="modal-card" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
+      <header class="modal-head">
+        <h2 id="modalTitle">Título</h2>
+        <button class="icon-btn" id="modalClose" type="button" aria-label="Cerrar">✕</button>
+      </header>
+      <div class="modal-body" id="modalBody"></div>
+      <footer class="modal-foot" id="modalFoot"></footer>
+    </div>
+  </div>
+
+  <div class="toast" id="toast" hidden></div>
+
+  <script src="admin.js" defer></script>
+</body>
+</html>

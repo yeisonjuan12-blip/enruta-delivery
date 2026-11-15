@@ -1,0 +1,77 @@
+{
+    "localId":  "marino",
+    "productos":  [
+                      {
+                          "id":  "mar-1",
+                          "nombre":  "Ceviche clásico",
+                          "descripcion":  "Pescado fresco, leche de tigre, camote y choclo.",
+                          "precio":  26,
+                          "grupo":  "Carta",
+                          "emoji":  "🐟",
+                          "etiqueta":  "Más vendido",
+                          "imagen":  null,
+                          "publicado":  true,
+                          "disponible":  true
+                      },
+                      {
+                          "id":  "mar-2",
+                          "nombre":  "Ceviche mixto",
+                          "descripcion":  "Pescado, pulpo, calamar y conchas.",
+                          "precio":  34,
+                          "grupo":  "Carta",
+                          "emoji":  "🐙",
+                          "etiqueta":  null,
+                          "imagen":  null,
+                          "publicado":  true,
+                          "disponible":  true
+                      },
+                      {
+                          "id":  "mar-3",
+                          "nombre":  "Arroz con mariscos",
+                          "descripcion":  "Arroz cremoso con mixtura de mariscos.",
+                          "precio":  32,
+                          "grupo":  "Carta",
+                          "emoji":  "🍚",
+                          "etiqueta":  null,
+                          "imagen":  null,
+                          "publicado":  true,
+                          "disponible":  true
+                      },
+                      {
+                          "id":  "mar-4",
+                          "nombre":  "Chicharrón de pescado",
+                          "descripcion":  "Trozos crocantes con salsa criolla.",
+                          "precio":  28,
+                          "grupo":  "Carta",
+                          "emoji":  "🍤",
+                          "etiqueta":  null,
+                          "imagen":  null,
+                          "publicado":  true,
+                          "disponible":  true
+                      },
+                      {
+                          "id":  "mar-5",
+                          "nombre":  "Leche de tigre",
+                          "descripcion":  "Vaso grande con trozos de pescado.",
+                          "precio":  12,
+                          "grupo":  "Carta",
+                          "emoji":  "🥛",
+                          "etiqueta":  null,
+                          "imagen":  null,
+                          "publicado":  true,
+                          "disponible":  true
+                      },
+                      {
+                          "id":  "mar-6",
+                          "nombre":  "Chaufa de mariscos",
+                          "descripcion":  "Arroz chaufa con mariscos salteados.",
+                          "precio":  30,
+                          "grupo":  "Carta",
+                          "emoji":  "🍲",
+                          "etiqueta":  null,
+                          "imagen":  null,
+                          "publicado":  true,
+                          "disponible":  true
+                      }
+                  ]
+}

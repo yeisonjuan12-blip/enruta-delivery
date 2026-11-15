@@ -1,0 +1,58 @@
+{
+    "version":  1,
+    "catalogoId":  "primera-necesidad",
+    "categorias":  [
+                       {
+                           "id":  "bebidas",
+                           "nombre":  "Bebidas"
+                       },
+                       {
+                           "id":  "snacks",
+                           "nombre":  "Snacks"
+                       },
+                       {
+                           "id":  "golosinas",
+                           "nombre":  "Golosinas y chocolates"
+                       },
+                       {
+                           "id":  "galletas",
+                           "nombre":  "Galletas y dulces"
+                       },
+                       {
+                           "id":  "helados",
+                           "nombre":  "Helados"
+                       },
+                       {
+                           "id":  "lacteos",
+                           "nombre":  "Lácteos"
+                       },
+                       {
+                           "id":  "abarrotes",
+                           "nombre":  "Abarrotes"
+                       },
+                       {
+                           "id":  "desayuno",
+                           "nombre":  "Desayuno"
+                       },
+                       {
+                           "id":  "panaderia",
+                           "nombre":  "Panadería y repostería"
+                       },
+                       {
+                           "id":  "limpieza",
+                           "nombre":  "Limpieza"
+                       },
+                       {
+                           "id":  "higiene",
+                           "nombre":  "Higiene personal"
+                       },
+                       {
+                           "id":  "mascotas",
+                           "nombre":  "Mascotas"
+                       },
+                       {
+                           "id":  "otros",
+                           "nombre":  "Otros productos"
+                       }
+                   ]
+}

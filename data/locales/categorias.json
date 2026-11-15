@@ -1,0 +1,16 @@
+{
+  "version": 1,
+  "categorias": [
+    { "id": "pollo-brasa", "nombre": "Pollo a la brasa" },
+    { "id": "hamburguesas", "nombre": "Hamburguesas" },
+    { "id": "ceviche-mariscos", "nombre": "Ceviche y mariscos" },
+    { "id": "pizzas", "nombre": "Pizzas" },
+    { "id": "chifa", "nombre": "Chifa" },
+    { "id": "postres-cafe", "nombre": "Postres y café" },
+    { "id": "ropa", "nombre": "Ropa" },
+    { "id": "tecnologia", "nombre": "Tecnología" },
+    { "id": "abarrotes", "nombre": "Abarrotes" },
+    { "id": "flores-regalos", "nombre": "Flores y regalos" },
+    { "id": "salud", "nombre": "Salud" }
+  ]
+}

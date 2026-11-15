@@ -1,0 +1,33 @@
+{
+    "id":  "burger",
+    "nombre":  "Burger Lab",
+    "tipo":  "comida",
+    "categoriaId":  "hamburguesas",
+    "descripcion":  "Carne jugosa a la plancha, pan brioche y salsas caseras. Hamburguesas hechas al momento.",
+    "publicado":  false,
+    "disponible":  true,
+    "esEjemplo":  true,
+    "emoji":  "🍔",
+    "colores":  [
+                    "#fbbf24",
+                    "#92400e"
+                ],
+    "logo":  null,
+    "portada":  null,
+    "cartaOriginal":  null,
+    "tiempo":  "25–35 min",
+    "pedidoMinimo":  15,
+    "horarioLocal":  "12:00 – 23:30",
+    "etiquetas":  [
+                      "Artesanal",
+                      "Combos"
+                  ],
+    "empaquetado":  {
+                        "porUnidad":  false,
+                        "aplica":  true,
+                        "monto":  1.5,
+                        "concepto":  "Empaquetado por pedido"
+                    },
+    "notas":  "Local de demostración. Reemplazar por un establecimiento real antes de publicar.",
+    "cerradoTemporal":  false
+}

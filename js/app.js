@@ -31,9 +31,19 @@
   const round2 = (n) => Math.round((Number(n) + Number.EPSILON) * 100) / 100;
 
   const CONFIG = DATA.config || {};
-  const LOCALES = (DATA.locales || []).filter((l) => l.publicado !== false);
+  const PRUEBA = window.ENRUTA_LOCALES_PRUEBA || { categorias: [], locales: [] };
+
+  // Los locales ficticios de js/locales-prueba.js se fusionan solo para
+  // mostrar la página. Para retirarlos, borra ese archivo y su <script>.
+  const CATEGORIAS_LOCALES = (DATA.categoriasLocales || []).concat(PRUEBA.categorias || []);
+  const LOCALES = (DATA.locales || []).concat(PRUEBA.locales || [])
+    .filter((l) => l.publicado !== false)
+    .map((l) => {
+      if (l.categoriaNombre) return l;
+      const cat = CATEGORIAS_LOCALES.find((c) => c.id === l.categoriaId);
+      return Object.assign({}, l, { categoriaNombre: cat ? cat.nombre : '' });
+    });
   const CATALOGOS = DATA.catalogos || [];
-  const CATEGORIAS_LOCALES = DATA.categoriasLocales || [];
   const ZONAS = CONFIG.zonas || [];
 
   const localesPorId = new Map(LOCALES.map((l) => [l.id, l]));

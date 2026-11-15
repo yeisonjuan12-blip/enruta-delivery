@@ -674,6 +674,16 @@ Los 8 locales ficticios están en `js/locales-prueba.js` y se fusionan solo en e
 
 Para quitarlos: borra `js/locales-prueba.js` y elimina su etiqueta `<script>` de `index.html`. No afecta la base de datos real ni el panel.
 
+
+## 18. Créditos de las fotografías
+
+Las tarjetas de **Taximoto** y **Recojo y envío** usan fotografías reales de uso libre:
+
+- `assets/servicios/taximoto.jpg`: Pixabay (licencia Pixabay: uso comercial sin atribución obligatoria).
+- `assets/servicios/envio.jpg`: Burst by Shopify (licencia Burst: uso comercial sin atribución obligatoria).
+
+Para reemplazarlas por fotos propias, sube el archivo con el mismo nombre y un tamaño similar (1280×853 y 1600×1066). El texto se lee sobre un degradado oscuro, así que conviene que la zona inferior de la foto tenga poco detalle.
+
 ---
 
 Hecho para **EnRuta Delivery** · Nuevo Chimbote 🛵

@@ -2778,3 +2778,14 @@ fieldset.when .field {
   .servicio-grid { grid-template-columns: 1fr; gap: 20px; }
   .servicio-form { padding: 18px; }
 }
+.servicio-alt { background: #f6fbff; }
+.servicio-presets {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin: 0 0 14px;
+  font-size: 12px;
+  color: var(--muted);
+}
+.servicio-presets .chip { font-size: 12px; padding: 5px 10px; }

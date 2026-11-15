@@ -45,6 +45,7 @@
         <a href="#licores">Licores</a>
         <a href="#primera-necesidad">Primera necesidad</a>
         <a href="#recojo-envio">Recojo y envío</a>
+        <a href="#taximoto">Taximoto</a>
         <a href="#nosotros">Nosotros</a>
       </nav>
 
@@ -85,6 +86,7 @@
             <a href="#licores">🥃 Licores</a>
             <a href="#primera-necesidad">🧺 Primera necesidad</a>
             <a href="#recojo-envio">📦 Recojo y envío</a>
+            <a href="#taximoto">🛵 Taximoto</a>
             <a href="#nosotros">ℹ️ Sobre nosotros</a>
           </div>
 
@@ -312,6 +314,91 @@
 
             <button class="btn btn-brand btn-block" type="submit" id="envioBtn">Solicitar recojo y envío</button>
             <p class="privacy-note">Guardamos la solicitud y abrimos WhatsApp para confirmar disponibilidad y costo. <a href="privacidad.html" target="_blank" rel="noopener">Aviso de privacidad</a>.</p>
+          </form>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ TAXIMOTO ============ -->
+    <section class="servicio servicio-alt" id="taximoto">
+      <div class="wrap">
+        <div class="section-head">
+          <div>
+            <p class="eyebrow">Transporte de personas</p>
+            <h2>Taximoto</h2>
+            <p>Te llevamos de un punto A a un punto B de forma rápida y segura. Ideal para tus diligencias y traslados cortos.</p>
+          </div>
+          <span class="count">Pago por cotizar</span>
+        </div>
+
+        <div class="servicio-grid">
+          <div class="servicio-info">
+            <h3>¿Cómo funciona?</h3>
+            <ol class="servicio-steps">
+              <li><b>Indica origen y destino.</b> Escribe el punto A y el punto B.</li>
+              <li><b>Elige cuándo.</b> Urgente, en una hora o una hora exacta.</li>
+              <li><b>Confirmamos por WhatsApp.</b> Te avisamos la unidad y el costo del viaje.</li>
+            </ol>
+            <p class="servicio-note">Viaja solo con lo necesario. El costo depende de la distancia. La solicitud queda registrada con estado <b>pendiente</b> hasta que asignemos la unidad.</p>
+            <button type="button" class="btn btn-ghost" id="taximotoWaBtn">Prefiero pedirlo por WhatsApp</button>
+          </div>
+
+          <form class="servicio-form" id="taximotoForm" novalidate>
+            <h3>Datos del viaje</h3>
+
+            <div class="field">
+              <label for="tOrigen">Origen (A) *</label>
+              <input id="tOrigen" name="origen" type="text" placeholder="Ej: Mercado Buenos Aires, puerta principal">
+              <span class="err" id="errTOrigen"></span>
+            </div>
+
+            <div class="field">
+              <label for="tDestino">Destino (B) *</label>
+              <input id="tDestino" name="destino" type="text" placeholder="Ej: Hospital Regional, emergencia">
+              <span class="err" id="errTDestino"></span>
+            </div>
+
+            <div class="field-row">
+              <div class="field">
+                <label for="tNombre">Nombre del cliente *</label>
+                <input id="tNombre" name="nombre" type="text" autocomplete="name" placeholder="Ej: Ana Torres">
+                <span class="err" id="errTNombre"></span>
+              </div>
+              <div class="field">
+                <label for="tTelefono">Teléfono del cliente *</label>
+                <input id="tTelefono" name="telefono" type="tel" inputmode="tel" autocomplete="tel" placeholder="Ej: 987 654 321">
+                <span class="err" id="errTTelefono"></span>
+              </div>
+            </div>
+
+            <fieldset class="when">
+              <legend>¿Cuándo necesitas el viaje?</legend>
+              <label class="mode-opt">
+                <input type="radio" name="taximotoCuando" value="urgente" id="tUrgente" checked>
+                <span>⚡ Urgente (lo antes posible)</span>
+              </label>
+              <label class="mode-opt">
+                <input type="radio" name="taximotoCuando" value="programado" id="tProgramado">
+                <span>📅 Programar fecha y hora</span>
+              </label>
+              <div class="field" id="tFechaField" hidden>
+                <label for="tFecha">Fecha y hora *</label>
+                <input id="tFecha" name="fecha" type="datetime-local">
+                <span class="err" id="errTFecha"></span>
+              </div>
+            </fieldset>
+
+            <div class="servicio-presets">
+              <span>Atajos:</span>
+              <button type="button" class="chip" id="tEnUnaHora">En 1 hora</button>
+              <button type="button" class="chip" id="tEnDosHoras">En 2 horas</button>
+            </div>
+
+            <p class="form-error" id="taximotoError" role="alert" hidden></p>
+            <p class="form-ok" id="taximotoOk" role="status" hidden></p>
+
+            <button class="btn btn-brand btn-block" type="submit" id="taximotoBtn">Solicitar taximoto</button>
+            <p class="privacy-note">Guardamos la solicitud y abrimos WhatsApp para confirmar la unidad y el costo. <a href="privacidad.html" target="_blank" rel="noopener">Aviso de privacidad</a>.</p>
           </form>
         </div>
       </div>

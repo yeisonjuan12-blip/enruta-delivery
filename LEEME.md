@@ -656,4 +656,21 @@ powershell -ExecutionPolicy Bypass -File tools\importar-tambo.ps1 -Simular
 
 ---
 
+## 16. Servicios: recojo/envío y Taximoto
+
+- **Recojo y envío**: formulario público en `#recojo-envio`. Guarda la solicitud en `server/datos/servicios.json` (arreglo `envios`) con estado `pendiente`.
+- **Taximoto**: formulario público en `#taximoto`. Guarda en el mismo archivo (arreglo `taximotos`) con estado `pendiente`.
+- Endpoints públicos: `POST /api/envios` y `POST /api/taximotos`.
+- Endpoints del panel: `GET /api/admin/servicios?tipo=envio|taximoto` y `POST /api/admin/servicios/estado`.
+- Estados: `pendiente`, `en camino`, `entregado`. Se cambian desde las vistas **Recojo y envío** y **Taximoto** del panel.
+- Validación: direcciones de 6+ caracteres, teléfonos de 9 a 15 dígitos y fecha futura cuando se programa el servicio.
+
+## 17. Locales de prueba
+
+Los 8 locales ficticios están en `js/locales-prueba.js` y se fusionan solo en el render público. Todos llevan `esPrueba: true` y `esEjemplo: true`.
+
+Para quitarlos: borra `js/locales-prueba.js` y elimina su etiqueta `<script>` de `index.html`. No afecta la base de datos real ni el panel.
+
+---
+
 Hecho para **EnRuta Delivery** · Nuevo Chimbote 🛵

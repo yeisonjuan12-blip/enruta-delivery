@@ -2233,6 +2233,20 @@
     if (btn) { btn.disabled = false; btn.textContent = textoOriginal; }
   }
 
+  function programarTaximoto(horas) {
+    const radio = document.getElementById('tProgramado');
+    if (radio) radio.checked = true;
+    const fecha = new Date(Date.now() + horas * 60 * 60 * 1000);
+    const pad = (n) => String(n).padStart(2, '0');
+    const valor = fecha.getFullYear() + '-' + pad(fecha.getMonth() + 1) + '-' + pad(fecha.getDate()) +
+      'T' + pad(fecha.getHours()) + ':' + pad(fecha.getMinutes());
+    const input = document.getElementById('tFecha');
+    if (input) input.value = valor;
+    const err = document.getElementById('errTFecha');
+    if (err) err.textContent = '';
+    actualizarCuandoServicio('taximoto');
+  }
+
   function activarServicios() {
     const envioForm = document.getElementById('envioForm');
     if (envioForm) envioForm.addEventListener('submit', (e) => procesarServicio(e, 'envio'));
@@ -2243,6 +2257,20 @@
         abrirWhatsApp(waLink('Hola, quiero coordinar un recojo y envío con EnRuta Delivery.'));
       });
     }
+
+    const taximotoForm = document.getElementById('taximotoForm');
+    if (taximotoForm) taximotoForm.addEventListener('submit', (e) => procesarServicio(e, 'taximoto'));
+    $$('input[name="taximotoCuando"]').forEach((r) => r.addEventListener('change', () => actualizarCuandoServicio('taximoto')));
+    const taximotoWa = document.getElementById('taximotoWaBtn');
+    if (taximotoWa) {
+      taximotoWa.addEventListener('click', () => {
+        abrirWhatsApp(waLink('Hola, quiero solicitar un taximoto con EnRuta Delivery.'));
+      });
+    }
+    const unaHora = document.getElementById('tEnUnaHora');
+    if (unaHora) unaHora.addEventListener('click', () => programarTaximoto(1));
+    const dosHoras = document.getElementById('tEnDosHoras');
+    if (dosHoras) dosHoras.addEventListener('click', () => programarTaximoto(2));
   }
 
   function enlazarEventos() {

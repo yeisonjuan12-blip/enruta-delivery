@@ -2031,6 +2031,220 @@
     refrescarTrasCarrito(false);
   }
 
+  /* ---------------- Recojo/envío y taximoto ---------------- */
+  function telefonoServicioValido(valor) {
+    const digitos = onlyDigits(valor);
+    return digitos.length >= 9 && digitos.length <= 15;
+  }
+
+  function valorCampo(id) {
+    const el = document.getElementById(id);
+    return el ? String(el.value || '').trim() : '';
+  }
+
+  function marcarCampoServicio(inputId, errId, mensaje) {
+    const input = document.getElementById(inputId);
+    const err = document.getElementById(errId);
+    if (input) input.classList.toggle('invalid', !!mensaje);
+    if (err) err.textContent = mensaje || '';
+  }
+
+  function requeridoServicio(inputId, errId, minimo, mensaje) {
+    const valor = valorCampo(inputId);
+    if (valor.length < minimo) {
+      marcarCampoServicio(inputId, errId, mensaje);
+      return '';
+    }
+    marcarCampoServicio(inputId, errId, '');
+    return valor;
+  }
+
+  function telefonoServicioRequerido(inputId, errId, mensaje) {
+    const valor = valorCampo(inputId);
+    if (!telefonoServicioValido(valor)) {
+      marcarCampoServicio(inputId, errId, mensaje);
+      return '';
+    }
+    marcarCampoServicio(inputId, errId, '');
+    return valor;
+  }
+
+  function leerCuandoServicio(nombre) {
+    let cuando = 'urgente';
+    $$('input[name="' + nombre + '"]').forEach((r) => { if (r.checked) cuando = r.value; });
+    const fechaId = nombre === 'envioCuando' ? 'eFecha' : 'tFecha';
+    return {
+      cuando: cuando === 'programado' ? 'programado' : 'urgente',
+      fecha: cuando === 'programado' ? valorCampo(fechaId) : ''
+    };
+  }
+
+  function textoCuandoServicio(info) {
+    if (info.cuando !== 'programado') return 'Urgente (lo antes posible)';
+    const fecha = new Date(info.fecha);
+    return isNaN(fecha.getTime()) ? 'Programado' : 'Programado: ' + fechaHora(fecha);
+  }
+
+  function validarCuandoServicio(info, inputId, errId) {
+    if (info.cuando !== 'programado') {
+      marcarCampoServicio(inputId, errId, '');
+      return true;
+    }
+    if (!info.fecha) {
+      marcarCampoServicio(inputId, errId, 'Elige la fecha y hora.');
+      return false;
+    }
+    const fecha = new Date(info.fecha);
+    if (isNaN(fecha.getTime()) || fecha.getTime() < Date.now() - 5 * 60 * 1000) {
+      marcarCampoServicio(inputId, errId, 'La fecha y hora deben ser futuras.');
+      return false;
+    }
+    marcarCampoServicio(inputId, errId, '');
+    return true;
+  }
+
+  function actualizarCuandoServicio(tipo) {
+    const nombre = tipo === 'envio' ? 'envioCuando' : 'taximotoCuando';
+    const field = document.getElementById(tipo === 'envio' ? 'eFechaField' : 'tFechaField');
+    if (!field) return;
+    let programado = false;
+    $$('input[name="' + nombre + '"]').forEach((r) => { if (r.checked && r.value === 'programado') programado = true; });
+    field.hidden = !programado;
+  }
+
+  async function registrarServicio(tipo, datos) {
+    const url = tipo === 'envio' ? '/api/envios' : '/api/taximotos';
+    const res = await fetch(url, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(datos)
+    });
+    const texto = await res.text();
+    let info = null;
+    if (texto) { try { info = JSON.parse(texto); } catch (e) { info = { error: texto }; } }
+    if (!res.ok) {
+      throw new Error((info && (info.error || info.mensaje)) || 'No se pudo guardar la solicitud.');
+    }
+    return info || {};
+  }
+
+  function mensajeEnvioServicio(d, registro) {
+    return '*Recojo y envío · EnRuta Delivery*\n' +
+      (registro && registro.servicioId ? 'Solicitud: ' + registro.servicioId + '\n' : '') +
+      '\n*Recojo:* ' + d.origen + '\n' +
+      '*Entrega:* ' + d.destino + '\n' +
+      '*Envía:* ' + d.nombreEnvia + ' · ' + d.telefonoEnvia + '\n' +
+      '*Recibe:* ' + d.nombreRecibe + ' · ' + d.telefonoRecibe + '\n' +
+      '*Producto:* ' + d.descripcion + '\n' +
+      (d.observaciones ? '*Observaciones:* ' + d.observaciones + '\n' : '') +
+      '*Cuándo:* ' + textoCuandoServicio(d) + '\n' +
+      '\nQuedo atento a la confirmación del costo y del tiempo.';
+  }
+
+  function mensajeTaximoto(d, registro) {
+    return '*Taximoto · EnRuta Delivery*\n' +
+      (registro && registro.servicioId ? 'Solicitud: ' + registro.servicioId + '\n' : '') +
+      '\n*Origen (A):* ' + d.origen + '\n' +
+      '*Destino (B):* ' + d.destino + '\n' +
+      '*Cliente:* ' + d.nombreCliente + ' · ' + d.telefono + '\n' +
+      '*Cuándo:* ' + textoCuandoServicio(d) + '\n' +
+      '\nQuedo atento a la confirmación de la unidad y del costo.';
+  }
+
+  async function procesarServicio(evento, tipo) {
+    evento.preventDefault();
+    const form = evento.currentTarget;
+    const esEnvio = tipo === 'envio';
+    const prefijo = esEnvio ? 'envio' : 'taximoto';
+    const err = document.getElementById(prefijo + 'Error');
+    const ok = document.getElementById(prefijo + 'Ok');
+    const btn = document.getElementById(prefijo + 'Btn');
+    if (err) { err.hidden = true; err.textContent = ''; }
+    if (ok) { ok.hidden = true; ok.textContent = ''; }
+
+    let valido = true;
+    const datos = {};
+    if (esEnvio) {
+      datos.origen = requeridoServicio('eOrigen', 'errEOrigen', 6, 'Escribe la dirección de recojo.');
+      datos.destino = requeridoServicio('eDestino', 'errEDestino', 6, 'Escribe la dirección de entrega.');
+      datos.nombreEnvia = requeridoServicio('eNombreEnvia', 'errENombreEnvia', 3, 'Escribe el nombre de quien envía.');
+      datos.telefonoEnvia = telefonoServicioRequerido('eTelefonoEnvia', 'errETelefonoEnvia', 'Teléfono inválido (9 a 15 dígitos).');
+      datos.nombreRecibe = requeridoServicio('eNombreRecibe', 'errENombreRecibe', 3, 'Escribe el nombre de quien recibe.');
+      datos.telefonoRecibe = telefonoServicioRequerido('eTelefonoRecibe', 'errETelefonoRecibe', 'Teléfono inválido (9 a 15 dígitos).');
+      datos.descripcion = requeridoServicio('eDescripcion', 'errEDescripcion', 3, 'Describe qué se envía.');
+      datos.observaciones = valorCampo('eObservaciones');
+    } else {
+      datos.origen = requeridoServicio('tOrigen', 'errTOrigen', 6, 'Escribe el punto de origen.');
+      datos.destino = requeridoServicio('tDestino', 'errTDestino', 6, 'Escribe el punto de destino.');
+      datos.nombreCliente = requeridoServicio('tNombre', 'errTNombre', 3, 'Escribe el nombre del cliente.');
+      datos.telefono = telefonoServicioRequerido('tTelefono', 'errTTelefono', 'Teléfono inválido (9 a 15 dígitos).');
+    }
+    if (Object.keys(datos).some((k) => k !== 'observaciones' && !datos[k])) valido = false;
+
+    const cuandoInfo = leerCuandoServicio(esEnvio ? 'envioCuando' : 'taximotoCuando');
+    const fechaInput = esEnvio ? 'eFecha' : 'tFecha';
+    const fechaErr = esEnvio ? 'errEFecha' : 'errTFecha';
+    if (!validarCuandoServicio(cuandoInfo, fechaInput, fechaErr)) valido = false;
+    datos.cuando = cuandoInfo.cuando;
+    datos.fecha = cuandoInfo.fecha || null;
+
+    if (!valido) {
+      if (err) {
+        err.textContent = 'Revisa los campos marcados antes de enviar.';
+        err.hidden = false;
+      }
+      return;
+    }
+
+    const textoOriginal = btn ? btn.textContent : '';
+    if (btn) { btn.disabled = true; btn.textContent = 'Enviando…'; }
+
+    await comprobarServicios();
+
+    let registro = null;
+    let fallo = null;
+    if (state.apiDisponible) {
+      try {
+        registro = await registrarServicio(tipo, datos);
+      } catch (e) {
+        fallo = e;
+      }
+    }
+
+    const mensaje = esEnvio ? mensajeEnvioServicio(datos, registro) : mensajeTaximoto(datos, registro);
+    const abierto = abrirWhatsApp(waLink(mensaje));
+
+    if (ok) {
+      if (registro && registro.servicioId) {
+        ok.textContent = 'Solicitud ' + registro.servicioId + ' registrada. Se abrió WhatsApp para confirmar disponibilidad y costo.';
+      } else if (!state.apiDisponible) {
+        ok.textContent = 'Abrimos WhatsApp con tu solicitud. Ahí confirmamos disponibilidad y costo.';
+      } else {
+        ok.textContent = 'No pudimos guardar la solicitud en el servidor' +
+          (fallo && fallo.message ? ' (' + fallo.message + ')' : '') +
+          ', pero abrimos WhatsApp con todos los datos.';
+      }
+      ok.hidden = false;
+    }
+    mostrarToast(abierto ? 'Solicitud lista. Revisa WhatsApp.' : 'Abriendo WhatsApp…');
+
+    if (form) form.reset();
+    actualizarCuandoServicio(tipo);
+    if (btn) { btn.disabled = false; btn.textContent = textoOriginal; }
+  }
+
+  function activarServicios() {
+    const envioForm = document.getElementById('envioForm');
+    if (envioForm) envioForm.addEventListener('submit', (e) => procesarServicio(e, 'envio'));
+    $$('input[name="envioCuando"]').forEach((r) => r.addEventListener('change', () => actualizarCuandoServicio('envio')));
+    const envioWa = document.getElementById('envioWaBtn');
+    if (envioWa) {
+      envioWa.addEventListener('click', () => {
+        abrirWhatsApp(waLink('Hola, quiero coordinar un recojo y envío con EnRuta Delivery.'));
+      });
+    }
+  }
+
   function enlazarEventos() {
     const grid = document.getElementById('localsGrid');
     if (grid) {
@@ -2323,6 +2537,7 @@
     renderCategorias();
     renderCart();
     enlazarEventos();
+    activarServicios();
     activarAccesoOculto();
     actualizarEstadoZona();
     setInterval(actualizarEstadoZona, 60000);

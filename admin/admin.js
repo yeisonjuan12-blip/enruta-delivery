@@ -76,6 +76,15 @@
     { id: 'entregado', nombre: 'Entregado' },
     { id: 'cancelado', nombre: 'Cancelado' }
   ];
+  const ESTADOS_SERVICIO = [
+    { id: 'pendiente', nombre: 'Pendiente' },
+    { id: 'en camino', nombre: 'En camino' },
+    { id: 'entregado', nombre: 'Entregado' }
+  ];
+  const TIPOS_SERVICIO = {
+    envio: { vista: 'envios', titulo: 'Recojo y envío', singular: 'envío', icono: '📦' },
+    taximoto: { vista: 'taximotos', titulo: 'Taximoto', singular: 'taximoto', icono: '🛵' }
+  };
 
   const state = {
     sesion: null,
@@ -97,6 +106,7 @@
     config: null,
     statsLocal: null,
     pedidos: [],
+    servicios: [],
     usuarios: [],
     auditoria: [],
     importaciones: []
@@ -277,6 +287,8 @@
     catalogos: ['Catálogos', 'Licores y primera necesidad'],
     pagina: ['Página', 'Marca, contacto, zonas y categorías de la web'],
     pedidos: ['Pedidos', 'Solicitudes recibidas desde la web'],
+    envios: ['Recojo y envío', 'Solicitudes de recojo y entrega de productos'],
+    taximotos: ['Taximoto', 'Solicitudes de transporte de personas'],
     usuarios: ['Usuarios', 'Accesos administrativos y de locales'],
     auditoria: ['Auditoría', 'Últimas acciones registradas'],
     cuenta: ['Mi cuenta', 'Seguridad y contraseña']
@@ -331,6 +343,10 @@
         await vistaPagina();
       } else if (vista === 'pedidos') {
         await vistaPedidos();
+      } else if (vista === 'envios') {
+        await vistaServicios('envio');
+      } else if (vista === 'taximotos') {
+        await vistaServicios('taximoto');
       } else if (vista === 'usuarios') {
         if (state.sesion.rol !== 'admin') return ir('resumen');
         await vistaUsuarios();
@@ -3238,6 +3254,113 @@
         cerrarModal();
         toast('Estado del pedido actualizado.');
         await vistaPedidos();
+      } catch (e) { bloquear(btn, false); avisarError(e); }
+    });
+  }
+
+  /* ============================================================
+     SERVICIOS: RECOJO/ENVÍO Y TAXIMOTO
+     ============================================================ */
+  let filtroServicio = '';
+
+  async function vistaServicios(tipo) {
+    const cfg = TIPOS_SERVICIO[tipo];
+    mostrarVista(cfg.vista);
+    const cont = $('#view-' + cfg.vista);
+    cont.innerHTML = '<div class="panel"><div class="panel-body muted">Cargando solicitudes…</div></div>';
+    try {
+      const r = await api('/api/admin/servicios?tipo=' + encodeURIComponent(tipo));
+      state.servicios = (r.servicios || []).filter((s) => !s.tipo || s.tipo === tipo);
+    } catch (e) {
+      cont.innerHTML = '<div class="panel"><div class="panel-body"><p class="form-error">' + esc(e.message) + '</p></div></div>';
+      return;
+    }
+    filtroServicio = '';
+    pintarServicios(tipo);
+  }
+
+  function badgeServicio(estado) {
+    const clase = estado === 'entregado' ? 'ok' : estado === 'en camino' ? 'info' : 'brand';
+    return '<span class="badge ' + clase + '">' + esc(estado) + '</span>';
+  }
+
+  function pintarServicios(tipo) {
+    const cfg = TIPOS_SERVICIO[tipo];
+    const cont = $('#view-' + cfg.vista);
+    const todos = state.servicios;
+    const lista = todos.filter((s) => !filtroServicio || s.estado === filtroServicio);
+    const cuenta = (estado) => todos.filter((s) => s.estado === estado).length;
+    const esEnvio = tipo === 'envio';
+    const filas = lista.map((s) => `
+      <tr>
+        <td><div class="nombre">${esc(s.id)}</div><div class="sub">${esc(fechaCorta(s.creadoEn))}</div></td>
+        <td class="small"><div><b>De:</b> ${esc(s.origen)}</div><div><b>A:</b> ${esc(s.destino)}</div></td>
+        <td>${esEnvio
+          ? `<div>${esc(s.nombreEnvia)} <span class="sub">envía</span></div><div class="sub">${esc(s.telefonoEnvia)}</div><div>${esc(s.nombreRecibe)} <span class="sub">recibe</span></div><div class="sub">${esc(s.telefonoRecibe)}</div>`
+          : `<div>${esc(s.nombreCliente)}</div><div class="sub">${esc(s.telefono)}</div>`}</td>
+        <td class="small">${esc(s.cuandoTexto || s.cuando || '')}</td>
+        <td>${badgeServicio(s.estado)}</td>
+        <td><div class="acciones"><button class="btn btn-sm" data-ver-servicio="${esc(s.id)}">Ver detalle</button></div></td>
+      </tr>`).join('');
+    cont.innerHTML = `
+      <div class="page-head">
+        <div><h2>${cfg.titulo}</h2><p>${todos.length} solicitudes guardadas. Cambia el estado cuando avances con el servicio.</p></div>
+        <div class="page-head-actions"><button class="btn" id="refrescarServicios">Actualizar</button></div>
+      </div>
+      <div class="chips">
+        <button class="chip ${filtroServicio === '' ? 'activo' : ''}" data-estado-servicio="">Todas (${todos.length})</button>
+        ${ESTADOS_SERVICIO.map((e) => `<button class="chip ${filtroServicio === e.id ? 'activo' : ''}" data-estado-servicio="${e.id}">${e.nombre} (${cuenta(e.id)})</button>`).join('')}
+      </div>
+      ${lista.length ? `<div class="panel"><div class="table-wrap"><table class="table">
+        <thead><tr><th>Solicitud</th><th>Ruta</th><th>${esEnvio ? 'Personas' : 'Cliente'}</th><th>Cuándo</th><th>Estado</th><th></th></tr></thead>
+        <tbody>${filas}</tbody></table></div></div>`
+        : `<div class="panel"><div class="empty"><div class="big">${cfg.icono}</div><h3>Sin solicitudes en este estado</h3><p>Las solicitudes aparecen aquí cuando un cliente las envía desde la web.</p></div></div>`}`;
+
+    $$('[data-estado-servicio]', cont).forEach((b) => b.addEventListener('click', () => { filtroServicio = b.dataset.estadoServicio; pintarServicios(tipo); }));
+    const refrescar = $('#refrescarServicios');
+    if (refrescar) refrescar.addEventListener('click', () => vistaServicios(tipo));
+    $$('[data-ver-servicio]', cont).forEach((b) => b.addEventListener('click', () => verServicio(tipo, b.dataset.verServicio)));
+  }
+
+  function verServicio(tipo, id) {
+    const cfg = TIPOS_SERVICIO[tipo];
+    const s = state.servicios.find((x) => String(x.id) === String(id));
+    if (!s) return;
+    const estados = ESTADOS_SERVICIO.map((e) => `<option value="${e.id}" ${s.estado === e.id ? 'selected' : ''}>${e.nombre}</option>`).join('');
+    const esEnvio = tipo === 'envio';
+    const contacto = esEnvio
+      ? `<div class="detail-box"><h4>Personas</h4>
+          <p><b>Envía:</b> ${esc(s.nombreEnvia)}</p><p>${esc(s.telefonoEnvia)}</p>
+          <p class="mt-8"><b>Recibe:</b> ${esc(s.nombreRecibe)}</p><p>${esc(s.telefonoRecibe)}</p></div>
+        <div class="detail-box"><h4>Producto</h4><p>${esc(s.descripcion)}</p>
+          ${s.observaciones ? `<p class="small muted mt-8">Observaciones: ${esc(s.observaciones)}</p>` : ''}</div>`
+      : `<div class="detail-box"><h4>Cliente</h4><p><b>${esc(s.nombreCliente)}</b></p><p>${esc(s.telefono)}</p></div>`;
+    abrirModal({
+      titulo: (esEnvio ? 'Envío ' : 'Taximoto ') + s.id,
+      ancho: 'wide',
+      cuerpo: `
+        <div class="detail-grid">
+          <div class="detail-box"><h4>Ruta</h4>
+            <p><b>Origen:</b> ${esc(s.origen)}</p>
+            <p class="mt-8"><b>Destino:</b> ${esc(s.destino)}</p>
+            <p class="small muted mt-8">${esc(s.cuandoTexto || '')}</p>
+            <p class="small muted">Creado: ${esc(fechaCorta(s.creadoEn))}</p>
+          </div>
+          ${contacto}
+        </div>
+        <label class="field mt-16"><span>Estado del servicio</span><select id="servicioEstado">${estados}</select></label>
+        <button class="btn btn-primary mt-8" id="guardarEstadoServicio">Guardar estado</button>`,
+      pie: '<button class="btn" data-cerrar>Cerrar</button>'
+    });
+    $('[data-cerrar]').addEventListener('click', cerrarModal);
+    $('#guardarEstadoServicio').addEventListener('click', async () => {
+      const btn = $('#guardarEstadoServicio');
+      try {
+        bloquear(btn, true);
+        await api('/api/admin/servicios/estado', { method: 'POST', body: { tipo: tipo, id: s.id, estado: $('#servicioEstado').value } });
+        cerrarModal();
+        toast('Estado de la solicitud actualizado.');
+        await vistaServicios(tipo);
       } catch (e) { bloquear(btn, false); avisarError(e); }
     });
   }

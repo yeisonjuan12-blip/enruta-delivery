@@ -44,6 +44,7 @@
         <a href="#locales">Locales</a>
         <a href="#licores">Licores</a>
         <a href="#primera-necesidad">Primera necesidad</a>
+        <a href="#recojo-envio">Recojo y envío</a>
         <a href="#nosotros">Nosotros</a>
       </nav>
 
@@ -83,6 +84,7 @@
             <a href="#locales">🍗 Locales</a>
             <a href="#licores">🥃 Licores</a>
             <a href="#primera-necesidad">🧺 Primera necesidad</a>
+            <a href="#recojo-envio">📦 Recojo y envío</a>
             <a href="#nosotros">ℹ️ Sobre nosotros</a>
           </div>
 
@@ -209,6 +211,109 @@
           <p>Prueba con otra categoría o limpia la búsqueda.</p>
         </div>
         <p class="catalog-note"><b>Ref. Tambo</b> indica precio publicado en tambo.pe; <b>Precio EnRuta</b> indica precio verificado por EnRuta. Fechas consultadas: <span id="necFecha">—</span>. La disponibilidad y el precio final se confirman por WhatsApp antes de la compra.</p>
+      </div>
+    </section>
+
+    <!-- ============ RECOJO Y ENVÍO ============ -->
+    <section class="servicio" id="recojo-envio">
+      <div class="wrap">
+        <div class="section-head">
+          <div>
+            <p class="eyebrow">Servicio adicional</p>
+            <h2>Recojo y envío</h2>
+            <p>Recogemos tu producto en un punto y lo entregamos en otro. Ideal para documentos, paquetes y compras entre locales.</p>
+          </div>
+          <span class="count">Pago por cotizar</span>
+        </div>
+
+        <div class="servicio-grid">
+          <div class="servicio-info">
+            <h3>¿Cómo funciona?</h3>
+            <ol class="servicio-steps">
+              <li><b>Completa los datos.</b> Dinos de dónde recogemos y a dónde llevamos.</li>
+              <li><b>Elige cuándo.</b> Urgente o programa fecha y hora.</li>
+              <li><b>Confirmamos por WhatsApp.</b> Te avisamos el costo y el tiempo estimado.</li>
+            </ol>
+            <p class="servicio-note">El costo depende de la distancia y del tamaño del paquete. La solicitud queda registrada con estado <b>pendiente</b> hasta que la confirmemos.</p>
+            <button type="button" class="btn btn-ghost" id="envioWaBtn">Prefiero pedirlo por WhatsApp</button>
+          </div>
+
+          <form class="servicio-form" id="envioForm" novalidate>
+            <h3>Datos del envío</h3>
+
+            <div class="field-row">
+              <div class="field">
+                <label for="eNombreEnvia">Nombre de quien envía *</label>
+                <input id="eNombreEnvia" name="nombreEnvia" type="text" autocomplete="name" placeholder="Ej: Rosa Flores">
+                <span class="err" id="errENombreEnvia"></span>
+              </div>
+              <div class="field">
+                <label for="eTelefonoEnvia">Teléfono de quien envía *</label>
+                <input id="eTelefonoEnvia" name="telefonoEnvia" type="tel" inputmode="tel" autocomplete="tel" placeholder="Ej: 987 654 321">
+                <span class="err" id="errETelefonoEnvia"></span>
+              </div>
+            </div>
+
+            <div class="field">
+              <label for="eOrigen">Dirección de recojo *</label>
+              <input id="eOrigen" name="origen" type="text" placeholder="Calle, número, referencia o local">
+              <span class="err" id="errEOrigen"></span>
+            </div>
+
+            <div class="field">
+              <label for="eDestino">Dirección de entrega *</label>
+              <input id="eDestino" name="destino" type="text" placeholder="Calle, número, referencia o local">
+              <span class="err" id="errEDestino"></span>
+            </div>
+
+            <div class="field-row">
+              <div class="field">
+                <label for="eNombreRecibe">Nombre de quien recibe *</label>
+                <input id="eNombreRecibe" name="nombreRecibe" type="text" placeholder="Ej: Luis Pérez">
+                <span class="err" id="errENombreRecibe"></span>
+              </div>
+              <div class="field">
+                <label for="eTelefonoRecibe">Teléfono de quien recibe *</label>
+                <input id="eTelefonoRecibe" name="telefonoRecibe" type="tel" inputmode="tel" placeholder="Ej: 912 345 678">
+                <span class="err" id="errETelefonoRecibe"></span>
+              </div>
+            </div>
+
+            <div class="field">
+              <label for="eDescripcion">¿Qué se envía? *</label>
+              <textarea id="eDescripcion" name="descripcion" rows="2" placeholder="Ej: sobre con documentos, caja de 30 × 20 cm, comida sellada…"></textarea>
+              <span class="err" id="errEDescripcion"></span>
+            </div>
+
+            <div class="field">
+              <label for="eObservaciones">Observaciones <span class="opt">(opcional)</span></label>
+              <textarea id="eObservaciones" name="observaciones" rows="2" placeholder="Ej: llamar al llegar, es frágil, entregar en recepción…"></textarea>
+            </div>
+
+            <fieldset class="when">
+              <legend>¿Cuándo lo recogemos?</legend>
+              <label class="mode-opt">
+                <input type="radio" name="envioCuando" value="urgente" id="eUrgente" checked>
+                <span>⚡ Urgente (lo antes posible)</span>
+              </label>
+              <label class="mode-opt">
+                <input type="radio" name="envioCuando" value="programado" id="eProgramado">
+                <span>📅 Programar fecha y hora</span>
+              </label>
+              <div class="field" id="eFechaField" hidden>
+                <label for="eFecha">Fecha y hora *</label>
+                <input id="eFecha" name="fecha" type="datetime-local">
+                <span class="err" id="errEFecha"></span>
+              </div>
+            </fieldset>
+
+            <p class="form-error" id="envioError" role="alert" hidden></p>
+            <p class="form-ok" id="envioOk" role="status" hidden></p>
+
+            <button class="btn btn-brand btn-block" type="submit" id="envioBtn">Solicitar recojo y envío</button>
+            <p class="privacy-note">Guardamos la solicitud y abrimos WhatsApp para confirmar disponibilidad y costo. <a href="privacidad.html" target="_blank" rel="noopener">Aviso de privacidad</a>.</p>
+          </form>
+        </div>
       </div>
     </section>
 

@@ -251,6 +251,23 @@ function Manejar-Api {
     return
   }
 
+  # ----- Servicios publicos: recojo/envio y taximoto -----
+  if ($ruta -eq '/api/envios' -and $metodo -eq 'POST') {
+    $cuerpo = Leer-CuerpoJson $Contexto 65536
+    if ($null -eq $cuerpo) { Lanzar-ErrorHttp 400 'Solicitud vacia.' }
+    $res = Guardar-ServicioPublico 'envio' $cuerpo $Contexto
+    Responder-Json $Contexto 201 $res
+    return
+  }
+
+  if ($ruta -eq '/api/taximotos' -and $metodo -eq 'POST') {
+    $cuerpo = Leer-CuerpoJson $Contexto 65536
+    if ($null -eq $cuerpo) { Lanzar-ErrorHttp 400 'Solicitud vacia.' }
+    $res = Guardar-ServicioPublico 'taximoto' $cuerpo $Contexto
+    Responder-Json $Contexto 201 $res
+    return
+  }
+
   # ---------------- Autenticacion ----------------
   if ($ruta -eq '/api/auth/login' -and $metodo -eq 'POST') {
     $cuerpo = Leer-CuerpoJson $Contexto 65536
@@ -671,6 +688,21 @@ function Manejar-Api {
     if ($ruta -match '^/api/admin/pedidos/([^/]+)$' -and $metodo -eq 'PUT') {
       $cuerpo = Leer-CuerpoJson $Contexto 65536
       $res = Cambiar-EstadoPedido $Matches[1] ([string]$cuerpo.estado) $sesion $ip
+      Responder-Json $Contexto 200 $res
+      return
+    }
+
+    # ----- Servicios: recojo/envio y taximoto -----
+    if ($ruta -eq '/api/admin/servicios' -and $metodo -eq 'GET') {
+      $tipo = ''
+      if ($req.QueryString['tipo']) { $tipo = [string]$req.QueryString['tipo'] }
+      Responder-Json $Contexto 200 ([ordered]@{ servicios = @(Obtener-ServiciosAdmin $tipo 300) })
+      return
+    }
+
+    if ($ruta -eq '/api/admin/servicios/estado' -and ($metodo -eq 'POST' -or $metodo -eq 'PUT')) {
+      $cuerpo = Leer-CuerpoJson $Contexto 65536
+      $res = Cambiar-EstadoServicio ([string]$cuerpo.tipo) ([string]$cuerpo.id) ([string]$cuerpo.estado) $sesion $ip
       Responder-Json $Contexto 200 $res
       return
     }

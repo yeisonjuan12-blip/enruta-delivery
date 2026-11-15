@@ -7,6 +7,7 @@ $script:RutaLocales = Join-Path $script:CarpetaDatosPublicos 'locales'
 $script:RutaCatalogoLicores = Join-Path $script:CarpetaDatosPublicos 'licores'
 $script:RutaCatalogoNec = Join-Path $script:CarpetaDatosPublicos 'primera-necesidad'
 $script:RutaPedidos = Join-Path $script:CarpetaDatos 'pedidos.json'
+$script:RutaServicios = Join-Path $script:CarpetaDatos 'servicios.json'
 $script:RutaAuditoria = Join-Path $script:CarpetaDatos 'auditoria.jsonl'
 $script:RutaRespaldos = Join-Path $script:CarpetaDatos 'respaldos'
 
@@ -17,6 +18,9 @@ function Inicializar-Datos {
   Asegurar-Carpeta $script:RutaRespaldos | Out-Null
   if (-not (Test-Path -LiteralPath $script:RutaPedidos)) {
     Guardar-JsonAtomico $script:RutaPedidos ([ordered]@{ version = 1; pedidos = @() }) -SinRespaldo
+  }
+  if (-not (Test-Path -LiteralPath $script:RutaServicios)) {
+    Guardar-JsonAtomico $script:RutaServicios ([ordered]@{ version = 1; envios = @(); taximotos = @() }) -SinRespaldo
   }
 }
 
@@ -1244,7 +1248,7 @@ function Cambiar-EstadoPedido {
         Lanzar-ErrorHttp 403 'Ese pedido no pertenece a tu local.'
       }
       $p.estado = $Estado
-      $p.actualizadoEn = (Get-Date -Format 'yyyy-MM-dd HH:mm:ss')
+      $p | Add-Member -NotePropertyName actualizadoEn -NotePropertyValue (Get-Date -Format 'yyyy-MM-dd HH:mm:ss') -Force
       $encontrado = $p
     }
   }
@@ -1252,6 +1256,142 @@ function Cambiar-EstadoPedido {
   Guardar-JsonAtomico $script:RutaPedidos $doc
   Registrar-Auditoria $Sesion.usuario $Sesion.rol 'pedido.estado' "Pedido $Id -> $Estado" $Ip
   return [ordered]@{ ok = $true; pedido = $encontrado }
+}
+
+# ------------------------------------------------------------
+#  Servicios: recojo/envio de productos y taximoto
+# ------------------------------------------------------------
+function Leer-Servicios {
+  Inicializar-Datos
+  $doc = Leer-JsonRuta $script:RutaServicios $null
+  if ($null -eq $doc) { return [ordered]@{ version = 1; envios = @(); taximotos = @() } }
+  if ($null -eq $doc.envios) { $doc | Add-Member -NotePropertyName envios -NotePropertyValue @() -Force }
+  if ($null -eq $doc.taximotos) { $doc | Add-Member -NotePropertyName taximotos -NotePropertyValue @() -Force }
+  return $doc
+}
+
+function Validar-TelefonoServicio {
+  param([string]$Telefono, [string]$Campo)
+  $digitos = ($Telefono -replace '\D', '')
+  if ($digitos.Length -lt 9 -or $digitos.Length -gt 15) {
+    Lanzar-ErrorHttp 400 ("Telefono invalido: " + $Campo + ".")
+  }
+  return $Telefono.Trim()
+}
+
+function Validar-CuandoServicio {
+  param($Datos)
+  $cuando = ([string]$Datos.cuando).Trim().ToLowerInvariant()
+  if ($cuando -ne 'programado') { $cuando = 'urgente' }
+  $fecha = $null
+  if ($cuando -eq 'programado') {
+    $texto = ([string]$Datos.fecha).Trim()
+    if ([string]::IsNullOrWhiteSpace($texto)) { Lanzar-ErrorHttp 400 'Indica la fecha y hora del servicio.' }
+    try {
+      $fecha = [DateTime]::Parse($texto, [Globalization.CultureInfo]::InvariantCulture, [Globalization.DateTimeStyles]::RoundtripKind)
+    } catch {
+      Lanzar-ErrorHttp 400 'La fecha y hora no son validas.'
+    }
+    if ($fecha -lt (Get-Date).AddMinutes(-5)) { Lanzar-ErrorHttp 400 'La fecha y hora deben ser futuras.' }
+  }
+  return [ordered]@{
+    cuando      = $cuando
+    fecha       = if ($null -ne $fecha) { $fecha.ToString('yyyy-MM-ddTHH:mm') } else { $null }
+    cuandoTexto = if ($cuando -eq 'urgente') { 'Urgente (lo antes posible)' } else { 'Programado: ' + $fecha.ToString('dd/MM/yyyy HH:mm') }
+  }
+}
+
+function Guardar-ServicioPublico {
+  param([string]$Tipo, $Datos, [System.Net.HttpListenerContext]$Contexto)
+  if ($null -eq $Datos) { Lanzar-ErrorHttp 400 'Solicitud vacia.' }
+  if (@('envio', 'taximoto') -notcontains $Tipo) { Lanzar-ErrorHttp 400 'Tipo de servicio invalido.' }
+  $cuando = Validar-CuandoServicio $Datos
+  $origen = ([string]$Datos.origen).Trim()
+  $destino = ([string]$Datos.destino).Trim()
+  if ($origen.Length -lt 6 -or $origen.Length -gt 240) { Lanzar-ErrorHttp 400 'Direccion de origen invalida.' }
+  if ($destino.Length -lt 6 -or $destino.Length -gt 240) { Lanzar-ErrorHttp 400 'Direccion de destino invalida.' }
+
+  $prefijo = if ($Tipo -eq 'taximoto') { 'TAX' } else { 'ENV' }
+  $id = $prefijo + '-' + (Get-Date -Format 'yyyyMMdd') + '-' + (Convertir-Base64Url (Generar-BytesAleatorios 4)).ToUpperInvariant()
+  $servicio = [ordered]@{
+    id              = $id
+    tipo            = $Tipo
+    creadoEn        = (Get-Date -Format 'yyyy-MM-dd HH:mm:ss')
+    estado          = 'pendiente'
+    origen          = $origen
+    destino         = $destino
+    cuando          = $cuando.cuando
+    fecha           = $cuando.fecha
+    cuandoTexto     = $cuando.cuandoTexto
+    origenSolicitud = 'web'
+    ip              = (Obtener-IpCliente $Contexto)
+    userAgent       = ([string]$Contexto.Request.UserAgent)
+  }
+
+  $doc = Leer-Servicios
+  if ($Tipo -eq 'taximoto') {
+    $nombre = ([string]$Datos.nombreCliente).Trim()
+    if ($nombre.Length -lt 3 -or $nombre.Length -gt 120) { Lanzar-ErrorHttp 400 'Nombre del cliente invalido.' }
+    $servicio.nombreCliente = $nombre
+    $servicio.telefono = Validar-TelefonoServicio ([string]$Datos.telefono) 'del cliente'
+    $doc.taximotos = @($doc.taximotos) + @($servicio)
+    Guardar-JsonAtomico $script:RutaServicios $doc
+    Registrar-Auditoria 'cliente-web' 'publico' 'taximoto.crear' "Taximoto $id de $origen a $destino" (Obtener-IpCliente $Contexto)
+    return [ordered]@{ ok = $true; servicioId = $id; tipo = 'taximoto' }
+  }
+
+  $nombreEnvia = ([string]$Datos.nombreEnvia).Trim()
+  if ($nombreEnvia.Length -lt 3 -or $nombreEnvia.Length -gt 120) { Lanzar-ErrorHttp 400 'Nombre de quien envia invalido.' }
+  $telefonoEnvia = Validar-TelefonoServicio ([string]$Datos.telefonoEnvia) 'de quien envia'
+  $nombreRecibe = ([string]$Datos.nombreRecibe).Trim()
+  if ($nombreRecibe.Length -lt 3 -or $nombreRecibe.Length -gt 120) { Lanzar-ErrorHttp 400 'Nombre de quien recibe invalido.' }
+  $telefonoRecibe = Validar-TelefonoServicio ([string]$Datos.telefonoRecibe) 'de quien recibe'
+  $descripcion = ([string]$Datos.descripcion).Trim()
+  if ($descripcion.Length -lt 3 -or $descripcion.Length -gt 400) { Lanzar-ErrorHttp 400 'Describe el producto que se envia.' }
+  $observaciones = ([string]$Datos.observaciones).Trim()
+  if ($observaciones.Length -gt 600) { Lanzar-ErrorHttp 400 'Las observaciones son demasiado largas.' }
+
+  $servicio.nombreEnvia = $nombreEnvia
+  $servicio.telefonoEnvia = $telefonoEnvia
+  $servicio.nombreRecibe = $nombreRecibe
+  $servicio.telefonoRecibe = $telefonoRecibe
+  $servicio.descripcion = $descripcion
+  $servicio.observaciones = $observaciones
+  $doc.envios = @($doc.envios) + @($servicio)
+  Guardar-JsonAtomico $script:RutaServicios $doc
+  Registrar-Auditoria 'cliente-web' 'publico' 'envio.crear' "Envio $id de $origen a $destino" (Obtener-IpCliente $Contexto)
+  return [ordered]@{ ok = $true; servicioId = $id; tipo = 'envio' }
+}
+
+function Obtener-ServiciosAdmin {
+  param([string]$Tipo = '', [int]$Limite = 300)
+  $doc = Leer-Servicios
+  $salida = @()
+  if ($Tipo -ne 'taximoto') { $salida += @($doc.envios) }
+  if ($Tipo -ne 'envio') { $salida += @($doc.taximotos) }
+  return @($salida | Sort-Object -Property creadoEn -Descending | Select-Object -First $Limite)
+}
+
+function Cambiar-EstadoServicio {
+  param([string]$Tipo, [string]$Id, [string]$Estado, $Sesion, [string]$Ip)
+  if (@('envio', 'taximoto') -notcontains $Tipo) { Lanzar-ErrorHttp 400 'Tipo de servicio invalido.' }
+  $validos = @('pendiente', 'en camino', 'entregado')
+  if ($validos -notcontains $Estado) { Lanzar-ErrorHttp 400 'Estado invalido.' }
+  $doc = Leer-Servicios
+  $lista = if ($Tipo -eq 'taximoto') { $doc.taximotos } else { $doc.envios }
+  $encontrado = $null
+  foreach ($s in @($lista)) {
+    if ([string]$s.id -eq $Id) {
+      $s.estado = $Estado
+      $s | Add-Member -NotePropertyName actualizadoEn -NotePropertyValue (Get-Date -Format 'yyyy-MM-dd HH:mm:ss') -Force
+      $encontrado = $s
+    }
+  }
+  if ($null -eq $encontrado) { Lanzar-ErrorHttp 404 'Solicitud no encontrada.' }
+  if ($Tipo -eq 'taximoto') { $doc.taximotos = $lista } else { $doc.envios = $lista }
+  Guardar-JsonAtomico $script:RutaServicios $doc
+  Registrar-Auditoria $Sesion.usuario $Sesion.rol ($Tipo + '.estado') "Solicitud $Id -> $Estado" $Ip
+  return [ordered]@{ ok = $true; servicio = $encontrado }
 }
 
 function Obtener-ResumenAdmin {

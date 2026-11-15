@@ -21,7 +21,7 @@
        <meta name="google-adsense-account" content="ca-pub-XXXXXXXXXXXXXXXX"> -->
   <link rel="icon" type="image/jpeg" href="assets/marca.jpg">
   <link rel="apple-touch-icon" href="assets/marca.jpg">
-  <link rel="stylesheet" href="css/styles.css?v=5">
+  <link rel="stylesheet" href="css/styles.css?v=9">
 </head>
 <body>
 
@@ -44,14 +44,11 @@
         <a href="#locales">Locales</a>
         <a href="#licores">Licores</a>
         <a href="#primera-necesidad">Primera necesidad</a>
+        <a href="#servicios">Servicios</a>
         <a href="#nosotros">Nosotros</a>
       </nav>
 
       <div class="header-actions">
-        <a class="btn btn-ghost btn-admin" href="admin/" aria-label="Entrar al panel de administración" title="Panel de administración">
-          <svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="4" y="10" width="16" height="10" rx="2"/><path d="M8 10V7a4 4 0 0 1 8 0v3"/></svg>
-          <span>Admin</span>
-        </a>
         <a class="btn btn-ghost btn-help" id="supportLink" href="#" target="_blank" rel="noopener">
           <svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor" aria-hidden="true"><path d="M12 2a10 10 0 0 0-8.6 15.1L2 22l5-1.3A10 10 0 1 0 12 2Zm5.3 14.1c-.2.6-1.2 1.2-1.7 1.2-.4 0-1 .1-3.2-.9-2.6-1.2-4.2-4-4.3-4.2-.1-.2-1-1.4-1-2.7 0-1.3.7-1.9 1-2.2.2-.2.5-.3.7-.3h.5c.2 0 .4 0 .6.5l.8 1.9c.1.2 0 .4-.1.6l-.4.5c-.1.2-.3.3-.1.6.2.3.8 1.3 1.7 2.1 1.1 1 2 1.3 2.3 1.4.2.1.4.1.6-.1l.8-.9c.2-.2.4-.2.6-.1l1.8.9c.2.1.4.2.4.3.1.2.1.7-.1 1.4Z"/></svg>
           <span>Ayuda</span>
@@ -81,11 +78,13 @@
             <input id="searchInput" type="search" placeholder="Busca un local, producto o marca…" autocomplete="off" aria-label="Buscar locales, productos y marcas">
             <button class="search-go" id="searchGo" type="button">Buscar</button>
           </div>
+          <p class="search-status" id="searchStatus" role="status" aria-live="polite" hidden></p>
 
           <div class="quick-chips" aria-label="Accesos rápidos">
             <a href="#locales">🍗 Locales</a>
             <a href="#licores">🥃 Licores</a>
             <a href="#primera-necesidad">🧺 Primera necesidad</a>
+            <a href="#servicios">🛵 Servicios</a>
             <a href="#nosotros">ℹ️ Sobre nosotros</a>
           </div>
 
@@ -114,7 +113,7 @@
       </div>
     </section>
 
-    <!-- Publicidad (solo se muestra si configuras AdSense en js/google-config.js?v=5) -->
+    <!-- Publicidad (solo se muestra si configuras AdSense en js/google-config.js?v=9) -->
     <aside class="ad-wrap" id="adInicio" aria-label="Publicidad" hidden>
       <span class="ad-label">Publicidad</span>
       <ins class="adsbygoogle" data-slot-key="inicio" data-ad-format="auto" data-full-width-responsive="true"></ins>
@@ -133,6 +132,28 @@
             <button class="tab" role="tab" aria-selected="false" data-tab="comida">🍽️ Comida</button>
             <button class="tab" role="tab" aria-selected="false" data-tab="productos">🛍️ Productos</button>
           </div>
+        </div>
+
+        <div class="services" id="servicios" aria-label="Servicios EnRuta">
+          <button type="button" class="service-card service-taxi" data-service-open="taximoto" aria-haspopup="dialog" aria-controls="serviceSheet">
+            <img class="service-photo" src="assets/servicios/taximoto.jpg" alt="" width="1280" height="853" loading="lazy" decoding="async">
+            <span class="service-copy">
+              <span class="service-kicker">Taximoto</span>
+              <strong class="service-title">Pide tu moto en minutos</strong>
+              <span class="service-text">De un punto A a un punto B, rápido y seguro.</span>
+            </span>
+            <span class="service-cta">Pedir moto <span aria-hidden="true">→</span></span>
+          </button>
+
+          <button type="button" class="service-card service-envio" data-service-open="envio" aria-haspopup="dialog" aria-controls="serviceSheet">
+            <img class="service-photo" src="assets/servicios/envio.jpg" alt="" width="1600" height="1066" loading="lazy" decoding="async">
+            <span class="service-copy">
+              <span class="service-kicker">Recojo y envío</span>
+              <strong class="service-title">Lo recogemos y lo llevamos</strong>
+              <span class="service-text">Documentos, paquetes y compras de un punto a otro.</span>
+            </span>
+            <span class="service-cta">Solicitar <span aria-hidden="true">→</span></span>
+          </button>
         </div>
 
         <div class="chips" id="chips" aria-label="Filtrar por rubro"></div>
@@ -215,7 +236,7 @@
       </div>
     </section>
 
-    <!-- Publicidad (solo se muestra si configuras AdSense en js/google-config.js?v=5) -->
+    <!-- Publicidad (solo se muestra si configuras AdSense en js/google-config.js?v=9) -->
     <aside class="ad-wrap" id="adCatalogo" aria-label="Publicidad" hidden>
       <span class="ad-label">Publicidad</span>
       <ins class="adsbygoogle" data-slot-key="catalogo" data-ad-format="auto" data-full-width-responsive="true"></ins>
@@ -331,7 +352,7 @@
         <p class="footer-text"><a id="footerTiktok" href="#" target="_blank" rel="noopener">TikTok · @EnRutaDelivery0</a><br><a id="footerInstagram" href="#" target="_blank" rel="noopener">Instagram · @EnRutaDelivery0</a></p>
         <h4>Importante</h4>
         <p class="footer-text">Los precios, la disponibilidad y el costo de delivery se confirman por WhatsApp. Esta web no procesa pagos. Tus datos de entrega se usan solo para coordinar el pedido y puedes guardarlos en tu dispositivo. <a href="privacidad.html">Aviso de privacidad</a> · <button type="button" class="link-mini" data-cookie-open>Configurar cookies</button>.</p>
-        <p class="footer-text small">Enruta Delivery · <span id="year">2026</span> · <a class="footer-admin" href="admin/">Panel de administración</a><button type="button" class="admin-dot" id="adminDot" tabindex="-1" aria-label="Acceso al panel de administración"></button></p>
+        <p class="footer-text small">Enruta Delivery · <span id="year">2026</span><button type="button" class="admin-dot" id="adminDot" tabindex="-1" aria-label="Acceso al panel de administración"></button></p>
       </div>
     </div>
   </footer>
@@ -350,13 +371,23 @@
       </button>
     </div>
 
-    <div class="drawer-body">
-      <div id="cartItems"></div>
+    <div class="cart-steps" id="cartSteps" hidden aria-label="Pasos del pedido">
+      <span class="cart-step is-active" data-step-label="productos"><b>1</b> Productos</span>
+      <span class="cart-step" data-step-label="datos"><b>2</b> Datos de entrega</span>
+      <span class="cart-step" data-step-label="enviar"><b>3</b> Enviar</span>
+    </div>
 
-      <div class="delivery-note" id="deliveryNote">
-        <span aria-hidden="true">🛵</span>
-        <p><b>Delivery por cotizar.</b> No calculamos el envío automáticamente. EnRuta Delivery te confirma el costo por WhatsApp.</p>
+    <div class="drawer-body">
+      <div id="cartStepProducts">
+        <div id="cartItems"></div>
+
+        <div class="delivery-note" id="deliveryNote">
+          <span aria-hidden="true">🛵</span>
+          <p><b>Delivery por cotizar.</b> No calculamos el envío automáticamente. EnRuta Delivery te confirma el costo por WhatsApp.</p>
+        </div>
       </div>
+
+      <div id="cartReview" class="cart-review" hidden></div>
 
       <form id="orderForm" class="order-form" novalidate hidden>
         <h3 class="form-title">Datos de entrega</h3>
@@ -451,22 +482,171 @@
 
     <div class="drawer-foot" id="cartFoot" hidden>
       <div class="totals" id="cartTotals"></div>
-      <button class="btn btn-wa btn-lg" id="sendOrder" type="submit" form="orderForm">
+      <button class="btn btn-brand btn-lg" id="cartNext" type="button">Continuar con mis datos</button>
+      <button class="btn btn-wa btn-lg" id="sendOrder" type="submit" form="orderForm" hidden>
         <svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor" aria-hidden="true"><path d="M12 2a10 10 0 0 0-8.6 15.1L2 22l5-1.3A10 10 0 1 0 12 2Zm5.3 14.1c-.2.6-1.2 1.2-1.7 1.2-.4 0-1 .1-3.2-.9-2.6-1.2-4.2-4-4.3-4.2-.1-.2-1-1.4-1-2.7 0-1.3.7-1.9 1-2.2.2-.2.5-.3.7-.3h.5c.2 0 .4 0 .6.5l.8 1.9c.1.2 0 .4-.1.6l-.4.5c-.1.2-.3.3-.1.6.2.3.8 1.3 1.7 2.1 1.1 1 2 1.3 2.3 1.4.2.1.4.1.6-.1l.8-.9c.2-.2.4-.2.6-.1l1.8.9c.2.1.4.2.4.3.1.2.1.7-.1 1.4Z"/></svg>
         Enviar pedido por WhatsApp
       </button>
-      <p class="mini" id="sendMini">Registramos tu pedido y abrimos WhatsApp para confirmarlo con EnRuta. El delivery se cotiza en el chat.</p>
+      <p class="mini" id="sendMini" hidden>Registramos tu pedido y abrimos WhatsApp para confirmarlo con EnRuta. El delivery se cotiza en el chat.</p>
+      <button class="link-mini cart-back" id="cartBack" type="button" hidden>← Volver a productos</button>
     </div>
   </aside>
 
   <!-- Detalle de local -->
   <div class="modal" id="modal" aria-hidden="true" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
     <div class="modal-card">
-      <button class="icon-btn modal-close" id="modalClose" type="button" aria-label="Cerrar menú">
-        <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="m6 6 12 12M18 6 6 18"/></svg>
-      </button>
+      <div class="modal-top">
+        <span class="modal-top-title" id="modalTopTitle">Menú del local</span>
+        <button class="icon-btn modal-close" id="modalClose" type="button" aria-label="Cerrar menú">
+          <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="m6 6 12 12M18 6 6 18"/></svg>
+        </button>
+      </div>
       <div class="modal-scroll" id="modalContent"></div>
-      <div class="modal-bar" id="modalBar" hidden></div>
+      <div class="modal-bar" id="modalBar">
+        <div class="modal-bar-in">
+          <span id="modalBarInfo">Elige tus productos</span>
+          <div class="modal-bar-actions">
+            <button type="button" class="btn btn-brand" data-open-cart id="modalBarCart" hidden>Ver pedido</button>
+            <button type="button" class="btn btn-ghost" id="modalBack">Volver</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Servicios: formulario deslizable desde abajo -->
+  <div class="sheet" id="serviceSheet" aria-hidden="true" role="dialog" aria-modal="true" aria-labelledby="sheetTitle">
+    <div class="sheet-card" role="document" tabindex="-1">
+      <span class="sheet-grab" aria-hidden="true"></span>
+
+      <div class="sheet-head">
+        <div>
+          <p class="sheet-kicker" id="sheetKicker">Servicio</p>
+          <h2 id="sheetTitle">Taximoto</h2>
+        </div>
+        <button class="icon-btn sheet-close" id="sheetClose" type="button" aria-label="Cerrar formulario">
+          <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="m6 6 12 12M18 6 6 18"/></svg>
+        </button>
+      </div>
+
+      <div class="sheet-body">
+        <form class="sheet-form" id="taximotoForm" data-service-form="taximoto" novalidate>
+          <p class="sheet-intro">Dinos de dónde a dónde vas y confirmamos la unidad y el costo por WhatsApp.</p>
+
+          <div class="field">
+            <label for="tOrigen">Punto de recojo *</label>
+            <input id="tOrigen" name="origen" type="text" placeholder="Ej: Mercado Buenos Aires, puerta principal">
+            <span class="err" id="errTOrigen"></span>
+          </div>
+
+          <div class="field">
+            <label for="tDestino">Destino *</label>
+            <input id="tDestino" name="destino" type="text" placeholder="Ej: Hospital Regional, emergencia">
+            <span class="err" id="errTDestino"></span>
+          </div>
+
+          <div class="field">
+            <label for="tReferencia">Referencia <span class="opt">(opcional)</span></label>
+            <input id="tReferencia" name="referencia" type="text" placeholder="Ej: portón negro, frente al parque">
+            <span class="err" id="errTReferencia"></span>
+          </div>
+
+          <div class="sheet-when">
+            <span class="field-label" id="tCuandoLabel">¿Cuándo?</span>
+            <div class="seg" role="group" aria-labelledby="tCuandoLabel">
+              <label class="mode-opt">
+                <input type="radio" name="taximotoCuando" value="urgente" id="tUrgente" checked>
+                <span>⚡ Ahora</span>
+              </label>
+              <label class="mode-opt">
+                <input type="radio" name="taximotoCuando" value="programado" id="tProgramado">
+                <span>📅 Programar</span>
+              </label>
+            </div>
+            <div class="field sheet-subfield" id="tFechaField" hidden>
+              <label for="tFecha">Fecha y hora *</label>
+              <input id="tFecha" name="fecha" type="datetime-local">
+              <span class="err" id="errTFecha"></span>
+            </div>
+            <div class="servicio-presets">
+              <button type="button" class="chip" id="tEnUnaHora">En 1 hora</button>
+              <button type="button" class="chip" id="tEnDosHoras">En 2 horas</button>
+            </div>
+          </div>
+
+          <p class="form-error" id="taximotoError" role="alert" hidden></p>
+          <p class="form-ok" id="taximotoOk" role="status" hidden></p>
+
+          <button class="btn btn-brand btn-block" type="submit" id="taximotoBtn">Pedir moto</button>
+          <p class="privacy-note">Guardamos tu solicitud y abrimos WhatsApp para confirmar unidad y costo. <a href="privacidad.html" target="_blank" rel="noopener">Aviso de privacidad</a>.</p>
+        </form>
+
+        <form class="sheet-form" id="envioForm" data-service-form="envio" novalidate hidden>
+          <p class="sheet-intro">Recogemos tu producto en un punto y lo entregamos en otro. Confirmamos el costo por WhatsApp.</p>
+
+          <div class="field">
+            <label for="eDescripcion">¿Qué se recoge? *</label>
+            <textarea id="eDescripcion" name="descripcion" rows="2" placeholder="Ej: sobre con documentos, caja de 30 × 20 cm, comida sellada…"></textarea>
+            <span class="err" id="errEDescripcion"></span>
+          </div>
+
+          <div class="field">
+            <label for="eOrigen">Dirección de recojo *</label>
+            <input id="eOrigen" name="origen" type="text" placeholder="Calle, número, referencia o local">
+            <span class="err" id="errEOrigen"></span>
+          </div>
+
+          <div class="field">
+            <label for="eDestino">Dirección de entrega *</label>
+            <input id="eDestino" name="destino" type="text" placeholder="Calle, número, referencia o local">
+            <span class="err" id="errEDestino"></span>
+          </div>
+
+          <div class="field-row">
+            <div class="field">
+              <label for="eNombre">Tu nombre *</label>
+              <input id="eNombre" name="nombre" type="text" autocomplete="name" placeholder="Ej: Rosa Flores">
+              <span class="err" id="errENombre"></span>
+            </div>
+            <div class="field">
+              <label for="eTelefono">Tu teléfono *</label>
+              <input id="eTelefono" name="telefono" type="tel" inputmode="tel" autocomplete="tel" placeholder="Ej: 987 654 321">
+              <span class="err" id="errETelefono"></span>
+            </div>
+          </div>
+
+          <div class="field">
+            <label for="eObservaciones">Observaciones <span class="opt">(opcional)</span></label>
+            <textarea id="eObservaciones" name="observaciones" rows="2" placeholder="Ej: llamar al llegar, es frágil, entregar en recepción…"></textarea>
+            <span class="err" id="errEObservaciones"></span>
+          </div>
+
+          <div class="sheet-when">
+            <span class="field-label" id="eCuandoLabel">¿Cuándo lo recogemos?</span>
+            <div class="seg" role="group" aria-labelledby="eCuandoLabel">
+              <label class="mode-opt">
+                <input type="radio" name="envioCuando" value="urgente" id="eUrgente" checked>
+                <span>⚡ Urgente</span>
+              </label>
+              <label class="mode-opt">
+                <input type="radio" name="envioCuando" value="programado" id="eProgramado">
+                <span>📅 Programar</span>
+              </label>
+            </div>
+            <div class="field sheet-subfield" id="eFechaField" hidden>
+              <label for="eFecha">Fecha y hora *</label>
+              <input id="eFecha" name="fecha" type="datetime-local">
+              <span class="err" id="errEFecha"></span>
+            </div>
+          </div>
+
+          <p class="form-error" id="envioError" role="alert" hidden></p>
+          <p class="form-ok" id="envioOk" role="status" hidden></p>
+
+          <button class="btn btn-brand btn-block" type="submit" id="envioBtn">Solicitar</button>
+          <p class="privacy-note">Guardamos tu solicitud y abrimos WhatsApp para confirmar disponibilidad y costo. <a href="privacidad.html" target="_blank" rel="noopener">Aviso de privacidad</a>.</p>
+        </form>
+      </div>
     </div>
   </div>
 
@@ -478,9 +658,10 @@
     </div>
   </noscript>
 
-  <script src="js/catalogo.js?v=5" defer></script>
-  <script src="js/google-config.js?v=5" defer></script>
-  <script src="js/google.js?v=5" defer></script>
-  <script src="js/app.js?v=5" defer></script>
+  <script src="js/catalogo.js?v=9" defer></script>
+  <script src="js/locales-prueba.js?v=9" defer></script>
+  <script src="js/google-config.js?v=9" defer></script>
+  <script src="js/google.js?v=9" defer></script>
+  <script src="js/app.js?v=9" defer></script>
 </body>
 </html>

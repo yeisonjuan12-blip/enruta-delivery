@@ -31,9 +31,19 @@
   const round2 = (n) => Math.round((Number(n) + Number.EPSILON) * 100) / 100;
 
   const CONFIG = DATA.config || {};
-  const LOCALES = (DATA.locales || []).filter((l) => l.publicado !== false);
+  const PRUEBA = window.ENRUTA_LOCALES_PRUEBA || { categorias: [], locales: [] };
+
+  // Los locales ficticios de js/locales-prueba.js se fusionan solo para
+  // mostrar la página. Para retirarlos, borra ese archivo y su <script>.
+  const CATEGORIAS_LOCALES = (DATA.categoriasLocales || []).concat(PRUEBA.categorias || []);
+  const LOCALES = (DATA.locales || []).concat(PRUEBA.locales || [])
+    .filter((l) => l.publicado !== false)
+    .map((l) => {
+      if (l.categoriaNombre) return l;
+      const cat = CATEGORIAS_LOCALES.find((c) => c.id === l.categoriaId);
+      return Object.assign({}, l, { categoriaNombre: cat ? cat.nombre : '' });
+    });
   const CATALOGOS = DATA.catalogos || [];
-  const CATEGORIAS_LOCALES = DATA.categoriasLocales || [];
   const ZONAS = CONFIG.zonas || [];
 
   const localesPorId = new Map(LOCALES.map((l) => [l.id, l]));
@@ -60,9 +70,35 @@
     cliente: null,
     enviando: false,
     apiDisponible: true,
-    apiComprobada: false
+    apiComprobada: false,
+    paso: 'productos',
+    expandidos: {},
+    servicioTipo: null,
+    servicioFoco: null
   };
   CATALOGOS.forEach((c) => { state.catCatalogos[c.id] = 'todo'; });
+
+  /* Catálogos: cuántos productos se muestran por categoría antes de "Ver más". */
+  const LIMITE_CATEGORIA = 8;
+
+  /* Lista manual de más vendidos (orden de prioridad dentro de cada categoría).
+     Cuando exista un contador real de ventas en el backend, este orden se
+     reemplazará por las unidades vendidas que devuelva la API. */
+  const DESTACADOS = {
+    licores: [
+      'lic-007', 'lic-004', 'lic-005', 'lic-001', 'lic-006', 'lic-008',
+      'tambo-nNmZGZ3gQkozoRJ5R', 'tambo-5bxM4LCFLY7E69xqt',
+      'tambo-KYWYwqsW4CDbrfHyY', 'tambo-HjJjtatprwZKJHsHb'
+    ],
+    'primera-necesidad': [
+      'nec-001', 'nec-003', 'nec-004', 'nec-006', 'nec-005', 'nec-010',
+      'nec-007', 'nec-008', 'nec-009', 'tambo-EvmNeKNwgAfLfAzEz',
+      'tambo-9XTsKLd47m7frEXcj', 'tambo-7u4WyxnbRhEvvkGy8',
+      'tambo-5JCamvwwcPtuShvrv', 'tambo-ze5B9yM3zJtXPzK3m',
+      'tambo-QEfSa9KtSwCgBnJ7S'
+    ]
+  };
+  const VENTAS_KEY = 'enruta.ventas.v1';
 
   // Envía eventos a Google Analytics solo si el visitante dio su consentimiento.
   function track(nombre, params) {
@@ -106,23 +142,31 @@
   }
 
   function coincide(texto) {
-    if (!state.q) return true;
-    return norm(texto).includes(norm(state.q));
+    const consulta = norm(state.q).trim();
+    if (!consulta) return true;
+    const contenido = norm(texto);
+    // Coincide si todas las palabras buscadas aparecen, sin importar tildes
+    // ni el orden (por ejemplo "pollo brasa" encuentra "Pollo a la brasa").
+    return consulta.split(/\s+/).every((parte) => contenido.includes(parte));
   }
 
   function localCoincide(l) {
     if (!state.q) return true;
     return coincide([
+      l.id,
       l.nombre,
       l.categoriaNombre,
       l.descripcion,
       (l.etiquetas || []).join(' '),
-      (l.productos || []).map((p) => p.nombre + ' ' + (p.descripcion || '')).join(' ')
+      (l.productos || []).map((p) => p.nombre + ' ' + (p.descripcion || '') + ' ' + (p.etiqueta || '')).join(' ')
     ].join(' '));
   }
 
   function productoCatalogoCoincide(cat, p) {
-    return coincide([p.nombre, p.marca, p.presentacion, categoriaCatalogo(cat, p.categoriaId), p.descripcion].join(' '));
+    return coincide([
+      p.id, p.nombre, p.marca, p.presentacion,
+      categoriaCatalogo(cat, p.categoriaId), p.descripcion, p.estado
+    ].join(' '));
   }
 
   /* ---------------- Horario (incluye cruce de medianoche) ---------------- */
@@ -808,8 +852,9 @@
     }
 
     const chips = [{ id: 'todo', nombre: 'Todos' }].concat(categorias);
+    const chipActivo = state.q ? 'todo' : state.catLocal;
     cont.innerHTML = chips.map((c) =>
-      '<button type="button" class="chip' + (state.catLocal === c.id ? ' is-active' : '') + '" data-cat="' + esc(c.id) + '">' + esc(c.nombre) + '</button>'
+      '<button type="button" class="chip' + (chipActivo === c.id ? ' is-active' : '') + '" data-cat="' + esc(c.id) + '">' + esc(c.nombre) + '</button>'
     ).join('');
   }
 
@@ -822,14 +867,18 @@
     renderChipsLocales();
 
     $$('.tab').forEach((t) => {
-      const activo = t.dataset.tab === state.tab;
+      const activo = !state.q && t.dataset.tab === state.tab;
       t.classList.toggle('is-active', activo);
       t.setAttribute('aria-selected', activo ? 'true' : 'false');
     });
 
+    // Al buscar se ignoran la pestaña y la categoría: el buscador recorre
+    // todos los locales y todos sus productos.
     const lista = LOCALES.filter((l) => {
-      if (state.tab !== 'todo' && l.tipo !== state.tab) return false;
-      if (state.catLocal !== 'todo' && l.categoriaId !== state.catLocal) return false;
+      if (!state.q) {
+        if (state.tab !== 'todo' && l.tipo !== state.tab) return false;
+        if (state.catLocal !== 'todo' && l.categoriaId !== state.catLocal) return false;
+      }
       return localCoincide(l);
     });
 
@@ -929,6 +978,61 @@
     '</article>';
   }
 
+  /* Contador local de ventas por producto (se usa como "más vendidos"
+     mientras el backend no entregue estadísticas reales). */
+  function leerVentas() {
+    try {
+      const datos = JSON.parse(localStorage.getItem(VENTAS_KEY) || '{}');
+      return datos && typeof datos === 'object' ? datos : {};
+    } catch (e) {
+      return {};
+    }
+  }
+
+  function registrarVenta(items) {
+    if (!Array.isArray(items) || !items.length) return;
+    const ventas = leerVentas();
+    items.forEach((it) => {
+      const catalogoId = it.catalogoId;
+      if (!catalogoId || !it.productoId) return;
+      const clave = catalogoId + '|' + it.productoId;
+      ventas[clave] = (Number(ventas[clave]) || 0) + (Number(it.cantidad) || 1);
+    });
+    try { localStorage.setItem(VENTAS_KEY, JSON.stringify(ventas)); } catch (e) { /* sin almacenamiento */ }
+  }
+
+  function ordenarProductos(catalogoId, lista) {
+    const ventas = leerVentas();
+    const manual = new Map((DESTACADOS[catalogoId] || []).map((id, i) => [id, i]));
+    return lista.map((p, i) => ({ p, i })).sort((a, b) => {
+      const va = Number(ventas[catalogoId + '|' + a.p.id]) || 0;
+      const vb = Number(ventas[catalogoId + '|' + b.p.id]) || 0;
+      if (va !== vb) return vb - va;
+      const ma = manual.has(a.p.id) ? manual.get(a.p.id) : 9999;
+      const mb = manual.has(b.p.id) ? manual.get(b.p.id) : 9999;
+      if (ma !== mb) return ma - mb;
+      return a.i - b.i;
+    }).map((x) => x.p);
+  }
+
+  function bloqueCategoria(sec, cat, categoria, items) {
+    const catId = categoria ? categoria.id : 'otros';
+    const abierto = !!(state.expandidos[sec.id] && state.expandidos[sec.id][catId]);
+    const visibles = abierto ? items : items.slice(0, LIMITE_CATEGORIA);
+    const total = items.length;
+    const restantes = total - visibles.length;
+    return '<div class="cat-band">' +
+        '<h4>' + esc(categoria ? categoria.nombre : 'Otros productos') + '</h4>' +
+        '<span>' + total + (total === 1 ? ' producto' : ' productos') + '</span>' +
+      '</div>' +
+      visibles.map((p) => tarjetaCatalogo(cat, p)).join('') +
+      (restantes > 0
+        ? '<div class="cat-more"><button type="button" class="btn btn-ghost" data-cat-more="' + esc(catId) + '" data-sec="' + esc(sec.id) + '">Ver más · ' + total + ' productos</button></div>'
+        : (abierto && total > LIMITE_CATEGORIA
+          ? '<div class="cat-more"><button type="button" class="btn btn-ghost" data-cat-more="' + esc(catId) + '" data-sec="' + esc(sec.id) + '">Ver menos</button></div>'
+          : ''));
+  }
+
   function renderCatalogo(sec) {
     const cat = catalogosPorId.get(sec.id);
     const grid = document.getElementById(sec.grid);
@@ -937,18 +1041,38 @@
     const vacio = document.getElementById(sec.empty);
     if (!cat || !grid) return;
 
+    const seleccion = state.catCatalogos[sec.id] || 'todo';
+    const chipsActivo = state.q ? 'todo' : seleccion;
+
     if (cont) {
       cont.innerHTML = [{ id: 'todo', nombre: 'Todos' }].concat(cat.categorias || []).map((c) =>
-        '<button type="button" class="chip' + (state.catCatalogos[sec.id] === c.id ? ' is-active' : '') + '" data-cat="' + esc(c.id) + '">' + esc(c.nombre) + '</button>'
+        '<button type="button" class="chip' + (chipsActivo === c.id ? ' is-active' : '') + '" data-cat="' + esc(c.id) + '">' + esc(c.nombre) + '</button>'
       ).join('');
     }
 
     const lista = (cat.productos || []).filter((p) => {
-      if (state.catCatalogos[sec.id] !== 'todo' && p.categoriaId !== state.catCatalogos[sec.id]) return false;
+      if (state.q) return productoCatalogoCoincide(cat, p);
+      if (seleccion !== 'todo' && p.categoriaId !== seleccion) return false;
       return productoCatalogoCoincide(cat, p);
     });
 
-    grid.innerHTML = lista.map((p) => tarjetaCatalogo(cat, p)).join('');
+    if (state.q) {
+      // Resultados de búsqueda: lista plana completa en todas las categorías.
+      grid.innerHTML = ordenarProductos(sec.id, lista).map((p) => tarjetaCatalogo(cat, p)).join('');
+    } else if (seleccion !== 'todo') {
+      const categoria = (cat.categorias || []).find((c) => c.id === seleccion) || null;
+      grid.innerHTML = bloqueCategoria(sec, cat, categoria, ordenarProductos(sec.id, lista));
+    } else {
+      const categorias = (cat.categorias || []).filter((c) => lista.some((p) => p.categoriaId === c.id));
+      const usadas = new Set(categorias.map((c) => c.id));
+      let html = categorias.map((c) =>
+        bloqueCategoria(sec, cat, c, ordenarProductos(sec.id, lista.filter((p) => p.categoriaId === c.id)))
+      ).join('');
+      const otros = lista.filter((p) => !usadas.has(p.categoriaId));
+      if (otros.length) html += bloqueCategoria(sec, cat, null, ordenarProductos(sec.id, otros));
+      grid.innerHTML = html;
+    }
+
     if (contador) contador.textContent = lista.length + (lista.length === 1 ? ' producto' : ' productos');
     if (vacio) vacio.hidden = lista.length > 0;
 
@@ -959,6 +1083,37 @@
 
   function renderCategorias() {
     SECCIONES.forEach(renderCatalogo);
+    actualizarEstadoBusqueda();
+  }
+
+  function actualizarEstadoBusqueda() {
+    const el = document.getElementById('searchStatus');
+    if (!el) return;
+    const q = String(state.q || '').trim();
+    if (!q) {
+      el.hidden = true;
+      el.innerHTML = '';
+      return;
+    }
+    const locales = LOCALES.filter(localCoincide).length;
+    let productos = 0;
+    CATALOGOS.forEach((c) => {
+      productos += (c.productos || []).filter((p) => productoCatalogoCoincide(c, p)).length;
+    });
+    const total = locales + productos;
+    el.hidden = false;
+    el.innerHTML = total
+      ? '<span><b>' + total + '</b> ' + (total === 1 ? 'resultado' : 'resultados') + ' para «' + esc(q) + '» · ' + locales + ' locales · ' + productos + ' productos</span>' +
+        '<button type="button" class="link-mini" id="searchClear">Limpiar búsqueda</button>'
+      : '<span>No encontramos resultados para «' + esc(q) + '». Prueba con otra palabra o escríbenos por WhatsApp.</span>' +
+        '<button type="button" class="link-mini" id="searchClear">Limpiar búsqueda</button>';
+  }
+
+  function limpiarBusqueda() {
+    state.q = '';
+    const input = document.getElementById('searchInput');
+    if (input) input.value = '';
+    renderTodo();
   }
 
   function renderTodo() {
@@ -1106,17 +1261,18 @@
         .filter((x) => x.r && x.r.tipo === 'local' && x.r.localId === local.id);
       const unidades = propios.reduce((s, x) => s + x.it.cantidad, 0);
       const sub = propios.reduce((s, x) => s + x.r.precio * x.it.cantidad, 0);
-      if (unidades > 0) {
-        barra.hidden = false;
-        barra.innerHTML = '<div class="modal-bar-in">' +
-          '<span><b>' + unidades + '</b> en tu pedido · ' + money(sub) + '</span>' +
-          '<button type="button" class="btn btn-brand" data-open-cart>Ver pedido</button>' +
-        '</div>';
-      } else {
-        barra.hidden = true;
-        barra.innerHTML = '';
+      const info = document.getElementById('modalBarInfo');
+      const verPedido = document.getElementById('modalBarCart');
+      if (info) {
+        info.innerHTML = unidades > 0
+          ? '<b>' + unidades + '</b> en tu pedido · ' + money(sub)
+          : 'Elige tus productos y vuelve cuando quieras.';
       }
+      if (verPedido) verPedido.hidden = unidades === 0;
     }
+
+    const tituloBarra = document.getElementById('modalTopTitle');
+    if (tituloBarra) tituloBarra.textContent = local.nombre;
 
     // innerHTML reinicia el scroll del contenedor: lo restauramos al
     // actualizar cantidades para no devolver al usuario al inicio del menú.
@@ -1173,13 +1329,17 @@
       vacio.hidden = false;
       form.hidden = true;
       pie.hidden = true;
+      state.paso = 'productos';
+      const pasosVacio = document.getElementById('cartSteps');
+      const reviewVacio = document.getElementById('cartReview');
+      if (pasosVacio) pasosVacio.hidden = true;
+      if (reviewVacio) { reviewVacio.hidden = true; reviewVacio.innerHTML = ''; }
       if (nota) nota.hidden = true;
       if (subtitulo) subtitulo.textContent = 'Todavía no agregaste nada';
       return;
     }
 
     vacio.hidden = true;
-    form.hidden = false;
     pie.hidden = false;
     if (nota) nota.hidden = false;
     if (subtitulo) {
@@ -1242,6 +1402,86 @@
       '<div class="trow"><span>Empaquetado</span><b>' + money(detalle.empaquetado) + '</b></div>' +
       '<div class="trow total"><span>Productos + empaquetado</span><b>' + money(detalle.total) + '</b></div>' +
       '<div class="trow quote"><span>Delivery</span><b>Por cotizar</b></div>';
+
+    actualizarPasoCarrito();
+  }
+
+  function resumenPedidoHTML() {
+    const valor = (id) => {
+      const el = document.getElementById(id);
+      return el ? String(el.value || '').trim() : '';
+    };
+    const zonaEl = document.getElementById('fZone');
+    const zona = zonaEl && zonaEl.selectedIndex >= 0
+      ? String(zonaEl.options[zonaEl.selectedIndex].textContent || '').trim()
+      : '';
+    const programado = document.getElementById('whenScheduled') && document.getElementById('whenScheduled').checked;
+    const fecha = valor('fWhen');
+    const cuando = programado && fecha ? 'Programado: ' + fechaHora(new Date(fecha)) : 'Lo antes posible';
+    const detalle = calcularDetalle();
+    return '<h3>Revisa y envía</h3>' +
+      '<div class="cart-review-card">' +
+        '<div class="row"><span>Nombre</span><span>' + esc(valor('fName')) + '</span></div>' +
+        '<div class="row"><span>WhatsApp</span><span>' + esc(valor('fPhone')) + '</span></div>' +
+        '<div class="row"><span>Zona</span><span>' + esc(zona) + '</span></div>' +
+        '<div class="row"><span>Dirección</span><span>' + esc(valor('fAddress')) + '</span></div>' +
+        (valor('fRef') ? '<div class="row"><span>Referencia</span><span>' + esc(valor('fRef')) + '</span></div>' : '') +
+        '<div class="row"><span>Entrega</span><span>' + esc(cuando) + '</span></div>' +
+        (valor('fNote') ? '<div class="row"><span>Nota</span><span>' + esc(valor('fNote')) + '</span></div>' : '') +
+        '<div class="row"><span>Total</span><span>' + money(detalle.total) + '</span></div>' +
+      '</div>' +
+      '<p class="cart-review-note">El delivery se cotiza por WhatsApp. Al enviar se abre el chat con el pedido escrito.</p>';
+  }
+
+  function actualizarPasoCarrito() {
+    const paso = state.paso === 'datos' || state.paso === 'enviar' ? state.paso : 'productos';
+    state.paso = paso;
+    const pasos = document.getElementById('cartSteps');
+    const productos = document.getElementById('cartStepProducts');
+    const form = document.getElementById('orderForm');
+    const review = document.getElementById('cartReview');
+    const next = document.getElementById('cartNext');
+    const send = document.getElementById('sendOrder');
+    const mini = document.getElementById('sendMini');
+    const back = document.getElementById('cartBack');
+
+    if (pasos) {
+      pasos.hidden = false;
+      $$('.cart-step', pasos).forEach((el) => {
+        const clave = el.dataset.stepLabel;
+        const orden = { productos: 1, datos: 2, enviar: 3 };
+        el.classList.toggle('is-active', clave === paso);
+        el.classList.toggle('is-done', orden[clave] < orden[paso]);
+      });
+    }
+    if (productos) productos.hidden = paso !== 'productos';
+    if (form) form.hidden = paso !== 'datos';
+    if (review) {
+      review.hidden = paso !== 'enviar';
+      if (paso === 'enviar') review.innerHTML = resumenPedidoHTML();
+    }
+    if (next) {
+      next.hidden = paso === 'enviar';
+      next.textContent = paso === 'productos' ? 'Continuar con mis datos' : 'Revisar pedido';
+    }
+    if (send) send.hidden = paso !== 'enviar';
+    if (mini) mini.hidden = paso !== 'enviar';
+    if (back) {
+      back.hidden = paso === 'productos';
+      back.textContent = paso === 'enviar' ? '← Editar datos de entrega' : '← Volver a productos';
+    }
+  }
+
+  function irPasoCarrito(paso, validar) {
+    if (paso === 'enviar' && validar) {
+      const pedido = leerPedido();
+      if (!pedido) return;
+    }
+    state.paso = paso;
+    renderCart();
+    const drawer = document.getElementById('cartDrawer');
+    const cuerpo = drawer ? drawer.querySelector('.drawer-body') : null;
+    if (cuerpo) cuerpo.scrollTop = 0;
   }
 
   /* ---------------- Drawer ---------------- */
@@ -1249,6 +1489,7 @@
     cerrarModal();
     const drawer = document.getElementById('cartDrawer');
     if (!drawer) return;
+    renderCart();
     drawer.classList.add('open');
     drawer.setAttribute('aria-hidden', 'false');
     document.getElementById('cartBtn').setAttribute('aria-expanded', 'true');
@@ -1281,9 +1522,12 @@
   function sincronizarOverlay() {
     const drawer = document.getElementById('cartDrawer');
     const modal = document.getElementById('modal');
+    const sheet = document.getElementById('serviceSheet');
     const overlay = document.getElementById('overlay');
     if (!overlay) return;
-    const abierto = (drawer && drawer.classList.contains('open')) || (modal && modal.classList.contains('open'));
+    const abierto = (drawer && drawer.classList.contains('open')) ||
+      (modal && modal.classList.contains('open')) ||
+      (sheet && sheet.classList.contains('open'));
     overlay.classList.toggle('show', !!abierto);
     overlay.hidden = !abierto;
   }
@@ -1291,13 +1535,17 @@
   function actualizarBloqueoScroll() {
     const drawer = document.getElementById('cartDrawer');
     const modal = document.getElementById('modal');
-    const abierto = (drawer && drawer.classList.contains('open')) || (modal && modal.classList.contains('open'));
+    const sheet = document.getElementById('serviceSheet');
+    const abierto = (drawer && drawer.classList.contains('open')) ||
+      (modal && modal.classList.contains('open')) ||
+      (sheet && sheet.classList.contains('open'));
     document.body.classList.toggle('no-scroll', !!abierto);
   }
 
   function cerrarTodo() {
     cerrarCarrito();
     cerrarModal();
+    cerrarSheet();
   }
 
   /* ---------------- Validación y mensaje de WhatsApp ---------------- */
@@ -1477,7 +1725,8 @@
   // Comprueba si el backend está disponible. En un hosting solo estático
   // (por ejemplo GitHub Pages) se oculta el acceso al panel y el pedido
   // se envía directamente por WhatsApp, sin mostrar errores.
-  function comprobarServicios() {
+  function comprobarServicios(forzar) {
+    if (forzar) promesaServicios = null;
     if (promesaServicios) return promesaServicios;
     var metaEntorno = document.querySelector('meta[name="enruta-backend"]');
     if (metaEntorno && String(metaEntorno.content || '').toLowerCase() === 'none') {
@@ -1520,8 +1769,9 @@
   }
 
   // Acceso oculto al panel: 5 toques seguidos en el logo (cabecera o pie)
-  // o un clic en el punto casi invisible del pie. Solo navega si el backend
-  // está disponible; en la copia estática no lleva a una página inexistente.
+  // con un máximo de 3 segundos entre toques. Funciona con mouse y con
+  // pantalla táctil (pointerup). Si el backend no responde se avisa al usuario.
+  const SEGUNDOS_ENTRE_TOQUES = 3000;
   let toquesLogo = 0;
   let temporizadorLogo = null;
 
@@ -1531,17 +1781,33 @@
       clearTimeout(temporizadorLogo);
       temporizadorLogo = null;
     }
-    const disponible = await comprobarServicios();
-    if (disponible) window.location.href = 'admin/';
+    const metaEntorno = document.querySelector('meta[name="enruta-backend"]');
+    if (metaEntorno && String(metaEntorno.content || '').toLowerCase() === 'none') {
+      mostrarToast('El panel de administración requiere el servidor local de EnRuta.');
+      return;
+    }
+    // Se fuerza una comprobación nueva: el servidor pudo arrancar después
+    // de cargar la página y la comprobación anterior quedó en falso.
+    const disponible = await comprobarServicios(true);
+    if (disponible) {
+      window.location.href = 'admin/';
+      return;
+    }
+    mostrarToast('No se pudo conectar con el panel. Verifica que el servidor esté encendido.');
   }
 
   function activarAccesoOculto() {
+    const evento = ('PointerEvent' in window) ? 'pointerup' : 'click';
     $$('.brand').forEach((logo) => {
-      logo.addEventListener('click', () => {
+      logo.addEventListener(evento, (e) => {
+        // Ignora los toques que forman parte de un desplazamiento.
         toquesLogo += 1;
         if (temporizadorLogo) clearTimeout(temporizadorLogo);
-        temporizadorLogo = setTimeout(() => { toquesLogo = 0; }, 1800);
-        if (toquesLogo >= 5) abrirPanelOculto();
+        temporizadorLogo = setTimeout(() => { toquesLogo = 0; }, SEGUNDOS_ENTRE_TOQUES);
+        if (toquesLogo >= 5) {
+          if (e.cancelable) e.preventDefault();
+          abrirPanelOculto();
+        }
       });
     });
 
@@ -1653,8 +1919,10 @@
     }
 
     const abierto = abrirWhatsApp(waLink(mensaje));
+    registrarVenta(state.cart);
     state.cart = [];
     guardarCarrito();
+    state.paso = 'productos';
     renderCart();
     renderCategorias();
     const nota = document.getElementById('fNote');
@@ -1772,6 +2040,360 @@
     refrescarTrasCarrito(false);
   }
 
+  /* ---------------- Recojo/envío y taximoto ---------------- */
+  function telefonoServicioValido(valor) {
+    const digitos = onlyDigits(valor);
+    return digitos.length >= 9 && digitos.length <= 15;
+  }
+
+  function valorCampo(id) {
+    const el = document.getElementById(id);
+    return el ? String(el.value || '').trim() : '';
+  }
+
+  function marcarCampoServicio(inputId, errId, mensaje) {
+    const input = document.getElementById(inputId);
+    const err = document.getElementById(errId);
+    if (input) input.classList.toggle('invalid', !!mensaje);
+    if (err) {
+      err.textContent = mensaje || '';
+      err.classList.toggle('show', !!mensaje);
+    }
+  }
+
+  function requeridoServicio(inputId, errId, minimo, mensaje) {
+    const valor = valorCampo(inputId);
+    if (valor.length < minimo) {
+      marcarCampoServicio(inputId, errId, mensaje);
+      return '';
+    }
+    marcarCampoServicio(inputId, errId, '');
+    return valor;
+  }
+
+  function telefonoServicioRequerido(inputId, errId, mensaje) {
+    const valor = valorCampo(inputId);
+    if (!telefonoServicioValido(valor)) {
+      marcarCampoServicio(inputId, errId, mensaje);
+      return '';
+    }
+    marcarCampoServicio(inputId, errId, '');
+    return valor;
+  }
+
+  function leerCuandoServicio(nombre) {
+    let cuando = 'urgente';
+    $$('input[name="' + nombre + '"]').forEach((r) => { if (r.checked) cuando = r.value; });
+    const fechaId = nombre === 'envioCuando' ? 'eFecha' : 'tFecha';
+    return {
+      cuando: cuando === 'programado' ? 'programado' : 'urgente',
+      fecha: cuando === 'programado' ? valorCampo(fechaId) : ''
+    };
+  }
+
+  function textoCuandoServicio(info) {
+    if (info.cuando !== 'programado') return 'Urgente (lo antes posible)';
+    const fecha = new Date(info.fecha);
+    return isNaN(fecha.getTime()) ? 'Programado' : 'Programado: ' + fechaHora(fecha);
+  }
+
+  function validarCuandoServicio(info, inputId, errId) {
+    if (info.cuando !== 'programado') {
+      marcarCampoServicio(inputId, errId, '');
+      return true;
+    }
+    if (!info.fecha) {
+      marcarCampoServicio(inputId, errId, 'Elige la fecha y hora.');
+      return false;
+    }
+    const fecha = new Date(info.fecha);
+    if (isNaN(fecha.getTime()) || fecha.getTime() < Date.now() - 5 * 60 * 1000) {
+      marcarCampoServicio(inputId, errId, 'La fecha y hora deben ser futuras.');
+      return false;
+    }
+    marcarCampoServicio(inputId, errId, '');
+    return true;
+  }
+
+  function actualizarCuandoServicio(tipo) {
+    const nombre = tipo === 'envio' ? 'envioCuando' : 'taximotoCuando';
+    const field = document.getElementById(tipo === 'envio' ? 'eFechaField' : 'tFechaField');
+    if (!field) return;
+    let programado = false;
+    $$('input[name="' + nombre + '"]').forEach((r) => { if (r.checked && r.value === 'programado') programado = true; });
+    field.hidden = !programado;
+  }
+
+  async function registrarServicio(tipo, datos) {
+    const url = tipo === 'envio' ? '/api/envios' : '/api/taximotos';
+    const res = await fetch(url, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(datos)
+    });
+    const texto = await res.text();
+    let info = null;
+    if (texto) { try { info = JSON.parse(texto); } catch (e) { info = { error: texto }; } }
+    if (!res.ok) {
+      throw new Error((info && (info.error || info.mensaje)) || 'No se pudo guardar la solicitud.');
+    }
+    return info || {};
+  }
+
+  function mensajeEnvioServicio(d, registro) {
+    return '*Recojo y envío · EnRuta Delivery*\n' +
+      (registro && registro.servicioId ? 'Solicitud: ' + registro.servicioId + '\n' : '') +
+      '\n*Qué se recoge:* ' + d.descripcion + '\n' +
+      '*Recojo:* ' + d.origen + '\n' +
+      '*Entrega:* ' + d.destino + '\n' +
+      '*Contacto:* ' + d.nombre + ' · ' + d.telefono + '\n' +
+      (d.observaciones ? '*Observaciones:* ' + d.observaciones + '\n' : '') +
+      '*Cuándo:* ' + textoCuandoServicio(d) + '\n' +
+      '\nQuedo atento a la confirmación del costo y del tiempo.';
+  }
+
+  function mensajeTaximoto(d, registro) {
+    return '*Taximoto · EnRuta Delivery*\n' +
+      (registro && registro.servicioId ? 'Solicitud: ' + registro.servicioId + '\n' : '') +
+      '\n*Recojo:* ' + d.origen + '\n' +
+      '*Destino:* ' + d.destino + '\n' +
+      (d.referencia ? '*Referencia:* ' + d.referencia + '\n' : '') +
+      '*Cuándo:* ' + textoCuandoServicio(d) + '\n' +
+      '\nQuedo atento a la confirmación de la unidad y del costo.';
+  }
+
+  async function procesarServicio(evento, tipo) {
+    evento.preventDefault();
+    const form = evento.currentTarget;
+    const esEnvio = tipo === 'envio';
+    const prefijo = esEnvio ? 'envio' : 'taximoto';
+    const err = document.getElementById(prefijo + 'Error');
+    const ok = document.getElementById(prefijo + 'Ok');
+    const btn = document.getElementById(prefijo + 'Btn');
+    if (btn && btn.disabled) return;
+    if (err) { err.hidden = true; err.textContent = ''; }
+    if (ok) { ok.hidden = true; ok.textContent = ''; }
+
+    let valido = true;
+    const datos = {};
+    if (esEnvio) {
+      datos.descripcion = requeridoServicio('eDescripcion', 'errEDescripcion', 3, 'Escribe qué se recoge.');
+      datos.origen = requeridoServicio('eOrigen', 'errEOrigen', 6, 'Escribe la dirección de recojo.');
+      datos.destino = requeridoServicio('eDestino', 'errEDestino', 6, 'Escribe la dirección de entrega.');
+      datos.nombre = requeridoServicio('eNombre', 'errENombre', 3, 'Escribe tu nombre.');
+      datos.telefono = telefonoServicioRequerido('eTelefono', 'errETelefono', 'Teléfono inválido (9 a 15 dígitos).');
+      datos.observaciones = valorCampo('eObservaciones');
+      if (datos.descripcion.length > 400) {
+        marcarCampoServicio('eDescripcion', 'errEDescripcion', 'Máximo 400 caracteres.');
+        datos.descripcion = '';
+      }
+      if (datos.observaciones.length > 600) {
+        marcarCampoServicio('eObservaciones', 'errEObservaciones', 'Máximo 600 caracteres.');
+        datos.observaciones = '';
+      }
+      if (!datos.descripcion || !datos.origen || !datos.destino || !datos.nombre || !datos.telefono) valido = false;
+    } else {
+      datos.origen = requeridoServicio('tOrigen', 'errTOrigen', 6, 'Escribe el punto de recojo.');
+      datos.destino = requeridoServicio('tDestino', 'errTDestino', 6, 'Escribe el destino.');
+      datos.referencia = valorCampo('tReferencia');
+      if (datos.referencia.length > 240) {
+        marcarCampoServicio('tReferencia', 'errTReferencia', 'Máximo 240 caracteres.');
+        valido = false;
+      } else {
+        marcarCampoServicio('tReferencia', 'errTReferencia', '');
+      }
+      if (!datos.origen || !datos.destino) valido = false;
+    }
+
+    const cuandoInfo = leerCuandoServicio(esEnvio ? 'envioCuando' : 'taximotoCuando');
+    const fechaInput = esEnvio ? 'eFecha' : 'tFecha';
+    const fechaErr = esEnvio ? 'errEFecha' : 'errTFecha';
+    if (!validarCuandoServicio(cuandoInfo, fechaInput, fechaErr)) valido = false;
+    datos.cuando = cuandoInfo.cuando;
+    datos.fecha = cuandoInfo.fecha || null;
+
+    if (!valido) {
+      if (err) {
+        err.textContent = 'Revisa los campos marcados antes de enviar.';
+        err.hidden = false;
+      }
+      return;
+    }
+
+    const textoOriginal = btn ? btn.textContent : '';
+    if (btn) { btn.disabled = true; btn.textContent = 'Enviando…'; }
+
+    await comprobarServicios();
+
+    let registro = null;
+    let fallo = null;
+    const paraServidor = esEnvio
+      ? {
+          origen: datos.origen,
+          destino: datos.destino,
+          nombreEnvia: datos.nombre,
+          telefonoEnvia: datos.telefono,
+          nombreRecibe: datos.nombre,
+          telefonoRecibe: datos.telefono,
+          descripcion: datos.descripcion,
+          observaciones: datos.observaciones,
+          cuando: datos.cuando,
+          fecha: datos.fecha
+        }
+      : {
+          origen: datos.origen,
+          destino: datos.destino,
+          referencia: datos.referencia,
+          cuando: datos.cuando,
+          fecha: datos.fecha
+        };
+    if (state.apiDisponible) {
+      try {
+        registro = await registrarServicio(tipo, paraServidor);
+      } catch (e) {
+        fallo = e;
+      }
+    }
+
+    const mensaje = esEnvio ? mensajeEnvioServicio(datos, registro) : mensajeTaximoto(datos, registro);
+    const abierto = abrirWhatsApp(waLink(mensaje));
+
+    if (ok) {
+      if (registro && registro.servicioId) {
+        ok.textContent = 'Solicitud ' + registro.servicioId + ' registrada. Se abrió WhatsApp para confirmar disponibilidad y costo.';
+      } else if (!state.apiDisponible) {
+        ok.textContent = 'Abrimos WhatsApp con tu solicitud. Ahí confirmamos disponibilidad y costo.';
+      } else {
+        ok.textContent = 'No pudimos guardar la solicitud en el servidor' +
+          (fallo && fallo.message ? ' (' + fallo.message + ')' : '') +
+          ', pero abrimos WhatsApp con todos los datos.';
+      }
+      ok.hidden = false;
+      try { ok.scrollIntoView({ block: 'nearest', behavior: 'smooth' }); } catch (e) { /* sin scroll suave */ }
+    }
+    track('service_request', { service: tipo, registered: !!(registro && registro.servicioId) });
+    mostrarToast(abierto ? 'Solicitud lista. Revisa WhatsApp.' : 'Abriendo WhatsApp…');
+
+    if (form) form.reset();
+    actualizarCuandoServicio(tipo);
+    if (btn) { btn.disabled = false; btn.textContent = textoOriginal; }
+  }
+
+  const SERVICIO_TEXTOS = {
+    taximoto: { titulo: 'Taximoto', kicker: 'Servicio de transporte' },
+    envio: { titulo: 'Recojo y envío', kicker: 'Servicio de entregas' }
+  };
+
+  function limpiarEstadoFormulario(form) {
+    if (!form) return;
+    const err = form.querySelector('.form-error');
+    const ok = form.querySelector('.form-ok');
+    if (err) { err.hidden = true; err.textContent = ''; }
+    if (ok) { ok.hidden = true; ok.textContent = ''; }
+    $$('.err', form).forEach((el) => { el.textContent = ''; el.classList.remove('show'); });
+    $$('.invalid', form).forEach((el) => el.classList.remove('invalid'));
+  }
+
+  function abrirSheet(tipo) {
+    const cfg = SERVICIO_TEXTOS[tipo];
+    if (!cfg) return;
+    cerrarCarrito();
+    cerrarModal();
+    state.servicioTipo = tipo;
+    state.servicioFoco = document.activeElement;
+
+    $$('.sheet-form').forEach((form) => {
+      const activo = form.dataset.serviceForm === tipo;
+      form.hidden = !activo;
+      if (activo) limpiarEstadoFormulario(form);
+    });
+
+    const titulo = document.getElementById('sheetTitle');
+    if (titulo) titulo.textContent = cfg.titulo;
+    const kicker = document.getElementById('sheetKicker');
+    if (kicker) kicker.textContent = cfg.kicker;
+
+    const sheet = document.getElementById('serviceSheet');
+    if (!sheet) return;
+    sheet.classList.add('open');
+    sheet.setAttribute('aria-hidden', 'false');
+    const overlay = document.getElementById('overlay');
+    if (overlay) { overlay.hidden = false; overlay.classList.add('show'); }
+    document.body.classList.add('no-scroll');
+    actualizarCuandoServicio(tipo);
+
+    const card = sheet.querySelector('.sheet-card');
+    if (card) {
+      requestAnimationFrame(() => card.focus({ preventScroll: true }));
+    }
+    track('service_open', { service: tipo });
+  }
+
+  function cerrarSheet() {
+    const sheet = document.getElementById('serviceSheet');
+    if (!sheet || !sheet.classList.contains('open')) return;
+    sheet.classList.remove('open');
+    sheet.setAttribute('aria-hidden', 'true');
+    state.servicioTipo = null;
+    sincronizarOverlay();
+    actualizarBloqueoScroll();
+    const foco = state.servicioFoco;
+    state.servicioFoco = null;
+    if (foco && typeof foco.focus === 'function' && document.contains(foco)) {
+      try { foco.focus({ preventScroll: true }); } catch (e) { foco.focus(); }
+    }
+  }
+
+  function programarTaximoto(horas) {
+    const radio = document.getElementById('tProgramado');
+    if (radio) radio.checked = true;
+    const fecha = new Date(Date.now() + horas * 60 * 60 * 1000);
+    const pad = (n) => String(n).padStart(2, '0');
+    const valor = fecha.getFullYear() + '-' + pad(fecha.getMonth() + 1) + '-' + pad(fecha.getDate()) +
+      'T' + pad(fecha.getHours()) + ':' + pad(fecha.getMinutes());
+    const input = document.getElementById('tFecha');
+    if (input) input.value = valor;
+    const err = document.getElementById('errTFecha');
+    if (err) err.textContent = '';
+    actualizarCuandoServicio('taximoto');
+  }
+
+  function activarServicios() {
+    const envioForm = document.getElementById('envioForm');
+    if (envioForm) envioForm.addEventListener('submit', (e) => procesarServicio(e, 'envio'));
+    const taximotoForm = document.getElementById('taximotoForm');
+    if (taximotoForm) taximotoForm.addEventListener('submit', (e) => procesarServicio(e, 'taximoto'));
+
+    $$('input[name="envioCuando"]').forEach((r) => r.addEventListener('change', () => actualizarCuandoServicio('envio')));
+    $$('input[name="taximotoCuando"]').forEach((r) => r.addEventListener('change', () => actualizarCuandoServicio('taximoto')));
+
+    const unaHora = document.getElementById('tEnUnaHora');
+    if (unaHora) unaHora.addEventListener('click', () => programarTaximoto(1));
+    const dosHoras = document.getElementById('tEnDosHoras');
+    if (dosHoras) dosHoras.addEventListener('click', () => programarTaximoto(2));
+
+    $$('[data-service-open]').forEach((btn) => {
+      btn.addEventListener('click', () => abrirSheet(btn.dataset.serviceOpen));
+    });
+
+    const sheetClose = document.getElementById('sheetClose');
+    if (sheetClose) sheetClose.addEventListener('click', cerrarSheet);
+    const sheet = document.getElementById('serviceSheet');
+    if (sheet) {
+      sheet.addEventListener('click', (e) => {
+        if (e.target === sheet) cerrarSheet();
+      });
+    }
+
+    $$('#taximotoForm input, #envioForm input, #envioForm textarea').forEach((input) => {
+      input.addEventListener('input', () => {
+        input.classList.remove('invalid');
+        const err = input.parentElement ? input.parentElement.querySelector('.err') : null;
+        if (err) { err.textContent = ''; err.classList.remove('show'); }
+      });
+    });
+  }
+
   function enlazarEventos() {
     const grid = document.getElementById('localsGrid');
     if (grid) {
@@ -1865,6 +2487,24 @@
       });
     }
 
+    document.addEventListener('click', (e) => {
+      const more = e.target.closest('[data-cat-more]');
+      if (!more) return;
+      const sec = SECCIONES.find((s) => s.id === more.dataset.sec);
+      if (!sec) return;
+      const catId = more.dataset.catMore || 'otros';
+      state.expandidos[sec.id] = state.expandidos[sec.id] || {};
+      state.expandidos[sec.id][catId] = !state.expandidos[sec.id][catId];
+      renderCatalogo(sec);
+    });
+
+    const status = document.getElementById('searchStatus');
+    if (status) {
+      status.addEventListener('click', (e) => {
+        if (e.target.closest('#searchClear')) limpiarBusqueda();
+      });
+    }
+
     document.addEventListener('change', (e) => {
       if (e.target.closest('[data-op-variante], [data-op-extra]')) {
         actualizarTotalOpciones(e.target.closest('.menu-opts'));
@@ -1903,8 +2543,29 @@
     if (cartBtn) cartBtn.addEventListener('click', abrirCarrito);
     const cartClose = document.getElementById('cartClose');
     if (cartClose) cartClose.addEventListener('click', cerrarCarrito);
+    const cartNext = document.getElementById('cartNext');
+    if (cartNext) {
+      cartNext.addEventListener('click', () => {
+        if (state.paso === 'productos') irPasoCarrito('datos');
+        else irPasoCarrito('enviar', true);
+      });
+    }
+    const cartBack = document.getElementById('cartBack');
+    if (cartBack) {
+      cartBack.addEventListener('click', () => {
+        irPasoCarrito(state.paso === 'enviar' ? 'datos' : 'productos');
+      });
+    }
     const modalClose = document.getElementById('modalClose');
     if (modalClose) modalClose.addEventListener('click', cerrarModal);
+    const modalBack = document.getElementById('modalBack');
+    if (modalBack) modalBack.addEventListener('click', cerrarModal);
+    const modalEl = document.getElementById('modal');
+    if (modalEl) {
+      modalEl.addEventListener('click', (e) => {
+        if (e.target === modalEl) cerrarModal();
+      });
+    }
 
     const overlay = document.getElementById('overlay');
     if (overlay) overlay.addEventListener('click', cerrarTodo);
@@ -2025,6 +2686,7 @@
     renderCategorias();
     renderCart();
     enlazarEventos();
+    activarServicios();
     activarAccesoOculto();
     actualizarEstadoZona();
     setInterval(actualizarEstadoZona, 60000);

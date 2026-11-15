@@ -2937,7 +2937,7 @@ fieldset.when .field {
   color: var(--muted);
 }
 .sheet-head h2 { font-size: 23px; line-height: 1.1; letter-spacing: -.03em; }
-.sheet-close { flex-shrink: 0; background: #f7f1e9; }
+.sheet-close { flex-shrink: 0; width: 44px; height: 44px; background: #f7f1e9; }
 .sheet-body {
   flex: 1;
   min-height: 0;
@@ -2950,7 +2950,7 @@ fieldset.when .field {
 .sheet-form[hidden] { display: none; }
 .sheet-form .field { margin-bottom: 12px; }
 .sheet-form .field-row .field { margin-bottom: 12px; }
-.sheet-form .btn-block { width: 100%; }
+.sheet-form .btn-block { width: 100%; min-height: 48px; }
 .sheet-form .privacy-note { margin: 10px 0 0; }
 .sheet-when { margin: 2px 0 14px; }
 .field-label {
@@ -2964,7 +2964,7 @@ fieldset.when .field {
 .sheet-when .mode-opt span { padding: 10px 6px; font-size: 12px; }
 .sheet-subfield { margin: 10px 0 0; }
 .sheet .servicio-presets { margin: 8px 0 0; }
-.sheet .servicio-presets .chip { border: 1px solid var(--line); background: #fff; cursor: pointer; }
+.sheet .servicio-presets .chip { padding: 8px 13px; border: 1px solid var(--line); background: #fff; cursor: pointer; }
 .sheet .servicio-presets .chip:hover { border-color: #e8c94b; background: var(--brand-soft); }
 .form-error {
   margin: 0 0 12px;
@@ -2979,7 +2979,11 @@ fieldset.when .field {
 }
 
 @media (min-width: 720px) {
-  .sheet-card { margin-bottom: 32px; border-radius: 26px; }
+  .sheet-card {
+    margin-bottom: 32px;
+    border-radius: 26px;
+    max-height: min(calc(100dvh - 64px), 780px);
+  }
 }
 
 @media (max-width: 720px) {
@@ -2990,6 +2994,9 @@ fieldset.when .field {
   .service-text { font-size: 12.5px; }
   .service-cta { padding: 8px 13px; font-size: 12px; }
   .sheet-head h2 { font-size: 21px; }
+  .sheet-form .field input,
+  .sheet-form .field select,
+  .sheet-form .field textarea { font-size: 16px; }
 }
 
 @media (max-width: 380px) {

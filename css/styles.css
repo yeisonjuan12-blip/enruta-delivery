@@ -2886,7 +2886,8 @@ fieldset.when .field {
 .sheet {
   position: fixed;
   inset: 0;
-  z-index: 75;
+  /* Por encima del aviso de cookies (1200): si no, tapa el botón de envío. */
+  z-index: 1300;
   display: flex;
   align-items: flex-end;
   justify-content: center;

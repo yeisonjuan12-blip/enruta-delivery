@@ -25,7 +25,17 @@ function empaquetadoSalida(local) {
   return { aplica: false, monto: 0, porUnidad: false, concepto: 'Sin recargo' };
 }
 
-function productosDelLocal(productosRaw) {
+/* Las imágenes de cada local se guardan con ruta relativa a su carpeta
+   (img/...). Aquí se convierten a la ruta pública que usa el navegador. */
+function rutaImagenLocal(valor, carpeta) {
+  if (!valor) return null;
+  const v = String(valor).replace(/^\/+/, '');
+  if (/^https?:/i.test(v)) return v;
+  if (v.startsWith('media/') || v.startsWith('data/')) return '/' + v;
+  return '/data/locales/' + carpeta + '/' + v;
+}
+
+function productosDelLocal(productosRaw, carpeta) {
   const salida = [];
   for (const p of productosRaw || []) {
     if (!p || !p.id || !p.nombre) continue;
@@ -66,7 +76,7 @@ function productosDelLocal(productosRaw) {
       subcategoria: p.subcategoria,
       emoji: p.emoji,
       etiqueta: p.etiqueta,
-      imagen: p.imagen || null,
+      imagen: rutaImagenLocal(p.imagen, carpeta),
       variantes,
       extras,
       origen: p.origen
@@ -101,7 +111,7 @@ function catalogoSalida(id, nombre, categoriasRaw, productosRaw) {
       marca: p.marca,
       categoriaId: p.categoriaId,
       presentacion: p.presentacion,
-      imagen: p.imagen || null,
+      imagen: p.imagen && String(p.imagen).startsWith('media/') ? '/' + p.imagen : p.imagen || null,
       precioVenta,
       precioReferencia,
       fuente: {
@@ -141,7 +151,7 @@ export async function construirCatalogo(env) {
   for (const carpeta of indice) {
     const local = mapa.get('local:' + carpeta);
     if (!local) continue;
-    const productos = productosDelLocal(mapa.get('local:' + carpeta + ':productos') || []);
+    const productos = productosDelLocal(mapa.get('local:' + carpeta + ':productos') || [], carpeta);
 
     resumen.locales++;
     resumen.productosLocales += productos.length;
@@ -160,9 +170,9 @@ export async function construirCatalogo(env) {
       esEjemplo: local.esEjemplo === true,
       emoji: local.emoji,
       colores: local.colores || [],
-      logo: local.logo || null,
-      portada: local.portada || null,
-      cartaOriginal: local.cartaOriginal || null,
+      logo: rutaImagenLocal(local.logo, carpeta),
+      portada: rutaImagenLocal(local.portada, carpeta),
+      cartaOriginal: rutaImagenLocal(local.cartaOriginal, carpeta),
       tiempo: local.tiempo,
       pedidoMinimo: local.pedidoMinimo,
       horarioLocal: local.horarioLocal,

@@ -338,10 +338,10 @@ a { color: inherit; text-decoration: none; }
 }
 .eyebrow {
   display: inline-flex;
+  flex-direction: column;
   align-items: center;
   justify-content: center;
-  flex-wrap: wrap;
-  gap: 9px;
+  gap: 2px;
   max-width: 100%;
   background: #fff;
   border: 1px solid var(--line);
@@ -353,6 +353,16 @@ a { color: inherit; text-decoration: none; }
   padding: 7px 14px;
   border-radius: 18px;
   box-shadow: var(--shadow);
+}
+.eyebrow-line {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  white-space: nowrap;
+}
+@media (min-width: 721px) {
+  .eyebrow { flex-direction: row; gap: 8px; }
+  .eyebrow-sub::before { content: "·"; margin-right: 2px; }
 }
 .pulse {
   width: 8px;

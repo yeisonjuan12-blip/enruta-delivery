@@ -78,8 +78,12 @@
   };
   CATALOGOS.forEach((c) => { state.catCatalogos[c.id] = 'todo'; });
 
-  /* Catálogos: cuántos productos se muestran por categoría antes de "Ver más". */
+  /* Catálogos: cuántos productos se muestran por categoría antes de "Ver más".
+     En celular la grilla tiene 2 columnas, así que 6 productos son 3 filas. */
   const LIMITE_CATEGORIA = 8;
+  function limiteCategoria() {
+    return window.matchMedia('(max-width: 720px)').matches ? 6 : LIMITE_CATEGORIA;
+  }
 
   /* Lista manual de más vendidos (orden de prioridad dentro de cada categoría).
      Cuando exista un contador real de ventas en el backend, este orden se
@@ -1012,7 +1016,8 @@
   function bloqueCategoria(sec, cat, categoria, items) {
     const catId = categoria ? categoria.id : 'otros';
     const abierto = !!(state.expandidos[sec.id] && state.expandidos[sec.id][catId]);
-    const visibles = abierto ? items : items.slice(0, LIMITE_CATEGORIA);
+    const limite = limiteCategoria();
+    const visibles = abierto ? items : items.slice(0, limite);
     const total = items.length;
     const restantes = total - visibles.length;
     return '<div class="cat-band">' +
@@ -1022,7 +1027,7 @@
       visibles.map((p) => tarjetaCatalogo(cat, p)).join('') +
       (restantes > 0
         ? '<div class="cat-more"><button type="button" class="btn btn-ghost" data-cat-more="' + esc(catId) + '" data-sec="' + esc(sec.id) + '">Ver más · ' + total + ' productos</button></div>'
-        : (abierto && total > LIMITE_CATEGORIA
+        : (abierto && total > limite
           ? '<div class="cat-more"><button type="button" class="btn btn-ghost" data-cat-more="' + esc(catId) + '" data-sec="' + esc(sec.id) + '">Ver menos</button></div>'
           : ''));
   }

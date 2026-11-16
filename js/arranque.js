@@ -1,15 +1,15 @@
-/* ============================================================
-   EnRuta Delivery - Arranque del sitio público
+﻿/* ============================================================
+   EnRuta Delivery - Arranque del sitio pÃºblico
    ------------------------------------------------------------
-   Carga el catálogo desde /api/catalogo (D1 en Cloudflare) y,
-   si falla, usa js/catalogo.js como respaldo. Después carga los
-   scripts de la página en el mismo orden de siempre.
+   Carga el catÃ¡logo desde /api/catalogo (D1 en Cloudflare) y,
+   si falla, usa js/catalogo.js como respaldo. DespuÃ©s carga los
+   scripts de la pÃ¡gina en el mismo orden de siempre.
    ============================================================ */
 
 (function () {
   'use strict';
 
-  var VERSION = '11';
+  var VERSION = '12';
   var SIGUIENTES = [
     'js/locales-prueba.js',
     'js/google-config.js',
@@ -35,10 +35,10 @@
       });
       if (!respuesta.ok) throw new Error('HTTP ' + respuesta.status);
       var datos = await respuesta.json();
-      if (!datos || !datos.config) throw new Error('Catálogo vacío');
+      if (!datos || !datos.config) throw new Error('CatÃ¡logo vacÃ­o');
       return datos;
     } catch (error) {
-      console.warn('Catálogo en vivo no disponible; se usa el respaldo local.', error);
+      console.warn('CatÃ¡logo en vivo no disponible; se usa el respaldo local.', error);
       await cargar('js/catalogo.js');
       return window.ENRUTA_DATA || null;
     }

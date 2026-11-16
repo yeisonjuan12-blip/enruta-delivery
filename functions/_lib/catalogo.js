@@ -35,6 +35,16 @@ function rutaImagenLocal(valor, carpeta) {
   return '/data/locales/' + carpeta + '/' + v;
 }
 
+/* Las imágenes de licores y primera necesidad se guardan relativas a su
+   catálogo (img/...). Se resuelven a data/<catálogo>/img/... */
+function rutaImagenCatalogo(valor, catalogoId) {
+  if (!valor) return null;
+  const v = String(valor).replace(/^\/+/, '');
+  if (/^https?:/i.test(v)) return v;
+  if (v.startsWith('media/') || v.startsWith('data/')) return '/' + v;
+  return '/data/' + catalogoId + '/' + v;
+}
+
 function productosDelLocal(productosRaw, carpeta) {
   const salida = [];
   for (const p of productosRaw || []) {
@@ -111,7 +121,7 @@ function catalogoSalida(id, nombre, categoriasRaw, productosRaw) {
       marca: p.marca,
       categoriaId: p.categoriaId,
       presentacion: p.presentacion,
-      imagen: p.imagen && String(p.imagen).startsWith('media/') ? '/' + p.imagen : p.imagen || null,
+      imagen: rutaImagenCatalogo(p.imagen, id),
       precioVenta,
       precioReferencia,
       fuente: {

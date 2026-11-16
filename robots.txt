@@ -5,4 +5,4 @@ Disallow: /server/
 Disallow: /tools/
 Disallow: /data/
 
-Sitemap: https://yeisonjuan12-blip.github.io/enruta-delivery/sitemap.xml
+Sitemap: https://enrutadelivery.com/sitemap.xml

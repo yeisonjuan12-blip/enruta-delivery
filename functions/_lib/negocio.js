@@ -1,7 +1,7 @@
 ﻿/* ============================================================
    EnRuta Delivery - Reglas de negocio sobre D1
-   Locales, productos, catÃ¡logos, pedidos, servicios, imÃ¡genes,
-   estadÃ­sticas e importaciones.
+   Locales, productos, catálogos, pedidos, servicios, imágenes,
+   estadísticas e importaciones.
    ============================================================ */
 
 import {
@@ -347,7 +347,7 @@ export async function nuevoLocal(env, local, usuario, rol, ip) {
     disponible: local.disponible !== false,
     cerradoTemporal: local.cerradoTemporal === true,
     esEjemplo: false,
-    emoji: local.emoji ? String(local.emoji) : 'ðŸª',
+    emoji: local.emoji ? String(local.emoji) : '🍔',
     colores: Array.isArray(local.colores) && local.colores.length ? local.colores : ['#fdd303', '#111111'],
     logo: null,
     portada: null,
@@ -469,7 +469,7 @@ export async function duplicarLocal(env, carpeta, usuario, rol, ip) {
 }
 
 /* ============================================================
-   CategorÃ­as de locales
+   Categorías de locales
    ============================================================ */
 
 export async function guardarCategoriasLocales(env, categorias, usuario, rol, ip) {
@@ -505,7 +505,7 @@ export async function guardarCategoriasLocales(env, categorias, usuario, rol, ip
 }
 
 /* ============================================================
-   ConfiguraciÃ³n pÃºblica
+   Configuración pública
    ============================================================ */
 
 export async function obtenerConfigPublica(env) {
@@ -636,7 +636,7 @@ export async function guardarConfigPublica(env, config, usuario, rol, ip) {
 }
 
 /* ============================================================
-   CatÃ¡logos globales
+   Catálogos globales
    ============================================================ */
 
 export function rutaCatalogo(id) {
@@ -732,7 +732,7 @@ export async function guardarCatalogo(env, id, categorias, productos, usuario, r
 }
 
 /* ============================================================
-   ImÃ¡genes (KV)
+   Imágenes (KV)
    ============================================================ */
 
 function extensionImagen(bytes) {
@@ -898,7 +898,7 @@ export async function calcularPedidoServidor(env, items) {
     const p = encontrado.producto;
     const precioInfo = precioProductoPedido(p, raw.varianteId, extrasSolicitados);
     let nombre = String(p.nombre);
-    if (precioInfo.variante) nombre += ' Â· ' + precioInfo.variante;
+    if (precioInfo.variante) nombre += ' · ' + precioInfo.variante;
     const nombresExtras = precioInfo.extras.map((e) => String(e.nombre));
     if (nombresExtras.length) nombre += ' + ' + nombresExtras.join(', ');
 
@@ -1095,7 +1095,7 @@ export async function cambiarEstadoPedido(env, id, estado, sesion, ip) {
 }
 
 /* ============================================================
-   Servicios: recojo/envÃ­o y taximoto
+   Servicios: recojo/envío y taximoto
    ============================================================ */
 
 function validarTelefonoServicio(telefono, campo) {
@@ -1249,7 +1249,7 @@ export async function cambiarEstadoServicio(env, tipo, id, estado, sesion, ip) {
 }
 
 /* ============================================================
-   Resumen y estadÃ­sticas
+   Resumen y estadísticas
    ============================================================ */
 
 export async function obtenerResumenAdmin(env, sesion) {

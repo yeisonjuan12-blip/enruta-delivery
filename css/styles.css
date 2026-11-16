@@ -525,6 +525,24 @@ a { color: inherit; text-decoration: none; }
 
 /* ---------------- Catálogo ---------------- */
 .catalog { padding: 26px 0 64px; scroll-margin-top: 88px; }
+.services-head {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  margin: 6px 0 14px;
+}
+.services-head h2 {
+  font-size: clamp(23px, 2.6vw, 30px);
+  letter-spacing: -.03em;
+  line-height: 1.12;
+}
+.catalog-head-locales {
+  margin-top: 44px;
+}
+@media (max-width: 720px) {
+  .catalog-head-locales { margin-top: 32px; }
+}
+
 .catalog-head {
   display: flex;
   align-items: flex-end;

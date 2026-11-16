@@ -810,7 +810,6 @@
     return '<article class="local-card" data-local="' + esc(local.id) + '" role="button" tabindex="0" aria-label="Ver la carta de ' + esc(local.nombre) + '">' +
       portadaHTML(local, 'local-cover') +
       '<span class="type-pill">' + esc(categoria) + '</span>' +
-      (local.esEjemplo ? '<span class="demo-badge demo-float">Ejemplo</span>' : '') +
       '<div class="local-body">' +
         '<div class="local-brand">' +
           logoHTML(local) +
@@ -884,9 +883,6 @@
     if (contador) contador.textContent = lista.length + (lista.length === 1 ? ' local' : ' locales');
     if (vacio) vacio.hidden = lista.length > 0;
 
-    const demo = LOCALES.some((l) => l.esEjemplo);
-    const banner = document.getElementById('demoBanner');
-    if (banner) banner.hidden = !demo;
   }
 
   /* ---------------- Render: catálogos ---------------- */
@@ -1043,13 +1039,19 @@
     const chipsActivo = state.q ? 'todo' : seleccion;
 
     if (cont) {
-      cont.innerHTML = [{ id: 'todo', nombre: 'Todos' }].concat(cat.categorias || []).map((c) =>
+      const chips = [{ id: 'todo', nombre: 'Todos' }].concat(cat.categorias || []);
+      // Los packs (six pack, four pack, twelve pack) ya vienen con su
+      // precio real de Tambo; este filtro los reúne sin alterar el resto.
+      if (sec.id === 'licores') chips.splice(1, 0, { id: 'packs', nombre: '🍻 Packs' });
+      cont.innerHTML = chips.map((c) =>
         '<button type="button" class="chip' + (chipsActivo === c.id ? ' is-active' : '') + '" data-cat="' + esc(c.id) + '">' + esc(c.nombre) + '</button>'
       ).join('');
     }
 
+    const esPacks = seleccion === 'packs';
     const lista = (cat.productos || []).filter((p) => {
       if (state.q) return productoCatalogoCoincide(cat, p);
+      if (esPacks) return /pack/i.test(String(p.nombre || '')) && productoCatalogoCoincide(cat, p);
       if (seleccion !== 'todo' && p.categoriaId !== seleccion) return false;
       return productoCatalogoCoincide(cat, p);
     });
@@ -1058,7 +1060,9 @@
       // Resultados de búsqueda: lista plana completa en todas las categorías.
       grid.innerHTML = ordenarProductos(sec.id, lista).map((p) => tarjetaCatalogo(cat, p)).join('');
     } else if (seleccion !== 'todo') {
-      const categoria = (cat.categorias || []).find((c) => c.id === seleccion) || null;
+      const categoria = esPacks
+        ? { id: 'packs', nombre: 'Packs' }
+        : (cat.categorias || []).find((c) => c.id === seleccion) || null;
       grid.innerHTML = bloqueCategoria(sec, cat, categoria, ordenarProductos(sec.id, lista));
     } else {
       const categorias = (cat.categorias || []).filter((c) => lista.some((p) => p.categoriaId === c.id));
@@ -1214,7 +1218,6 @@
             '</p>' +
           '</div>' +
         '</div>' +
-        (local.esEjemplo ? '<span class="demo-badge">Local de ejemplo</span>' : '') +
       '</div>' +
       '<p class="modal-desc">' + esc(local.descripcion || '') + '</p>' +
       (local.etiquetas && local.etiquetas.length ? '<div class="modal-info">' + local.etiquetas.map((t) => '<span>' + esc(t) + '</span>').join('') + '</div>' : '') +

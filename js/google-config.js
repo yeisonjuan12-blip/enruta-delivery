@@ -27,7 +27,7 @@ window.ENRUTA_GOOGLE = {
   ga4: '',
 
   // ID de editor de Google AdSense. Ejemplo: 'ca-pub-1234567890123456'
-  adsense: '',
+  adsense: 'ca-pub-2132967808446840',
 
   // Bloques de anuncios (data-ad-slot) creados en AdSense.
   // Deja vacío el que no uses; ese espacio no se mostrará.

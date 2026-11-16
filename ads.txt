@@ -4,4 +4,4 @@
 # con la que te indique AdSense (quita el símbolo # del inicio).
 # El formato es: google.com, pub-XXXXXXXXXXXXXXXX, DIRECT, f08c47fec0942fa0
 #
-# google.com, pub-0000000000000000, DIRECT, f08c47fec0942fa0
+google.com, pub-2132967808446840, DIRECT, f08c47fec0942fa0

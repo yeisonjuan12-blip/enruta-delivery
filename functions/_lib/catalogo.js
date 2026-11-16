@@ -1,0 +1,199 @@
+/* ============================================================
+   EnRuta Delivery - Catálogo público
+   Genera la misma forma que window.ENRUTA_DATA a partir de D1.
+   ============================================================ */
+
+import { cargarMapaDocs } from './almacen.js';
+import { convertirNumero, fechaIsoLocal } from './comun.js';
+
+function empaquetadoSalida(local) {
+  const emp = local && local.empaquetado;
+  if (!emp) {
+    return { aplica: false, monto: 0, porUnidad: false, concepto: 'Sin recargo' };
+  }
+  const porUnidad = emp.porUnidad === true;
+  let monto = convertirNumero(emp.monto);
+  if (monto === null) monto = 0;
+  if (emp.aplica === true) {
+    return {
+      aplica: monto > 0,
+      monto,
+      porUnidad,
+      concepto: emp.concepto ? String(emp.concepto) : 'Empaquetado'
+    };
+  }
+  return { aplica: false, monto: 0, porUnidad: false, concepto: 'Sin recargo' };
+}
+
+function productosDelLocal(productosRaw) {
+  const salida = [];
+  for (const p of productosRaw || []) {
+    if (!p || !p.id || !p.nombre) continue;
+
+    const disponible = p.disponible !== false;
+    const publicado = p.publicado !== false;
+    const precio = convertirNumero(p.precio);
+    const precioValido = precio !== null && precio > 0;
+
+    const variantes = [];
+    for (const v of p.variantes || []) {
+      if (!v || !v.nombre) continue;
+      const pv = convertirNumero(v.precio);
+      if (pv === null || pv <= 0) continue;
+      variantes.push({
+        id: v.id ? String(v.id) : 'v' + (variantes.length + 1),
+        nombre: String(v.nombre),
+        precio: pv
+      });
+    }
+
+    const extras = [];
+    for (const e of p.extras || []) {
+      if (!e || !e.nombre) continue;
+      const pe = convertirNumero(e.precio);
+      extras.push({ nombre: String(e.nombre), precio: pe === null ? 0 : pe });
+    }
+
+    if (publicado && !precioValido && variantes.length === 0) continue;
+    if (!publicado || !disponible) continue;
+
+    salida.push({
+      id: p.id,
+      nombre: p.nombre,
+      descripcion: p.descripcion,
+      precio: precioValido ? precio : 0,
+      grupo: p.grupo,
+      subcategoria: p.subcategoria,
+      emoji: p.emoji,
+      etiqueta: p.etiqueta,
+      imagen: p.imagen || null,
+      variantes,
+      extras,
+      origen: p.origen
+    });
+  }
+  return salida;
+}
+
+function catalogoSalida(id, nombre, categoriasRaw, productosRaw) {
+  const categorias = [];
+  const mapa = new Map();
+  for (const c of categoriasRaw || []) {
+    if (!c || !c.id || !c.nombre) continue;
+    if (mapa.has(c.id)) continue;
+    mapa.set(c.id, c.nombre);
+    categorias.push({ id: c.id, nombre: c.nombre });
+  }
+
+  const productos = [];
+  for (const p of productosRaw || []) {
+    if (!p || !p.id || !p.nombre) continue;
+    if (!p.categoriaId || !mapa.has(p.categoriaId)) continue;
+    if (!p.fuente || !p.fuente.url) continue;
+    if (p.publicado === false || p.disponible === false) continue;
+    if (p.precioVenta === null || p.precioVenta === undefined) continue;
+    const precioVenta = convertirNumero(p.precioVenta);
+    if (precioVenta === null || precioVenta <= 0) continue;
+    const precioReferencia = convertirNumero(p.precioReferencia);
+    productos.push({
+      id: p.id,
+      nombre: p.nombre,
+      marca: p.marca,
+      categoriaId: p.categoriaId,
+      presentacion: p.presentacion,
+      imagen: p.imagen || null,
+      precioVenta,
+      precioReferencia,
+      fuente: {
+        tienda: p.fuente.tienda,
+        url: p.fuente.url,
+        productoId: p.fuente.productoId !== null && p.fuente.productoId !== undefined ? String(p.fuente.productoId) : '',
+        fechaVerificacion: p.fuente.fechaVerificacion
+      },
+      estado: p.estado
+    });
+  }
+
+  return { id, nombre, categorias, productos };
+}
+
+export async function construirCatalogo(env) {
+  const mapa = await cargarMapaDocs(env);
+  const config = mapa.get('config') || {};
+  const categoriasLocales = mapa.get('categoriasLocales') || [];
+  const indice = mapa.get('indiceLocales') || [];
+
+  const mapaCategorias = new Map();
+  for (const c of categoriasLocales) {
+    if (c && c.id) mapaCategorias.set(c.id, c.nombre);
+  }
+
+  const resumen = {
+    locales: 0,
+    localesPublicados: 0,
+    localesEjemplo: 0,
+    productosLocales: 0,
+    licores: 0,
+    primeraNecesidad: 0
+  };
+
+  const locales = [];
+  for (const carpeta of indice) {
+    const local = mapa.get('local:' + carpeta);
+    if (!local) continue;
+    const productos = productosDelLocal(mapa.get('local:' + carpeta + ':productos') || []);
+
+    resumen.locales++;
+    resumen.productosLocales += productos.length;
+    if (local.publicado === true) resumen.localesPublicados++;
+    if (local.esEjemplo === true) resumen.localesEjemplo++;
+
+    locales.push({
+      id: local.id,
+      nombre: local.nombre,
+      tipo: local.tipo === 'comida' ? 'comida' : 'productos',
+      categoriaId: local.categoriaId,
+      categoriaNombre: mapaCategorias.get(local.categoriaId) || local.categoriaId || '',
+      descripcion: local.descripcion,
+      publicado: local.publicado === true,
+      disponible: local.disponible !== false,
+      esEjemplo: local.esEjemplo === true,
+      emoji: local.emoji,
+      colores: local.colores || [],
+      logo: local.logo || null,
+      portada: local.portada || null,
+      cartaOriginal: local.cartaOriginal || null,
+      tiempo: local.tiempo,
+      pedidoMinimo: local.pedidoMinimo,
+      horarioLocal: local.horarioLocal,
+      etiquetas: local.etiquetas || [],
+      empaquetado: empaquetadoSalida(local),
+      notas: local.notas,
+      productos
+    });
+  }
+
+  const licores = catalogoSalida(
+    'licores',
+    'Licores',
+    mapa.get('catalogo:licores:categorias') || [],
+    mapa.get('catalogo:licores:productos') || []
+  );
+  const primeraNecesidad = catalogoSalida(
+    'primera-necesidad',
+    'Primera necesidad',
+    mapa.get('catalogo:primera-necesidad:categorias') || [],
+    mapa.get('catalogo:primera-necesidad:productos') || []
+  );
+  resumen.licores = licores.productos.length;
+  resumen.primeraNecesidad = primeraNecesidad.productos.length;
+
+  return {
+    generadoEn: fechaIsoLocal(),
+    config,
+    categoriasLocales: categoriasLocales.map((c) => ({ id: c.id, nombre: c.nombre })),
+    locales,
+    catalogos: [licores, primeraNecesidad],
+    resumen
+  };
+}

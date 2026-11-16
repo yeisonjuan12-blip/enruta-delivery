@@ -53,6 +53,7 @@
     if (!valor) return '';
     const v = String(valor).replace(/^\/+/, '');
     if (/^https?:/i.test(v)) return v;
+    if (v.startsWith('media/')) return '/' + v;
     if (v.startsWith('data/')) return '/' + v;
     return '/data/locales/' + carpeta + '/' + v;
   }
@@ -60,8 +61,62 @@
     if (!valor) return '';
     const v = String(valor).replace(/^\/+/, '');
     if (/^https?:/i.test(v)) return v;
+    if (v.startsWith('media/')) return '/' + v;
     if (v.startsWith('data/')) return '/' + v;
     return '/data/' + catalogo + '/' + v;
+  }
+
+  /* ---------------- Contraseñas (PBKDF2 en el navegador) ----------------
+     El servidor gratuito de Cloudflare solo dispone de 10 ms de CPU por
+     petición. Por eso la clave se deriva aquí con PBKDF2-SHA256 y al
+     servidor viaja únicamente la clave derivada (nunca la contraseña). */
+  const PBKDF2_ITERACIONES = 120000;
+
+  function bytesAB64(bytes) {
+    let texto = '';
+    for (let i = 0; i < bytes.length; i++) texto += String.fromCharCode(bytes[i]);
+    return btoa(texto);
+  }
+  function b64ABytes(texto) {
+    const binario = atob(String(texto || '').replace(/\s+/g, ''));
+    const bytes = new Uint8Array(binario.length);
+    for (let i = 0; i < binario.length; i++) bytes[i] = binario.charCodeAt(i);
+    return bytes;
+  }
+  function salAleatoria() {
+    const bytes = new Uint8Array(16);
+    crypto.getRandomValues(bytes);
+    return bytesAB64(bytes);
+  }
+  async function derivarClave(password, salt, iteraciones) {
+    if (!window.crypto || !window.crypto.subtle) {
+      throw new Error('Tu navegador no permite iniciar sesión de forma segura. Actualízalo o usa Chrome, Edge o Firefox.');
+    }
+    const codificador = new TextEncoder();
+    const base = await crypto.subtle.importKey('raw', codificador.encode(String(password)), 'PBKDF2', false, ['deriveBits']);
+    const bits = await crypto.subtle.deriveBits(
+      {
+        name: 'PBKDF2',
+        salt: b64ABytes(salt),
+        iterations: Number(iteraciones) || PBKDF2_ITERACIONES,
+        hash: 'SHA-256'
+      },
+      base,
+      256
+    );
+    return bytesAB64(new Uint8Array(bits));
+  }
+  async function salDeUsuario(usuario) {
+    const res = await api('/api/auth/sal', { method: 'POST', body: { usuario } });
+    return {
+      salt: String(res.salt || ''),
+      iteraciones: Number(res.iteraciones) || PBKDF2_ITERACIONES
+    };
+  }
+  async function credencialesPara(password) {
+    const salt = salAleatoria();
+    const clave = await derivarClave(password, salt, PBKDF2_ITERACIONES);
+    return { clave, salt, iteraciones: PBKDF2_ITERACIONES };
   }
 
   const CATEGORIAS_SUGERIDAS = [
@@ -128,7 +183,7 @@
     try {
       res = await fetch(ruta, { method: metodo, headers, body: cuerpo, credentials: 'same-origin' });
     } catch (e) {
-      throw new Error('No se pudo conectar con el servidor local. Verifica que esté encendido.');
+      throw new Error('No se pudo conectar con el servidor. Revisa tu conexión e intenta nuevamente.');
     }
     const texto = await res.text();
     let datos = null;
@@ -255,7 +310,9 @@
     }
     bloquear(btn, true);
     try {
-      const res = await api('/api/auth/login', { method: 'POST', body: { usuario, password } });
+      const sal = await salDeUsuario(usuario);
+      const clave = await derivarClave(password, sal.salt, sal.iteraciones);
+      const res = await api('/api/auth/login', { method: 'POST', body: { usuario, clave } });
       state.sesion = res.sesion;
       mostrarApp();
       toast('Bienvenido, ' + (state.sesion.nombre || state.sesion.usuario));
@@ -3474,15 +3531,35 @@
       }
       if (!datos.nombre) { err.hidden = false; err.textContent = 'Escribe el nombre visible.'; return; }
       if (datos.rol === 'local' && !datos.localCarpeta) { err.hidden = false; err.textContent = 'Elige el local asignado.'; return; }
-      if (esNuevo && datos.password.length < 10) { err.hidden = false; err.textContent = 'La contraseña debe tener al menos 10 caracteres.'; return; }
+      if ((esNuevo || datos.password) && datos.password.length < 10) { err.hidden = false; err.textContent = 'La contraseña debe tener al menos 10 caracteres.'; return; }
+      if ((esNuevo || datos.password) && (!/[A-Za-z]/.test(datos.password) || !/[0-9]/.test(datos.password))) {
+        err.hidden = false; err.textContent = 'La contraseña debe combinar letras y números.'; return;
+      }
       try {
         bloquear(btn, true);
         if (esNuevo) {
-          await api('/api/admin/usuarios', { method: 'POST', body: datos });
+          const cred = await credencialesPara(datos.password);
+          await api('/api/admin/usuarios', {
+            method: 'POST',
+            body: {
+              usuario: datos.usuario,
+              nombre: datos.nombre,
+              rol: datos.rol,
+              localCarpeta: datos.localCarpeta,
+              clave: cred.clave,
+              salt: cred.salt,
+              iteraciones: cred.iteraciones
+            }
+          });
         } else {
           const cuerpo = { nombre: datos.nombre, rol: datos.rol, localCarpeta: datos.localCarpeta };
           if (!$('#ufActivo').checked) cuerpo.activo = false; else cuerpo.activo = true;
-          if (datos.password) cuerpo.password = datos.password;
+          if (datos.password) {
+            const cred = await credencialesPara(datos.password);
+            cuerpo.clave = cred.clave;
+            cuerpo.salt = cred.salt;
+            cuerpo.iteraciones = cred.iteraciones;
+          }
           await api('/api/admin/usuarios/' + encodeURIComponent(u.usuario), { method: 'PUT', body: cuerpo });
         }
         cerrarModal();
@@ -3608,7 +3685,18 @@
       if (nueva !== $('#passRepetir').value) { err.hidden = false; err.textContent = 'Las contraseñas nuevas no coinciden.'; return; }
       try {
         bloquear(btn, true);
-        await api('/api/auth/password', { method: 'POST', body: { actual, nueva } });
+        const sal = await salDeUsuario(state.sesion.usuario);
+        const actualDerivada = await derivarClave(actual, sal.salt, sal.iteraciones);
+        const nuevaCred = await credencialesPara(nueva);
+        await api('/api/auth/password', {
+          method: 'POST',
+          body: {
+            actual: actualDerivada,
+            nueva: nuevaCred.clave,
+            salt: nuevaCred.salt,
+            iteraciones: nuevaCred.iteraciones
+          }
+        });
         $('#formPassword').reset();
         toast('Contraseña actualizada.');
       } catch (ex) {

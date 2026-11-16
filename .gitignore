@@ -1,8 +1,17 @@
-# Copias generadas para publicar (se reconstruyen con tools/preparar-publicacion.ps1)
+# Copias generadas para publicar (se reconstruyen con tools/construir-sitio.js)
 dist/
 
 # Datos privados del servidor: sesiones, credenciales, pedidos y respaldos
 server/datos/
+
+# Datos iniciales de D1: contienen hashes, pedidos y datos personales
+db/seed.sql
+db/secreto.txt
+
+# Dependencias y estado local de Wrangler
+node_modules/
+.wrangler/
+.dev.vars
 
 # Registros, respaldos y temporales
 *.log

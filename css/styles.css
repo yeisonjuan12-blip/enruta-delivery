@@ -3025,14 +3025,3 @@ fieldset.when .field {
   .service-title { font-size: 20.5px; }
   .sheet-body { padding-left: 15px; padding-right: 15px; }
 }
-
-/* Tarjeta Taximoto: la imagen ya trae título, texto y botón,
-   así que se muestra entera y sin el texto duplicado encima. */
-.service-taxi { padding: 0; }
-.service-taxi::after { background: none; }
-.service-taxi .service-copy,
-.service-taxi .service-cta { display: none; }
-
-@media (max-width: 720px) {
-  .service-taxi { aspect-ratio: 1607 / 979; min-height: 0; }
-}

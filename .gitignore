@@ -6,7 +6,7 @@ server/datos/
 
 # Datos iniciales de D1: contienen hashes, pedidos y datos personales
 db/seed.sql
-db/secreto.txt
+db/secreto*.txt
 
 # Dependencias y estado local de Wrangler
 node_modules/

@@ -6,9 +6,9 @@ pages_build_output_dir = "dist"
 [[d1_databases]]
 binding = "DB"
 database_name = "enruta-delivery"
-database_id = "00000000-0000-0000-0000-000000000000"
+database_id = "1b2ae457-6844-42b3-bdc4-a99b722c5853"
 
 # Imágenes nuevas subidas desde el panel (las antiguas viven en /data como assets).
 [[kv_namespaces]]
 binding = "IMAGENES"
-id = "00000000000000000000000000000000"
+id = "ab8729c9339543eb8aad7d031a9fea8b"

@@ -104,7 +104,7 @@ function Enviar-ArchivoEstatico {
     }
   }
   $ext = ([IO.Path]::GetExtension($completo)).ToLowerInvariant()
-  if (($extensionesBloqueadas -contains $ext) -and -not ($archivosPublicos -contains $rel)) {
+  if (($extensionesBloqueadas -contains $ext) -and -not ($archivosPublicos -contains $rel) -and -not ($rel -match '^[a-f0-9]{32}\.txt$')) {
     Responder-Texto $Contexto 404 'No encontrado.'
     return
   }

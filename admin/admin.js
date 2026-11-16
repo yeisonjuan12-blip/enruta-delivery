@@ -295,6 +295,14 @@
     $$('.solo-local').forEach((el) => { el.hidden = s.rol === 'admin'; });
     const navLocal = $('.nav-item[data-vista="locales"]');
     if (navLocal) navLocal.innerHTML = s.rol === 'admin' ? '<span>▦</span> Locales' : '<span>▦</span> Mi local';
+    // Un encargado de local no debe ver encomiendas ni taximotos.
+    if (s.rol !== 'admin') {
+      ['envios', 'taximotos'].forEach((v) => {
+        const b = $('.nav-item[data-vista="' + v + '"]');
+        if (b) b.hidden = true;
+      });
+      if (['envios', 'taximotos'].includes(hashActual().split('/')[0])) ir('resumen');
+    }
   }
 
   async function iniciarSesion(ev) {
@@ -401,8 +409,10 @@
       } else if (vista === 'pedidos') {
         await vistaPedidos();
       } else if (vista === 'envios') {
+        if (state.sesion.rol !== 'admin') return ir('resumen');
         await vistaServicios('envio');
       } else if (vista === 'taximotos') {
+        if (state.sesion.rol !== 'admin') return ir('resumen');
         await vistaServicios('taximoto');
       } else if (vista === 'usuarios') {
         if (state.sesion.rol !== 'admin') return ir('resumen');
@@ -435,6 +445,7 @@
   async function cargarBase() {
     const tareas = [
       api('/api/admin/locales').then((r) => { state.locales = r.locales || []; }),
+      api('/api/admin/config').then((r) => { state.config = r.config || null; }).catch(() => { /* sin configuracion */ }),
       api('/api/admin/estado-sistema').then((r) => { state.sistema = r; }).catch(() => { state.sistema = null; })
     ];
     if (state.sesion.rol === 'admin') {
@@ -449,6 +460,15 @@
   function nombreLocal(carpeta) {
     const l = state.locales.find((x) => x.carpeta === carpeta);
     return l ? l.nombre : carpeta;
+  }
+
+  function opcionesZonas(seleccion) {
+    const cfg = state.config || {};
+    const zonas = Array.isArray(cfg.zonas) && cfg.zonas.length
+      ? cfg.zonas
+      : [{ id: 'nuevo-chimbote', nombre: 'Nuevo Chimbote' }];
+    const actual = seleccion || cfg.zonaPrincipal || zonas[0].id;
+    return zonas.map((z) => '<option value="' + esc(z.id) + '"' + (z.id === actual ? ' selected' : '') + '>' + esc(z.nombre) + '</option>').join('');
   }
 
   function opcionesCategorias(seleccion) {
@@ -793,6 +813,7 @@
           </select>
         </label>
         <label class="field"><span>Categoría *</span><select id="lfCategoria">${opcionesCategorias(l.categoriaId)}</select></label>
+        <label class="field"><span>Distrito *</span><select id="lfZona">${opcionesZonas(l.zonaId)}</select><span class="hint">Los clientes podrán filtrar los locales por distrito.</span></label>
         <label class="field full"><span>Descripción</span><textarea id="lfDescripcion" maxlength="400">${esc(l.descripcion || '')}</textarea></label>
         <label class="field full"><span>Dirección</span><input id="lfDireccion" value="${esc(l.direccion || '')}" maxlength="200"></label>
         <label class="field"><span>Teléfono / WhatsApp</span><input id="lfTelefono" value="${esc(l.telefono || '')}" maxlength="30"></label>
@@ -822,6 +843,7 @@
       nombre: $('#lfNombre').value.trim(),
       tipo: $('#lfTipo').value,
       categoriaId: $('#lfCategoria').value,
+      zonaId: $('#lfZona') ? $('#lfZona').value : '',
       descripcion: $('#lfDescripcion').value.trim(),
       direccion: $('#lfDireccion').value.trim(),
       telefono: $('#lfTelefono').value.trim(),
@@ -2727,6 +2749,7 @@
               ${zonas.map((z) => `<option value="${esc(z.id)}" ${z.id === cfg.zonaPrincipal ? 'selected' : ''}>${esc(z.nombre)}</option>`).join('')}
             </select></label>
             <label class="check" style="align-self:flex-end"><input id="pgAvisoEjemplos" type="checkbox" ${cfg.avisoEjemplos ? 'checked' : ''}> Mostrar aviso de locales de ejemplo</label>
+            <label class="check" style="align-self:flex-end"><input id="pgTaximoto" type="checkbox" ${cfg.servicios && cfg.servicios.taximoto ? 'checked' : ''}> Mostrar taximoto en la web <span class="hint">Aún no es un servicio oficial: actívalo solo cuando lo confirmes.</span></label>
           </div>
         </div>
       </div>
@@ -2828,6 +2851,7 @@
         email: $('#pgEmail').value.trim(),
         zonaPrincipal: $('#pgZonaPrincipal').value,
         avisoEjemplos: $('#pgAvisoEjemplos').checked,
+        servicios: { taximoto: $('#pgTaximoto').checked },
         redes: {
           tiktok: { usuario: $('#pgTikTokUsuario').value.trim(), url: $('#pgTikTokUrl').value.trim() },
           instagram: { usuario: $('#pgInstagramUsuario').value.trim(), url: $('#pgInstagramUrl').value.trim() }

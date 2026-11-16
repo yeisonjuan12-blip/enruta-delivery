@@ -63,6 +63,7 @@
   const state = {
     tab: 'todo',
     catLocal: 'todo',
+    zonaLocal: 'todo',
     catCatalogos: {},
     q: '',
     cart: [],
@@ -840,6 +841,33 @@
     '</article>';
   }
 
+  /* ---------------- Filtro por distrito ---------------- */
+  function renderChipsZona() {
+    const cont = document.getElementById('chipsZona');
+    if (!cont) return;
+    const zonas = [];
+    for (const l of LOCALES) {
+      if (!l.zonaId) continue;
+      if (!zonas.some((z) => z.id === l.zonaId)) {
+        zonas.push({ id: l.zonaId, nombre: l.zonaNombre || l.zonaId });
+      }
+    }
+    if (zonas.length < 2) {
+      cont.hidden = true;
+      cont.innerHTML = '';
+      state.zonaLocal = 'todo';
+      return;
+    }
+    if (state.zonaLocal !== 'todo' && !zonas.some((z) => z.id === state.zonaLocal)) {
+      state.zonaLocal = 'todo';
+    }
+    cont.hidden = false;
+    const chips = [{ id: 'todo', nombre: 'Todos los distritos' }].concat(zonas);
+    cont.innerHTML = chips.map((z) =>
+      '<button type="button" class="chip' + (state.zonaLocal === z.id ? ' is-active' : '') + '" data-zona="' + esc(z.id) + '">' + esc(z.nombre) + '</button>'
+    ).join('');
+  }
+
   function renderChipsLocales() {
     const cont = document.getElementById('chips');
     if (!cont) return;
@@ -859,12 +887,25 @@
     ).join('');
   }
 
+  /* Oculta el taximoto mientras no esté activado desde el panel. */
+  function aplicarServiciosActivos() {
+    const cfg = (DATA && DATA.config) || {};
+    const taxiActivo = !!(cfg.servicios && cfg.servicios.taximoto === true);
+    const card = document.querySelector('.service-taxi');
+    if (card && !taxiActivo) card.remove();
+    const cont = document.querySelector('.services');
+    if (cont) cont.classList.toggle('services-solo', !taxiActivo);
+    const titulo = document.querySelector('.services-head h2');
+    if (titulo && !taxiActivo) titulo.textContent = 'Envíos y encomiendas';
+  }
+
   function renderLocales() {
     const grid = document.getElementById('localsGrid');
     const vacio = document.getElementById('localsEmpty');
     const contador = document.getElementById('localsCount');
     if (!grid) return;
 
+    renderChipsZona();
     renderChipsLocales();
 
     $$('.tab').forEach((t) => {
@@ -876,6 +917,7 @@
     // Al buscar se ignoran la pestaña y la categoría: el buscador recorre
     // todos los locales y todos sus productos.
     const lista = LOCALES.filter((l) => {
+      if (state.zonaLocal !== 'todo' && l.zonaId !== state.zonaLocal) return false;
       if (!state.q) {
         if (state.tab !== 'todo' && l.tipo !== state.tab) return false;
         if (state.catLocal !== 'todo' && l.categoriaId !== state.catLocal) return false;
@@ -2424,6 +2466,16 @@
       });
     });
 
+    const chipsZona = document.getElementById('chipsZona');
+    if (chipsZona) {
+      chipsZona.addEventListener('click', (e) => {
+        const chip = e.target.closest('.chip');
+        if (!chip) return;
+        state.zonaLocal = chip.dataset.zona || 'todo';
+        renderLocales();
+      });
+    }
+
     const chips = document.getElementById('chips');
     if (chips) {
       chips.addEventListener('click', (e) => {
@@ -2685,6 +2737,7 @@
     }
     const guardar = document.getElementById('saveData');
     if (guardar) guardar.checked = state.clienteGuardado;
+    aplicarServiciosActivos();
     aplicarPerfil();
     cargarCarrito();
     renderChipsLocales();

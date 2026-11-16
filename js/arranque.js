@@ -9,7 +9,7 @@
 (function () {
   'use strict';
 
-  var VERSION = '12';
+  var VERSION = '13';
   var SIGUIENTES = [
     'js/locales-prueba.js',
     'js/google-config.js',

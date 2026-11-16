@@ -148,6 +148,12 @@ export async function construirCatalogo(env) {
     if (c && c.id) mapaCategorias.set(c.id, c.nombre);
   }
 
+  const mapaZonas = new Map();
+  for (const z of config.zonas || []) {
+    if (z && z.id) mapaZonas.set(String(z.id), z.nombre);
+  }
+  const zonaPorDefecto = String(config.zonaPrincipal || (config.zonas && config.zonas[0] && config.zonas[0].id) || '');
+
   const resumen = {
     locales: 0,
     localesPublicados: 0,
@@ -168,12 +174,15 @@ export async function construirCatalogo(env) {
     if (local.publicado === true) resumen.localesPublicados++;
     if (local.esEjemplo === true) resumen.localesEjemplo++;
 
+    const zonaId = String(local.zonaId || zonaPorDefecto);
     locales.push({
       id: local.id,
       nombre: local.nombre,
       tipo: local.tipo === 'comida' ? 'comida' : 'productos',
       categoriaId: local.categoriaId,
       categoriaNombre: mapaCategorias.get(local.categoriaId) || local.categoriaId || '',
+      zonaId,
+      zonaNombre: mapaZonas.get(zonaId) || zonaId,
       descripcion: local.descripcion,
       publicado: local.publicado === true,
       disponible: local.disponible !== false,

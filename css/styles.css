@@ -2829,6 +2829,14 @@ fieldset.when .field {
 .services {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+.services-solo {
+  grid-template-columns: minmax(0, 1fr);
+}
+.chips-zona .chip {
+  border-style: dashed;
+}
+.services {
   gap: 16px;
   margin: 22px 0 20px;
   scroll-margin-top: 88px;

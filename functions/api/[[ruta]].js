@@ -251,11 +251,11 @@ async function manejarAdmin(env, request, ruta, seg, sesion) {
   }
 
   if (ruta === '/api/admin/config') {
-    exigirAdmin(sesion);
     if (metodo === 'GET') {
       return json({ config: await obtenerConfigPublica(env) });
     }
     if (metodo === 'PUT') {
+      exigirAdmin(sesion);
       const cuerpo = leerCuerpo(await leerJson(request, 262144));
       const config = cuerpo.config !== undefined && cuerpo.config !== null ? cuerpo.config : cuerpo;
       return json(await guardarConfigPublica(env, config, sesion.usuario, sesion.rol, ip));
@@ -569,10 +569,14 @@ async function manejarAdmin(env, request, ruta, seg, sesion) {
   /* ----- Servicios ----- */
 
   if (ruta === '/api/admin/servicios' && metodo === 'GET') {
+    // Solo el administrador ve encomiendas y taximotos: un encargado de local
+    // no debe ver solicitudes que no son de su establecimiento.
+    exigirAdmin(sesion);
     return json({ servicios: await obtenerServiciosAdmin(env, query(request, 'tipo'), 300) });
   }
 
   if (ruta === '/api/admin/servicios/estado' && (metodo === 'POST' || metodo === 'PUT')) {
+    exigirAdmin(sesion);
     const cuerpo = leerCuerpo(await leerJson(request, 65536));
     return json(
       await cambiarEstadoServicio(

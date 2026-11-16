@@ -269,6 +269,7 @@ export async function guardarLocalCompleto(env, carpeta, local, productos, usuar
   datos.publicado = datos.publicado === true;
   datos.disponible = datos.disponible !== false;
   datos.cerradoTemporal = datos.cerradoTemporal === true;
+  datos.zonaId = String(datos.zonaId || '');
 
   await guardarDoc(env, 'local:' + carpeta, datos);
   await guardarDoc(env, 'local:' + carpeta + ':productos', limpios);
@@ -357,6 +358,7 @@ export async function nuevoLocal(env, local, usuario, rol, ip) {
     horarioLocal: String(local.horarioLocal || ''),
     direccion: String(local.direccion || ''),
     telefono: String(local.telefono || ''),
+    zonaId: String(local.zonaId || ''),
     etiquetas: Array.isArray(local.etiquetas) ? local.etiquetas : [],
     empaquetado: {
       porUnidad: emp.porUnidad === true,
@@ -621,6 +623,9 @@ export async function guardarConfigPublica(env, config, usuario, rol, ip) {
       nota: notaDelivery
     },
     avisoEjemplos: config.avisoEjemplos === true,
+    servicios: {
+      taximoto: !!(config.servicios && config.servicios.taximoto === true)
+    },
     plazavea: actual.plazavea
   };
 
@@ -1131,6 +1136,12 @@ function validarCuandoServicio(datos) {
 export async function guardarServicioPublico(env, request, tipo, datos) {
   if (!datos) lanzar(400, 'Solicitud vacia.');
   if (!['envio', 'taximoto'].includes(tipo)) lanzar(400, 'Tipo de servicio invalido.');
+
+  if (tipo === 'taximoto') {
+    const config = await leerDoc(env, 'config', null);
+    const activo = !!(config && config.servicios && config.servicios.taximoto === true);
+    if (!activo) lanzar(403, 'El servicio de taximoto todavia no esta disponible.');
+  }
 
   const cuando = validarCuandoServicio(datos);
   const origen = String(datos.origen || '').trim();

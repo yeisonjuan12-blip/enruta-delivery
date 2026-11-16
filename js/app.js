@@ -531,8 +531,6 @@
 
     const stat = document.getElementById('statLocals');
     if (stat) stat.textContent = String(LOCALES.length);
-    const statCat = document.getElementById('statCatalogos');
-    if (statCat) statCat.textContent = String(CATALOGOS.length);
 
     const year = document.getElementById('year');
     if (year) year.textContent = String(new Date().getFullYear());

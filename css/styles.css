@@ -3324,3 +3324,31 @@ fieldset.when .field {
   .c-ref { display: none; }
   .local-cover { height: 140px; }
 }
+
+/* Locales en dos columnas dentro del celular */
+@media (max-width: 720px) {
+  .grid.locals {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 11px;
+  }
+  .local-card { border-radius: 16px; }
+  .local-cover { height: 104px; }
+  .local-body { padding: 10px 10px 11px; gap: 6px; }
+  .local-logo { width: 34px; height: 34px; border-radius: 10px; }
+  .local-brand { gap: 7px; }
+  .local-brand h3 { font-size: 14px; line-height: 1.2; }
+  .local-rubro { font-size: 10px; letter-spacing: .05em; }
+  .local-desc { display: none; }
+  .local-meta { font-size: 10.8px; gap: 4px; flex-wrap: wrap; }
+  .local-tags { display: none; }
+  .type-pill { font-size: 9px; padding: 3px 7px; }
+  .local-foot { padding-top: 8px; gap: 6px; align-items: center; }
+  .local-min { font-size: 9.5px; max-width: 52%; line-height: 1.25; }
+  .local-link { font-size: 11px; }
+  .local-link svg { width: 12px; height: 12px; }
+}
+@media (max-width: 420px) {
+  .grid.locals { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .local-cover { height: 96px; }
+  .local-brand h3 { font-size: 13.2px; }
+}

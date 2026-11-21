@@ -10,7 +10,7 @@ const VERSION = 'enruta-v3';
 const ARMAZON = [
   '/',
   '/index.html',
-  '/css/styles.css?v=20',
+  '/css/styles.css?v=21',
   '/js/arranque.js?v=16',
   '/js/app.js?v=16',
   '/js/catalogo.js',

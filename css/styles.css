@@ -3434,3 +3434,80 @@ fieldset.when .field {
 @media (max-width: 720px) {
   .cookie-banner { bottom: calc(76px + env(safe-area-inset-bottom)); }
 }
+
+/* Encabezado del hero: burbuja blanca centrada en celular */
+@media (max-width: 720px) {
+  .eyebrow {
+    display: inline-flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 2px;
+    padding: 8px 16px;
+    background: #fff;
+    border: 1px solid var(--line);
+    border-radius: 18px;
+    box-shadow: var(--shadow);
+    color: #49535a;
+    text-align: center;
+    font-size: 12px;
+    font-weight: 600;
+    letter-spacing: 0;
+  }
+  .eyebrow-line {
+    justify-content: center;
+    white-space: nowrap;
+    gap: 6px;
+    font-size: 12px;
+  }
+  .eyebrow-line:first-child {
+    font-size: 12.5px;
+    font-weight: 800;
+    color: #161616;
+    letter-spacing: -.01em;
+  }
+  .eyebrow-sub {
+    font-size: 11.5px;
+    font-weight: 700;
+    color: #8a6a00;
+    letter-spacing: .01em;
+  }
+  .eyebrow .pulse { width: 7px; height: 7px; }
+}
+
+/* Detalles de diseño */
+.section-kicker {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+.section-kicker::before {
+  content: "";
+  width: 18px;
+  height: 3px;
+  border-radius: 2px;
+  background: var(--brand);
+}
+.chip.is-active {
+  box-shadow: 0 6px 14px rgba(253, 211, 3, .32);
+}
+.stats {
+  background: rgba(255, 255, 255, .6);
+  border: 1px solid var(--line);
+  border-radius: 18px;
+  padding: 14px 18px;
+}
+.section-head h3 {
+  font-size: 17px;
+  letter-spacing: -.02em;
+}
+
+/* Espaciado fino del encabezado: el punto verde separa, sin hueco doble */
+.eyebrow-line { gap: 0; }
+.eyebrow-line .pulse { margin-right: 7px; }
+@media (max-width: 720px) {
+  .eyebrow-line:first-child { gap: 0; }
+  .eyebrow-line:first-child .pulse { margin-right: 7px; }
+}
+
+.eyebrow-line #cityLabel2 { margin-left: 5px; }

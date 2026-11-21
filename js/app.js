@@ -2778,22 +2778,61 @@ function iniciarAppbar() {
       if (btn) btn.click();
     });
   }
+
   const botones = $$('.appbar-btn[data-appbar]');
-  if (!botones.length || !('IntersectionObserver' in window)) {
+  const secciones = [
+    ['inicio', document.body],
+    ['locales', document.getElementById('locales')],
+    ['licores', document.getElementById('licores')],
+    ['despensa', document.getElementById('primera-necesidad')]
+  ].filter((par) => par[1]);
+  if (!botones.length || !secciones.length) {
     actualizarAppbar();
     return;
   }
-  const mapa = { 'primera-necesidad': 'despensa' };
-  const observer = new IntersectionObserver((entradas) => {
-    for (const e of entradas) {
-      if (!e.isIntersecting) continue;
-      const id = mapa[e.target.id] || e.target.id;
-      botones.forEach((b) => b.classList.toggle('is-active', b.dataset.appbar === id));
+
+  const marcar = (id) => {
+    botones.forEach((b) => b.classList.toggle('is-active', b.dataset.appbar === id));
+  };
+  const margen = () => {
+    const cabecera = document.querySelector('.header');
+    return (cabecera ? cabecera.offsetHeight : 64) + 10;
+  };
+
+  const activaSegunScroll = () => {
+    const limite = window.scrollY + margen() + Math.min(window.innerHeight * 0.35, 220);
+    let activa = 'inicio';
+    for (const [id, el] of secciones) {
+      const arriba = el.getBoundingClientRect().top + window.scrollY;
+      if (arriba <= limite) activa = id;
     }
-  }, { threshold: 0.2 });
-  [document.body, document.getElementById('locales'), document.getElementById('licores'), document.getElementById('primera-necesidad')]
-    .filter(Boolean)
-    .forEach((el) => observer.observe(el));
+    return activa;
+  };
+
+  let pendiente = false;
+  window.addEventListener('scroll', () => {
+    if (pendiente) return;
+    pendiente = true;
+    requestAnimationFrame(() => {
+      pendiente = false;
+      marcar(activaSegunScroll());
+    });
+  }, { passive: true });
+
+  botones.forEach((b) => {
+    b.addEventListener('click', (e) => {
+      const id = b.dataset.appbar;
+      const destino = secciones.find((par) => par[0] === id);
+      if (!destino) return;
+      e.preventDefault();
+      const y = destino[1].getBoundingClientRect().top + window.scrollY - margen();
+      window.scrollTo({ top: Math.max(0, y), behavior: 'smooth' });
+      marcar(id);
+      history.replaceState(null, '', '#' + (id === 'despensa' ? 'primera-necesidad' : id));
+    });
+  });
+
+  marcar(activaSegunScroll());
   actualizarAppbar();
 }
 

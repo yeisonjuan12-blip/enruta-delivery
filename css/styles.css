@@ -3352,3 +3352,32 @@ fieldset.when .field {
   .local-cover { height: 96px; }
   .local-brand h3 { font-size: 13.2px; }
 }
+
+/* Anuncios discretos: sin marcos llamativos ni saltos de diseño */
+.ad-wrap {
+  width: min(940px, 100% - 32px);
+  margin: 30px auto;
+  padding: 0;
+  text-align: center;
+}
+.ad-label {
+  margin-bottom: 8px;
+  font-size: 9.5px;
+  letter-spacing: .18em;
+  color: #a9a294;
+}
+.ad-wrap ins.adsbygoogle {
+  display: block;
+  width: 100%;
+  min-height: 100px;
+  background: transparent;
+  border: 0;
+  border-radius: 0;
+  overflow: hidden;
+}
+.ad-wrap ins.adsbygoogle[data-ad-status="unfilled"] { display: none; }
+.ad-wrap:has(ins[data-ad-status="unfilled"]) { display: none; }
+@media (max-width: 720px) {
+  .ad-wrap { width: calc(100% - 24px); margin: 22px auto; }
+  .ad-wrap ins.adsbygoogle { min-height: 92px; }
+}

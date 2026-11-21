@@ -6,12 +6,12 @@
    se piden primero a la red y, si no hay, se usa la copia guardada.
    ============================================================ */
 
-const VERSION = 'enruta-v3';
+const VERSION = 'enruta-v4';
 const ARMAZON = [
   '/',
   '/index.html',
-  '/css/styles.css?v=21',
-  '/js/arranque.js?v=16',
+  '/css/styles.css?v=22',
+  '/js/arranque.js?v=17',
   '/js/app.js?v=16',
   '/js/catalogo.js',
   '/assets/marca.jpg',

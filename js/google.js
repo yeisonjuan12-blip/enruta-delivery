@@ -122,6 +122,15 @@
         (window.adsbygoogle = window.adsbygoogle || []).push({});
       } catch (e) { /* AdSense todavía no listo */ }
     });
+
+    // Si Google no llena un espacio, se oculta para no dejar un hueco vacío.
+    setTimeout(function () {
+      Array.prototype.forEach.call(document.querySelectorAll('ins.adsbygoogle[data-slot-key]'), function (ins) {
+        if (ins.getAttribute('data-ad-status') !== 'unfilled') return;
+        var contenedor = ins.closest ? ins.closest('.ad-wrap') : null;
+        if (contenedor) contenedor.hidden = true;
+      });
+    }, 4000);
   }
 
   /* ---------------- Eventos de la tienda ---------------- */

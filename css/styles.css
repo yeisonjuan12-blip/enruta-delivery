@@ -3061,3 +3061,149 @@ fieldset.when .field {
   .service-title { font-size: 20.5px; }
   .sheet-body { padding-left: 15px; padding-right: 15px; }
 }
+
+/* ============================================================
+   Refresco visual de la tienda de productos y de los locales
+   ============================================================ */
+.catalog {
+  position: relative;
+}
+.catalog .catalog-head {
+  border-bottom: 0;
+  padding-bottom: 12px;
+}
+.catalog .catalog-head h2 {
+  font-size: clamp(26px, 3.2vw, 36px);
+  letter-spacing: -.035em;
+}
+.section-kicker {
+  letter-spacing: .16em;
+}
+
+/* Tarjetas de producto */
+.c-card {
+  border-radius: 20px;
+  border-color: #eee4d6;
+  background: linear-gradient(180deg, #fff, #fffdf9);
+  box-shadow: 0 8px 22px rgba(35, 28, 16, .06);
+}
+@media (hover: hover) {
+  .c-card:hover {
+    transform: translateY(-5px);
+    border-color: #e8c94b;
+    box-shadow: 0 20px 40px rgba(35, 28, 16, .13);
+  }
+}
+.c-img {
+  aspect-ratio: 1 / 1;
+  background:
+    radial-gradient(120% 90% at 50% 0%, #fff8e8 0%, #fdf3df 55%, #f8ead2 100%);
+  border-bottom: 0;
+  padding: 14px;
+}
+.c-img-el {
+  filter: drop-shadow(0 10px 16px rgba(60, 40, 10, .12));
+}
+.c-state {
+  top: 10px;
+  left: 10px;
+  background: rgba(255, 255, 255, .92);
+  color: #6b5200;
+  border: 1px solid #ecd98a;
+  backdrop-filter: blur(4px);
+}
+.c-body {
+  padding: 14px 15px 16px;
+  gap: 2px;
+}
+.c-body h4 {
+  font-size: 15px;
+  line-height: 1.25;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  min-height: 2.5em;
+}
+.c-brand {
+  color: #9a7500;
+}
+.c-ref {
+  margin-top: 6px;
+}
+.c-foot {
+  padding-top: 12px;
+  margin-top: 10px;
+  border-top: 1px dashed #efe4d4;
+}
+.c-price b {
+  font-size: 20px;
+  color: #1b1b1f;
+}
+.c-price small {
+  color: #a4906a;
+}
+.btn-add {
+  border-radius: 999px;
+  padding: 8px 14px;
+  font-weight: 800;
+  box-shadow: 0 6px 14px rgba(212, 175, 0, .18);
+}
+.btn-add:hover {
+  background: #ffe680;
+}
+
+/* Tarjetas de locales */
+.local-card {
+  border-radius: 22px;
+  border-color: #eee4d6;
+  background: linear-gradient(180deg, #fff, #fffdf9);
+  box-shadow: 0 10px 26px rgba(35, 28, 16, .07);
+}
+.local-cover {
+  height: 150px;
+}
+.local-body {
+  gap: 7px;
+}
+.local-brand h3 {
+  font-size: 17.5px;
+  letter-spacing: -.02em;
+}
+.local-logo {
+  border-radius: 14px;
+  box-shadow: 0 6px 14px rgba(30, 22, 8, .12);
+}
+.type-pill {
+  background: rgba(255, 255, 255, .94);
+  color: #6b5200;
+  border: 1px solid #ecd98a;
+  font-weight: 800;
+  letter-spacing: .04em;
+  text-transform: uppercase;
+}
+.local-desc {
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+.local-foot {
+  border-top: 1px dashed #efe4d4;
+  padding-top: 10px;
+}
+
+/* Chips más cómodos al tocar */
+.chip {
+  padding: 8px 15px;
+  font-weight: 700;
+}
+@media (max-width: 720px) {
+  .c-card { border-radius: 16px; }
+  .c-img { padding: 10px; }
+  .c-body { padding: 11px 12px 13px; }
+  .c-body h4 { font-size: 14px; }
+  .c-price b { font-size: 18px; }
+  .c-ref { display: none; }
+  .local-cover { height: 140px; }
+}

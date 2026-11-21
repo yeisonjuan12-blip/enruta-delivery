@@ -9,7 +9,14 @@
 (function () {
   'use strict';
 
-  var VERSION = '13';
+  // La app instalable usa este service worker para abrir rápido y sin conexión.
+  if ('serviceWorker' in navigator) {
+    window.addEventListener('load', function () {
+      navigator.serviceWorker.register('/sw.js').catch(function () { /* sin app instalable */ });
+    });
+  }
+
+  var VERSION = '16';
   var SIGUIENTES = [
     'js/locales-prueba.js',
     'js/google-config.js',

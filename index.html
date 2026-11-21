@@ -14,18 +14,24 @@
   <meta property="og:locale" content="es_PE">
   <link rel="canonical" href="https://enrutadelivery.com/">
   <meta name="twitter:card" content="summary">
-  <meta name="theme-color" content="#fdd303">
+  <meta name="theme-color" content="#111111">
   <meta name="robots" content="index, follow">
+  <link rel="manifest" href="manifest.webmanifest">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="EnRuta">
   <meta name="enruta-backend" content="auto">
   <!-- Verificación de Google Search Console: pega aquí la etiqueta que te da Google.
   <meta name="google-site-verification" content="..."> -->
   <!-- Google AdSense: cuando tengas tu ID, agrega aquí:
        <meta name="google-adsense-account" content="ca-pub-XXXXXXXXXXXXXXXX"> -->
   <link rel="icon" type="image/jpeg" href="assets/marca.jpg">
-  <link rel="apple-touch-icon" href="assets/marca.jpg">
-  <link rel="stylesheet" href="css/styles.css?v=18">
+  <link rel="apple-touch-icon" href="assets/app/icono-192.png">
+  <link rel="icon" type="image/png" sizes="192x192" href="assets/app/icono-192.png">
+  <link rel="stylesheet" href="css/styles.css?v=20">
 </head>
-<body>
+<body id="inicio">
 
   <div class="announce">
     <div class="wrap announce-inner">
@@ -657,12 +663,45 @@
 
   <div class="toast" id="toast" role="status" aria-live="polite"></div>
 
+  <div class="instalar" id="instalarApp" hidden>
+    <div class="instalar-copy">
+      <b>Instala EnRuta</b>
+      <span>Acceso directo, pantalla completa y sin abrir el navegador.</span>
+    </div>
+    <button class="instalar-btn" type="button" id="instalarBtn">Instalar</button>
+    <button class="instalar-x" type="button" id="instalarCerrar" aria-label="Cerrar aviso">✕</button>
+  </div>
+
+  <nav class="appbar" aria-label="Navegación de la app">
+    <a class="appbar-btn" href="#inicio" data-appbar="inicio" aria-label="Inicio">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 10.5 12 3l9 7.5V21a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1z"/></svg>
+      <span>Inicio</span>
+    </a>
+    <a class="appbar-btn" href="#locales" data-appbar="locales" aria-label="Locales">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 9h16l-1-5H5zM5 9v11h14V9M9 20v-6h6v6"/></svg>
+      <span>Locales</span>
+    </a>
+    <a class="appbar-btn" href="#licores" data-appbar="licores" aria-label="Licores">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 3h6v4l2 3v10a1 1 0 0 1-1 1H8a1 1 0 0 1-1-1V10l2-3zM8 13h8"/></svg>
+      <span>Licores</span>
+    </a>
+    <a class="appbar-btn" href="#primera-necesidad" data-appbar="despensa" aria-label="Despensa">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h16l-1.5 13h-13zM8 7a4 4 0 0 1 8 0"/></svg>
+      <span>Despensa</span>
+    </a>
+    <button class="appbar-btn" type="button" id="appbarPedido" aria-label="Mi pedido">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 7h12l1 13H5zM9 7a3 3 0 0 1 6 0"/></svg>
+      <span>Pedido</span>
+      <b class="appbar-count" id="appbarCount" hidden>0</b>
+    </button>
+  </nav>
+
   <noscript>
     <div style="padding:24px;text-align:center;font-family:system-ui">
       Para ver los locales y armar tu pedido necesitas activar JavaScript en tu navegador.
     </div>
   </noscript>
 
-  <script src="js/arranque.js?v=14" defer></script>
+  <script src="js/arranque.js?v=16" defer></script>
 </body>
 </html>

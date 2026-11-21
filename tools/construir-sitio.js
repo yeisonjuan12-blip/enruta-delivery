@@ -25,6 +25,8 @@ const ARCHIVOS = [
   'ads.txt',
   '163326e29cc11fbe5a4e77e7a84ffff1.txt',
   'googlee16045e689497aba.html',
+  'manifest.webmanifest',
+  'sw.js',
   '_headers',
   '_routes.json'
 ];

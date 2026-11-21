@@ -3198,7 +3198,124 @@ fieldset.when .field {
   padding: 8px 15px;
   font-weight: 700;
 }
+/* ============================================================
+   Barra inferior tipo app (negro y amarillo)
+   ============================================================ */
+.appbar {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 60;
+  display: none;
+  grid-template-columns: repeat(5, 1fr);
+  background: #111111;
+  border-top: 1px solid #2a2a2a;
+  box-shadow: 0 -8px 24px rgba(0, 0, 0, .28);
+  padding: 6px 4px calc(6px + env(safe-area-inset-bottom));
+}
+.appbar-btn {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 3px;
+  padding: 6px 2px;
+  border: 0;
+  background: transparent;
+  color: #a8a8a8;
+  font-family: inherit;
+  font-size: 10.5px;
+  font-weight: 700;
+  letter-spacing: .01em;
+  text-decoration: none;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+.appbar-btn svg {
+  width: 22px;
+  height: 22px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.9;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+.appbar-btn.is-active {
+  color: #fdd303;
+}
+.appbar-btn.is-active::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  width: 26px;
+  height: 3px;
+  border-radius: 0 0 4px 4px;
+  background: #fdd303;
+}
+.appbar-count {
+  position: absolute;
+  top: 2px;
+  right: calc(50% - 22px);
+  min-width: 16px;
+  height: 16px;
+  padding: 0 4px;
+  border-radius: 999px;
+  background: #fdd303;
+  color: #111111;
+  font-size: 10px;
+  font-weight: 900;
+  line-height: 16px;
+  text-align: center;
+}
+.instalar {
+  position: fixed;
+  left: 10px;
+  right: 10px;
+  bottom: calc(70px + env(safe-area-inset-bottom));
+  z-index: 61;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 11px 12px;
+  border: 1px solid #3a3a3a;
+  border-radius: 16px;
+  background: #111111;
+  color: #ffffff;
+  box-shadow: 0 14px 32px rgba(0, 0, 0, .35);
+}
+.instalar-copy { display: flex; flex-direction: column; gap: 2px; flex: 1; min-width: 0; }
+.instalar-copy b { font-size: 13.5px; color: #fdd303; }
+.instalar-copy span { font-size: 11.5px; color: #c9c9c9; line-height: 1.3; }
+.instalar-btn {
+  flex: 0 0 auto;
+  border: 0;
+  border-radius: 999px;
+  padding: 9px 16px;
+  background: #fdd303;
+  color: #111111;
+  font-family: inherit;
+  font-size: 12.5px;
+  font-weight: 800;
+  cursor: pointer;
+}
+.instalar-x {
+  flex: 0 0 auto;
+  border: 0;
+  background: transparent;
+  color: #9a9a9a;
+  font-size: 13px;
+  padding: 4px;
+  cursor: pointer;
+}
+@media (min-width: 721px) {
+  .instalar { display: none; }
+}
 @media (max-width: 720px) {
+  body { padding-bottom: calc(62px + env(safe-area-inset-bottom)); }
+  .appbar { display: grid; }
+  .sheet-card { margin-bottom: calc(70px + env(safe-area-inset-bottom)); }
   .c-card { border-radius: 16px; }
   .c-img { padding: 10px; }
   .c-body { padding: 11px 12px 13px; }

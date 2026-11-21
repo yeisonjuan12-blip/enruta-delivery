@@ -1,0 +1,23 @@
+{
+  "name": "EnRuta Delivery",
+  "short_name": "EnRuta",
+  "description": "Locales, licores y primera necesidad en Nuevo Chimbote. Pide por WhatsApp.",
+  "lang": "es-PE",
+  "start_url": "/?app=1",
+  "scope": "/",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#111111",
+  "theme_color": "#111111",
+  "categories": ["food", "shopping"],
+  "icons": [
+    { "src": "/assets/app/icono-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "/assets/app/icono-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
+    { "src": "/assets/app/icono-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ],
+  "shortcuts": [
+    { "name": "Locales", "url": "/#locales" },
+    { "name": "Licores", "url": "/#licores" },
+    { "name": "Mi pedido", "url": "/?carrito=1" }
+  ]
+}

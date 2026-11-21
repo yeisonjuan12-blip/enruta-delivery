@@ -1451,6 +1451,7 @@
       '<div class="trow total"><span>Productos + empaquetado</span><b>' + money(detalle.total) + '</b></div>' +
       '<div class="trow quote"><span>Delivery</span><b>Por cotizar</b></div>';
 
+    actualizarAppbar();
     actualizarPasoCarrito();
   }
 
@@ -2727,7 +2728,76 @@
   }
 
   /* ---------------- Arranque ---------------- */
-  function init() {
+  /* ---------------- Barra inferior tipo app ---------------- */
+function actualizarAppbar() {
+  const cont = document.getElementById('appbarCount');
+  if (!cont) return;
+  const unidades = state.cart.reduce((s, it) => s + (Number(it.cantidad) || 0), 0);
+  cont.textContent = String(unidades);
+  cont.hidden = unidades === 0;
+}
+
+/* ---------------- Instalar como app ---------------- */
+let promptInstalar = null;
+
+function iniciarInstalacion() {
+  const caja = document.getElementById('instalarApp');
+  if (!caja) return;
+  const independiente = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone === true;
+  if (independiente) return;
+
+  window.addEventListener('beforeinstallprompt', (e) => {
+    e.preventDefault();
+    promptInstalar = e;
+    caja.hidden = false;
+  });
+
+  const cerrar = document.getElementById('instalarCerrar');
+  if (cerrar) cerrar.addEventListener('click', () => { caja.hidden = true; });
+
+  const boton = document.getElementById('instalarBtn');
+  if (boton) {
+    boton.addEventListener('click', async () => {
+      if (!promptInstalar) {
+        caja.hidden = true;
+        return;
+      }
+      promptInstalar.prompt();
+      try { await promptInstalar.userChoice; } catch (e) { /* sin eleccion */ }
+      promptInstalar = null;
+      caja.hidden = true;
+    });
+  }
+}
+
+function iniciarAppbar() {
+  const pedido = document.getElementById('appbarPedido');
+  if (pedido) {
+    pedido.addEventListener('click', () => {
+      const btn = document.getElementById('cartBtn');
+      if (btn) btn.click();
+    });
+  }
+  const botones = $$('.appbar-btn[data-appbar]');
+  if (!botones.length || !('IntersectionObserver' in window)) {
+    actualizarAppbar();
+    return;
+  }
+  const mapa = { 'primera-necesidad': 'despensa' };
+  const observer = new IntersectionObserver((entradas) => {
+    for (const e of entradas) {
+      if (!e.isIntersecting) continue;
+      const id = mapa[e.target.id] || e.target.id;
+      botones.forEach((b) => b.classList.toggle('is-active', b.dataset.appbar === id));
+    }
+  }, { threshold: 0.2 });
+  [document.body, document.getElementById('locales'), document.getElementById('licores'), document.getElementById('primera-necesidad')]
+    .filter(Boolean)
+    .forEach((el) => observer.observe(el));
+  actualizarAppbar();
+}
+
+function init() {
     aplicarConfig();
     state.cliente = leerClienteGuardado();
     try {
@@ -2745,6 +2815,8 @@
     renderCategorias();
     renderCart();
     enlazarEventos();
+    iniciarAppbar();
+    iniciarInstalacion();
     activarServicios();
     activarAccesoOculto();
     actualizarEstadoZona();

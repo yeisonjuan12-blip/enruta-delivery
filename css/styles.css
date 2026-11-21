@@ -3381,3 +3381,56 @@ fieldset.when .field {
   .ad-wrap { width: calc(100% - 24px); margin: 22px auto; }
   .ad-wrap ins.adsbygoogle { min-height: 92px; }
 }
+
+/* El aviso de cookies ya no tapa la barra inferior */
+@media (max-width: 720px) {
+  .cookie-banner {
+    bottom: calc(64px + env(safe-area-inset-bottom));
+    padding: 8px;
+  }
+  .cookie-inner { padding: 12px; }
+  .cookie-text { font-size: 12.5px; }
+}
+
+/* Encabezado del hero en celular: limpio, sin píldora */
+@media (max-width: 720px) {
+  .eyebrow {
+    display: inline-flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 2px;
+    background: transparent;
+    border: 0;
+    box-shadow: none;
+    padding: 0;
+    border-radius: 0;
+    text-align: left;
+    font-size: 12px;
+    font-weight: 600;
+    letter-spacing: .01em;
+    color: #7a7164;
+  }
+  .eyebrow-line {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    white-space: normal;
+  }
+  .eyebrow-line:first-child {
+    color: #161616;
+    font-weight: 800;
+    letter-spacing: -.01em;
+    font-size: 12.5px;
+  }
+  .eyebrow-sub {
+    font-size: 11.5px;
+    letter-spacing: .02em;
+    color: #8a6a00;
+    font-weight: 700;
+  }
+  .eyebrow .pulse { width: 7px; height: 7px; }
+}
+
+@media (max-width: 720px) {
+  .cookie-banner { bottom: calc(76px + env(safe-area-inset-bottom)); }
+}

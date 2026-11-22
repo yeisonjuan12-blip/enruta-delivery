@@ -16,7 +16,7 @@
     });
   }
 
-  var VERSION = '17';
+  var VERSION = '22';
   var SIGUIENTES = [
     'js/locales-prueba.js',
     'js/google-config.js',

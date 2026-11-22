@@ -6,13 +6,13 @@
    se piden primero a la red y, si no hay, se usa la copia guardada.
    ============================================================ */
 
-const VERSION = 'enruta-v9';
+const VERSION = 'enruta-v13';
 const ARMAZON = [
   '/',
   '/index.html',
-  '/css/styles.css?v=27',
-  '/js/arranque.js?v=19',
-  '/js/app.js?v=19',
+  '/css/styles.css?v=29',
+  '/js/arranque.js?v=22',
+  '/js/app.js?v=22',
   '/js/catalogo.js',
   '/assets/marca.jpg',
   '/assets/app/icono-192.png',
@@ -54,22 +54,17 @@ self.addEventListener('fetch', (evento) => {
     return;
   }
 
-  // Páginas y archivos: copia guardada primero, red después.
+  // Páginas: red primero (para que los cambios salgan al instante),
+  // copia guardada solo si no hay conexión.
   evento.respondWith(
-    caches.match(peticion).then((guardada) => {
-      if (guardada) return guardada;
-      return fetch(peticion)
-        .then((respuesta) => {
-          if (respuesta.ok) {
-            const copia = respuesta.clone();
-            caches.open(VERSION).then((cache) => cache.put(peticion, copia));
-          }
-          return respuesta;
-        })
-        .catch(() => {
-          if (peticion.mode === 'navigate') return caches.match('/index.html');
-          return new Response('', { status: 504 });
-        });
-    })
+    fetch(peticion)
+      .then((respuesta) => {
+        if (respuesta.ok && (peticion.mode === 'navigate' || url.pathname === '/index.html')) {
+          const copia = respuesta.clone();
+          caches.open(VERSION).then((cache) => cache.put('/index.html', copia));
+        }
+        return respuesta;
+      })
+      .catch(() => caches.match(peticion).then((guardada) => guardada || caches.match('/index.html')))
   );
 });

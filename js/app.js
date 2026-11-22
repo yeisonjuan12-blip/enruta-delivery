@@ -64,6 +64,8 @@
     tab: 'todo',
     catLocal: 'todo',
     zonaLocal: 'todo',
+    marketTab: 'licores',
+    resTab: 'locales',
     catCatalogos: {},
     q: '',
     cart: [],
@@ -1138,6 +1140,8 @@
   function actualizarEstadoBusqueda() {
     const el = document.getElementById('searchStatus');
     if (!el) return;
+    const panel = document.getElementById('resultadosBusqueda');
+    if (panel && !panel.hidden) { el.hidden = true; el.innerHTML = ''; return; }
     const q = String(state.q || '').trim();
     if (!q) {
       el.hidden = true;
@@ -1168,6 +1172,7 @@
   function renderTodo() {
     renderLocales();
     renderCategorias();
+    renderResultados();
     renderCart();
   }
 
@@ -2520,6 +2525,7 @@
           state.q = search.value.trim();
           renderLocales();
           renderCategorias();
+          renderResultados();
         }, 140);
       });
     }
@@ -2527,13 +2533,8 @@
       state.q = search.value.trim();
       renderLocales();
       renderCategorias();
+      renderResultados();
       if (state.q) track('search', { search_term: state.q });
-      const destinoId = document.querySelectorAll('#localsGrid .local-card').length ? 'locales'
-        : document.querySelectorAll('#licoresGrid .c-card').length ? 'licores'
-        : document.querySelectorAll('#necGrid .c-card').length ? 'primera-necesidad'
-        : 'locales';
-      const destino = document.getElementById(destinoId);
-      if (destino) destino.scrollIntoView({ behavior: 'smooth', block: 'start' });
     };
     const searchGo = document.getElementById('searchGo');
     if (searchGo && search) {
@@ -2737,6 +2738,108 @@ function actualizarAppbar() {
   cont.hidden = unidades === 0;
 }
 
+/* ---------------- Resultados en vivo bajo la barra ---------------- */
+function filaResumenLocal(l) {
+  return '<button type="button" class="res-item" data-local="' + esc(l.id) + '">' +
+    '<span class="res-thumb">' + esc(l.emoji || '🏪') + '</span>' +
+    '<span class="res-info"><b>' + esc(l.nombre) + '</b><small>' + esc(l.categoriaNombre || 'Local') + '</small></span>' +
+    '<span class="res-ir">Ver carta →</span>' +
+    '</button>';
+}
+
+function filaResumenProducto(par) {
+  const p = par.p;
+  const ids = { tipo: 'catalogo', catalogoId: par.c.id, productoId: p.id };
+  const cantidad = cantidadEnCarrito(ids);
+  const seccion = par.c.id === 'licores' ? 'Licores' : 'Primera necesidad';
+  const miniatura = p.imagen
+    ? '<span class="res-thumb res-thumb-img"><img src="' + esc(p.imagen) + '" alt="" loading="lazy" decoding="async"></span>'
+    : '<span class="res-thumb">' + esc(p.emoji || '🛒') + '</span>';
+  return '<div class="res-item res-prod">' +
+    miniatura +
+    '<span class="res-info"><b>' + esc(p.nombre) + '</b><small>' + esc(seccion) + (p.presentacion ? ' · ' + esc(p.presentacion) : '') + '</small></span>' +
+    '<span class="res-precio">' + money(p.precioVenta) + '</span>' +
+    controlCantidad('catalogo', ids, cantidad, 'sm') +
+    '</div>';
+}
+
+function renderResultados() {
+  const caja = document.getElementById('resultadosBusqueda');
+  if (!caja) return;
+  const consulta = String(state.q || '').trim();
+  if (!consulta) { caja.hidden = true; return; }
+
+  const locales = LOCALES.filter(localCoincide);
+  const productos = [];
+  CATALOGOS.forEach((c) => {
+    (c.productos || []).forEach((p) => {
+      if (productoCatalogoCoincide(c, p)) productos.push({ c, p });
+    });
+  });
+
+  const lista = document.getElementById('resLista');
+  if (lista) {
+    let html = '';
+    if (productos.length) {
+      html += '<p class="res-sub">🏪 En Ruta Market · ' + productos.length + '</p>' +
+        productos.slice(0, 7).map(filaResumenProducto).join('');
+      if (productos.length > 7) html += '<p class="res-mas">+' + (productos.length - 7) + ' productos en En Ruta Market</p>';
+    }
+    if (locales.length) {
+      html += '<p class="res-sub">Locales · ' + locales.length + '</p>' +
+        locales.slice(0, 4).map(filaResumenLocal).join('');
+      if (locales.length > 4) html += '<p class="res-mas">+' + (locales.length - 4) + ' locales en la sección Locales</p>';
+    }
+    if (!html) html = '<p class="res-vacio">No encontramos «' + esc(consulta) + '». Prueba con otra palabra o escríbenos por WhatsApp.</p>';
+    lista.innerHTML = html;
+  }
+
+  caja.hidden = false;
+  const estado = document.getElementById('searchStatus');
+  if (estado) estado.hidden = true;
+}
+
+/* ---------------- Pestañas de En Ruta Market ---------------- */
+function activarMarket(tab) {
+  state.marketTab = tab === 'despensa' ? 'despensa' : 'licores';
+  const panelLicores = document.getElementById('panelLicores');
+  const panelNec = document.getElementById('panelNec');
+  if (panelLicores) panelLicores.hidden = state.marketTab !== 'licores';
+  if (panelNec) panelNec.hidden = state.marketTab !== 'despensa';
+  $$('#tabsMarket .tab').forEach((b) => {
+    const activo = b.dataset.market === state.marketTab;
+    b.classList.toggle('is-active', activo);
+    b.setAttribute('aria-selected', activo ? 'true' : 'false');
+  });
+}
+
+function iniciarMarket() {
+  const tabs = document.getElementById('tabsMarket');
+  if (tabs) {
+    tabs.addEventListener('click', (e) => {
+      const b = e.target.closest('.tab');
+      if (b) activarMarket(b.dataset.market);
+    });
+  }
+  $$('[data-market-link]').forEach((a) => {
+    a.addEventListener('click', (e) => {
+      e.preventDefault();
+      activarMarket(a.dataset.marketLink);
+      const market = document.getElementById('market');
+      if (market) market.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    });
+  });
+  const caja = document.getElementById('resultadosBusqueda');
+  if (caja) {
+    caja.addEventListener('click', (e) => {
+      const local = e.target.closest('[data-local]');
+      if (local) { abrirLocal(local.dataset.local); return; }
+      if (e.target.closest('#resLimpiar')) { limpiarBusqueda(); return; }
+    });
+  }
+  activarMarket(state.marketTab);
+}
+
 /* ---------------- Instalar como app ---------------- */
 let promptInstalar = null;
 
@@ -2782,11 +2885,9 @@ function iniciarAppbar() {
   const botones = $$('.appbar-btn[data-appbar]');
   const secciones = [
     ['inicio', document.body],
-    ['locales', document.getElementById('locales')],
-    ['licores', document.getElementById('licores')],
-    ['despensa', document.getElementById('primera-necesidad')]
+    ['locales', document.getElementById('locales')]
   ].filter((par) => par[1]);
-  if (!botones.length || !secciones.length) {
+  if (!botones.length) {
     actualizarAppbar();
     return;
   }
@@ -2800,6 +2901,13 @@ function iniciarAppbar() {
   };
 
   const activaSegunScroll = () => {
+    const marketEl = document.getElementById('market');
+    if (marketEl) {
+      const arribaMarket = marketEl.getBoundingClientRect().top + window.scrollY;
+      if (arribaMarket <= window.scrollY + margen() + Math.min(window.innerHeight * 0.35, 220)) {
+        return state.marketTab === 'despensa' ? 'despensa' : 'licores';
+      }
+    }
     const limite = window.scrollY + margen() + Math.min(window.innerHeight * 0.35, 220);
     let activa = 'inicio';
     for (const [id, el] of secciones) {
@@ -2822,13 +2930,22 @@ function iniciarAppbar() {
   botones.forEach((b) => {
     b.addEventListener('click', (e) => {
       const id = b.dataset.appbar;
-      const destino = secciones.find((par) => par[0] === id);
-      if (!destino) return;
       e.preventDefault();
-      const y = destino[1].getBoundingClientRect().top + window.scrollY - margen();
-      window.scrollTo({ top: Math.max(0, y), behavior: 'smooth' });
+      if (id === 'licores' || id === 'despensa') {
+        activarMarket(id);
+        const marketEl = document.getElementById('market');
+        if (marketEl) {
+          const y = marketEl.getBoundingClientRect().top + window.scrollY - margen();
+          window.scrollTo({ top: Math.max(0, y), behavior: 'smooth' });
+        }
+      } else {
+        const destino = secciones.find((par) => par[0] === id);
+        if (!destino) return;
+        const y = destino[1].getBoundingClientRect().top + window.scrollY - margen();
+        window.scrollTo({ top: Math.max(0, y), behavior: 'smooth' });
+      }
       marcar(id);
-      history.replaceState(null, '', '#' + (id === 'despensa' ? 'primera-necesidad' : id));
+      history.replaceState(null, '', '#' + id);
     });
   });
 
@@ -2855,6 +2972,7 @@ function init() {
     renderCart();
     enlazarEventos();
     iniciarAppbar();
+    iniciarMarket();
     iniciarInstalacion();
     activarServicios();
     activarAccesoOculto();

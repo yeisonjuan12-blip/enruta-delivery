@@ -3511,3 +3511,110 @@ fieldset.when .field {
 }
 
 .eyebrow-line #cityLabel2 { margin-left: 5px; }
+
+/* Resultados en vivo debajo de la barra de búsqueda */
+.resultados {
+  margin: 12px 0 6px;
+  background: #fff;
+  border: 1px solid var(--line);
+  border-radius: 18px;
+  box-shadow: 0 16px 34px rgba(35, 28, 16, .14);
+  overflow: hidden;
+}
+.res-tabs {
+  display: flex;
+  gap: 4px;
+  padding: 8px;
+  border-bottom: 1px solid var(--line);
+}
+.res-tab {
+  flex: 1;
+  border: 0;
+  background: transparent;
+  border-radius: 12px;
+  padding: 9px 10px;
+  font-family: inherit;
+  font-size: 12.5px;
+  font-weight: 800;
+  color: var(--muted);
+  cursor: pointer;
+}
+.res-tab.is-active {
+  background: var(--brand);
+  color: #161616;
+}
+.res-tab b { opacity: .75; margin-left: 2px; }
+.res-lista {
+  max-height: min(46vh, 420px);
+  overflow-y: auto;
+  padding: 6px;
+  -webkit-overflow-scrolling: touch;
+}
+.res-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  padding: 8px 10px;
+  border: 0;
+  background: transparent;
+  border-radius: 12px;
+  text-align: left;
+  font-family: inherit;
+  cursor: pointer;
+}
+.res-item:hover { background: var(--brand-soft); }
+.res-thumb {
+  flex: 0 0 auto;
+  width: 42px;
+  height: 42px;
+  display: grid;
+  place-items: center;
+  border-radius: 12px;
+  background: #fdf3df;
+  font-size: 20px;
+  overflow: hidden;
+}
+.res-thumb-img { padding: 0; background: #fff; }
+.res-thumb-img img { width: 100%; height: 100%; object-fit: contain; }
+.res-info { flex: 1; min-width: 0; }
+.res-info b { display: block; font-size: 13.5px; line-height: 1.25; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.res-info small { color: var(--muted); font-size: 11px; }
+.res-ir { font-size: 11px; font-weight: 800; color: #8a6a00; white-space: nowrap; }
+.res-precio { font-weight: 800; font-size: 14px; white-space: nowrap; }
+.res-limpiar {
+  width: 100%;
+  border: 0;
+  border-top: 1px solid var(--line);
+  background: #fffdf8;
+  padding: 11px;
+  font-family: inherit;
+  font-size: 12.5px;
+  font-weight: 800;
+  color: #5c4b00;
+  cursor: pointer;
+}
+.res-vacio, .res-mas { padding: 10px 12px; color: var(--muted); font-size: 12.5px; }
+
+/* En Ruta Market */
+.market-head {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  margin-bottom: 16px;
+}
+.market-logo {
+  width: 56px;
+  height: 56px;
+  border-radius: 16px;
+  box-shadow: var(--shadow);
+  flex: 0 0 auto;
+}
+.market-head h2 {
+  font-size: clamp(24px, 3vw, 34px);
+  letter-spacing: -.035em;
+  line-height: 1.1;
+}
+.market-head p { color: var(--muted); font-size: 13.5px; margin-top: 5px; }
+.tabs-market { margin-bottom: 14px; }
+.market-panel .chips { margin-bottom: 12px; }

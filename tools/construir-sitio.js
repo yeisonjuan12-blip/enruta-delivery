@@ -12,6 +12,7 @@
 
 const fs = require('fs');
 const path = require('path');
+const { execFileSync } = require('child_process');
 
 const RAIZ = path.resolve(__dirname, '..');
 const DIST = path.join(RAIZ, 'dist');
@@ -27,6 +28,7 @@ const ARCHIVOS = [
   'googlee16045e689497aba.html',
   'manifest.webmanifest',
   'sw.js',
+  '.well-known/security.txt',
   '_headers',
   '_routes.json'
 ];
@@ -68,6 +70,65 @@ function copiarCarpeta(origen, destino, filtro = null) {
   }
 }
 
+function rutaEsbuild() {
+  if (process.platform !== 'win32') return 'esbuild';
+  const raiz = path.join(process.env.LOCALAPPDATA || '', 'npm-cache', '_npx');
+  try {
+    for (const dir of fs.readdirSync(raiz)) {
+      const exe = path.join(raiz, dir, 'node_modules', '@esbuild', 'win32-x64', 'esbuild.exe');
+      if (!fs.existsSync(exe)) continue;
+      try {
+        execFileSync(exe, ['--version'], { stdio: 'ignore', timeout: 20000 });
+        return exe;
+      } catch {
+        /* copia dañada: probar la siguiente */
+      }
+    }
+  } catch {
+    /* sin cache */
+  }
+  return null;
+}
+
+function minificar() {
+  const esbuild = rutaEsbuild();
+  if (!esbuild) return { hechos: 0, ahorro: 0 };
+  const objetivos = [
+    'css/styles.css',
+    'js/app.js',
+    'js/arranque.js',
+    'js/google.js',
+    'js/google-config.js',
+    'js/catalogo.js',
+    'admin/admin.js',
+    'admin/admin.css'
+  ];
+  let hechos = 0;
+  let ahorro = 0;
+  for (const rel of objetivos) {
+    const archivo = path.join(DIST, rel);
+    if (!fs.existsSync(archivo)) continue;
+    const temporal = archivo + '.min';
+    try {
+      execFileSync(esbuild, [archivo, '--minify', '--outfile=' + temporal, '--log-level=error'], {
+        stdio: 'ignore',
+        timeout: 180000
+      });
+      const antes = fs.statSync(archivo).size;
+      fs.copyFileSync(temporal, archivo);
+      fs.unlinkSync(temporal);
+      const despues = fs.statSync(archivo).size;
+      if (despues > 0) {
+        ahorro += Math.max(0, antes - despues);
+        hechos++;
+      }
+    } catch {
+      try { fs.unlinkSync(temporal); } catch { /* sin temporal */ }
+    }
+  }
+  return { hechos, ahorro };
+}
+
 function principal() {
   if (DIST === RAIZ || RAIZ.startsWith(DIST + path.sep)) {
     throw new Error('La carpeta dist no puede ser la raíz del proyecto.');
@@ -90,10 +151,10 @@ function principal() {
     copiarCarpeta(path.join(RAIZ, nombre), path.join(DIST, nombre));
   }
 
-  // Datos públicos necesarios para el respaldo del catálogo.
-  copiarArchivo(path.join(RAIZ, 'data', 'config.json'), path.join(DIST, 'data', 'config.json'));
+  // Solo las imágenes de data/: los JSON se sirven desde la API (D1).
+  const soloImagenes = (nombre) => !/\.json$/i.test(nombre) && !/\.bak$/i.test(nombre);
   for (const nombre of ['locales', 'licores', 'primera-necesidad']) {
-    copiarCarpeta(path.join(RAIZ, 'data', nombre), path.join(DIST, 'data', nombre));
+    copiarCarpeta(path.join(RAIZ, 'data', nombre), path.join(DIST, 'data', nombre), soloImagenes);
   }
 
   // Comprobaciones mínimas.
@@ -101,6 +162,12 @@ function principal() {
   const faltantes = obligatorios.filter((rel) => !fs.existsSync(path.join(DIST, rel)));
   if (faltantes.length) {
     throw new Error('Faltan archivos obligatorios en dist/: ' + faltantes.join(', '));
+  }
+
+  // Minificación de CSS y JS para que cargue más rápido.
+  const min = minificar();
+  if (min.hechos) {
+    console.log('Minificados:', min.hechos, 'archivos · ahorro:', (min.ahorro / 1024).toFixed(0), 'KB');
   }
 
   console.log('\nListo.');

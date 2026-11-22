@@ -3618,3 +3618,56 @@ fieldset.when .field {
 .market-head p { color: var(--muted); font-size: 13.5px; margin-top: 5px; }
 .tabs-market { margin-bottom: 14px; }
 .market-panel .chips { margin-bottom: 12px; }
+
+/* Botón para limpiar la búsqueda dentro de la barra */
+.search-clear {
+  flex: 0 0 auto;
+  width: 28px;
+  height: 28px;
+  display: grid;
+  place-items: center;
+  border: 0;
+  border-radius: 50%;
+  background: #f0ece6;
+  color: #5c666d;
+  font-size: 12px;
+  line-height: 1;
+  cursor: pointer;
+}
+.search-clear:hover { background: #e6e0d6; color: #2c3338; }
+.search-clear[hidden] { display: none; }
+
+/* Buscar en celular: el hero se recoge y los resultados quedan a la vista */
+@media (max-width: 720px) {
+  body.en-busqueda .hero {
+    padding: 6px 0 0;
+  }
+  body.en-busqueda .eyebrow,
+  body.en-busqueda .hero h1,
+  body.en-busqueda .hero .lead,
+  body.en-busqueda .hero-art,
+  body.en-busqueda .quick-chips,
+  body.en-busqueda .stats {
+    display: none;
+  }
+  body.en-busqueda .search-hero {
+    margin: 2px 0 9px;
+  }
+  body.en-busqueda .search-status {
+    margin: 2px 2px 8px;
+  }
+  body.en-busqueda .resultados:not([hidden]) {
+    display: flex;
+    flex-direction: column;
+    max-height: calc(100dvh - 200px);
+    margin: 0 0 8px;
+  }
+  body.en-busqueda .res-lista {
+    flex: 1 1 auto;
+    max-height: none;
+  }
+  body.en-busqueda .res-thumb {
+    width: 38px;
+    height: 38px;
+  }
+}

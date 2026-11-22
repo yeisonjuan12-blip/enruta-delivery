@@ -1166,6 +1166,9 @@
     state.q = '';
     const input = document.getElementById('searchInput');
     if (input) input.value = '';
+    document.body.classList.remove('en-busqueda');
+    const clear = document.getElementById('searchClearBtn');
+    if (clear) clear.hidden = true;
     renderTodo();
   }
 
@@ -2517,24 +2520,53 @@
     }
 
     const search = document.getElementById('searchInput');
+    const searchClearBtn = document.getElementById('searchClearBtn');
     if (search) {
       let timer = null;
+      const aplicar = () => {
+        state.q = search.value.trim();
+        // En el celular el hero se recoge para que los resultados queden
+        // pegados bajo la barra y se vean sin hacer scroll.
+        document.body.classList.toggle('en-busqueda', Boolean(state.q));
+        if (searchClearBtn) searchClearBtn.hidden = !state.q;
+        renderLocales();
+        renderCategorias();
+        renderResultados();
+        if (state.q && window.scrollY > 8) window.scrollTo({ top: 0, behavior: 'smooth' });
+      };
       search.addEventListener('input', () => {
+        if (searchClearBtn) searchClearBtn.hidden = !search.value.trim();
         clearTimeout(timer);
-        timer = setTimeout(() => {
-          state.q = search.value.trim();
-          renderLocales();
-          renderCategorias();
-          renderResultados();
-        }, 140);
+        timer = setTimeout(aplicar, 90);
       });
+      search.addEventListener('focus', () => {
+        if (search.value.trim()) {
+          document.body.classList.add('en-busqueda');
+          if (searchClearBtn) searchClearBtn.hidden = false;
+        }
+      });
+      search.addEventListener('search', () => {
+        clearTimeout(timer);
+        aplicar();
+      });
+      if (searchClearBtn) {
+        searchClearBtn.addEventListener('click', () => {
+          limpiarBusqueda();
+          search.focus();
+        });
+      }
     }
     const buscar = () => {
       state.q = search.value.trim();
+      document.body.classList.toggle('en-busqueda', Boolean(state.q));
+      if (searchClearBtn) searchClearBtn.hidden = !state.q;
       renderLocales();
       renderCategorias();
       renderResultados();
-      if (state.q) track('search', { search_term: state.q });
+      if (state.q) {
+        if (window.scrollY > 8) window.scrollTo({ top: 0, behavior: 'smooth' });
+        track('search', { search_term: state.q });
+      }
     };
     const searchGo = document.getElementById('searchGo');
     if (searchGo && search) {

@@ -29,7 +29,7 @@
   <link rel="icon" type="image/jpeg" href="assets/marca.jpg">
   <link rel="apple-touch-icon" href="assets/app/icono-192.png">
   <link rel="icon" type="image/png" sizes="192x192" href="assets/app/icono-192.png">
-  <link rel="stylesheet" href="css/styles.css?v=29">
+  <link rel="stylesheet" href="css/styles.css?v=31">
 </head>
 <body id="inicio">
 
@@ -86,7 +86,8 @@
 
           <div class="search search-hero">
             <svg class="search-icon" viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.2-3.2"/></svg>
-            <input id="searchInput" type="search" placeholder="Busca local o producto…" autocomplete="off" aria-label="Buscar locales, productos y marcas">
+            <input id="searchInput" type="search" placeholder="Busca local o producto…" autocomplete="off" enterkeyhint="search" aria-label="Buscar locales, productos y marcas">
+            <button class="search-clear" id="searchClearBtn" type="button" aria-label="Limpiar búsqueda" hidden>✕</button>
             <button class="search-go" id="searchGo" type="button">Buscar</button>
           </div>
           <p class="search-status" id="searchStatus" role="status" aria-live="polite" hidden></p>
@@ -251,7 +252,7 @@
       </div>
     </section>
 
-    <!-- Publicidad (solo se muestra si configuras AdSense en js/google-config.js?v=9) -->
+    <!-- Publicidad (solo se muestra si configuras AdSense en js/google-config.js?v=10) -->
     <aside class="ad-wrap" id="adCatalogo" aria-label="Publicidad" hidden>
       <span class="ad-label">Publicidad</span>
       <ins class="adsbygoogle" data-slot-key="catalogo" data-ad-format="auto" data-full-width-responsive="true"></ins>
@@ -706,6 +707,6 @@
     </div>
   </noscript>
 
-  <script src="js/arranque.js?v=22" defer></script>
+  <script src="js/arranque.js?v=23" defer></script>
 </body>
 </html>

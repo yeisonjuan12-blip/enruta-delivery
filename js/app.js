@@ -33,8 +33,8 @@
   const CONFIG = DATA.config || {};
   const PRUEBA = window.ENRUTA_LOCALES_PRUEBA || { categorias: [], locales: [] };
 
-  // Los locales ficticios de js/locales-prueba.js se fusionan solo para
-  // mostrar la página. Para retirarlos, borra ese archivo y su <script>.
+  // Los locales ficticios ya no se cargan: solo se muestra lo que existe
+  // en la base de datos y se administra desde el panel.
   const CATEGORIAS_LOCALES = (DATA.categoriasLocales || []).concat(PRUEBA.categorias || []);
   const LOCALES = (DATA.locales || []).concat(PRUEBA.locales || [])
     .filter((l) => l.publicado !== false)
@@ -1172,10 +1172,129 @@
     renderTodo();
   }
 
+  function tarjetaNovedad(l) {
+    return '<article class="novedad-card" data-local="' + esc(l.id) + '" role="button" tabindex="0" aria-label="Ver la carta de ' + esc(l.nombre) + '">' +
+      '<span class="novedad-badge">Nuevo</span>' +
+      portadaHTML(l, 'novedad-img') +
+      '<div class="novedad-body">' +
+        '<b>' + esc(l.nombre) + '</b>' +
+        '<small>' + esc(l.categoriaNombre || categoriaLocal(l.categoriaId)) + (l.tiempo ? ' · ⏱ ' + esc(l.tiempo) : '') + '</small>' +
+      '</div>' +
+    '</article>';
+  }
+
+  function renderNovedades() {
+    const sec = document.getElementById('novedades');
+    const cont = document.getElementById('novedadesLista');
+    if (!sec || !cont) return;
+    const visibles = LOCALES.filter((l) => l.publicado !== false && l.disponible !== false);
+    let nuevos = visibles.filter((l) => l.nuevo === true);
+    // Si todavía no hay locales marcados como nuevos, se muestran los
+    // últimos que se agregaron al catálogo.
+    if (!nuevos.length) nuevos = visibles.slice(-8).reverse();
+    const lista = nuevos.slice(0, 10);
+    sec.hidden = lista.length === 0;
+    cont.innerHTML = lista.map(tarjetaNovedad).join('');
+  }
+
+  function tarjetaPromo(p) {
+    return '<button type="button" class="promo-card ' + p.clase + '" data-promo="' + esc(p.accion) + '">' +
+      '<span class="promo-emoji" aria-hidden="true">' + esc(p.emoji) + '</span>' +
+      '<b>' + esc(p.titulo) + '</b>' +
+      '<small>' + esc(p.texto) + '</small>' +
+      '<span class="promo-go">' + esc(p.go) + ' →</span>' +
+    '</button>';
+  }
+
+  function renderPromos() {
+    const cont = document.getElementById('promosLista');
+    if (!cont) return;
+    const licores = CATALOGOS.find((c) => c.id === 'licores') || { productos: [] };
+    const packs = (licores.productos || []).filter((p) => /pack/i.test(String(p.nombre || '')));
+    const precios = packs.map((p) => Number(p.precioVenta)).filter((n) => n > 0);
+    const minPack = precios.length ? Math.min.apply(null, precios) : 0;
+    const despensa = CATALOGOS.find((c) => c.id === 'primera-necesidad');
+    const totalDespensa = (despensa && despensa.productos ? despensa.productos.length : 0);
+    const rapidos = LOCALES.filter((l) => l.categoriaId === 'comida-rapida' && l.publicado !== false).length;
+
+    const tarjetas = [];
+    if (minPack > 0) {
+      tarjetas.push({
+        clase: 'promo-amarillo', emoji: '🍻', titulo: 'Packs de licores',
+        texto: 'Desde ' + money(minPack) + ' · precio real', accion: 'packs', go: 'Ver packs'
+      });
+    }
+    tarjetas.push({
+      clase: 'promo-negro', emoji: '🛵', titulo: 'Delivery 10–20 min',
+      texto: 'En Nuevo Chimbote', accion: 'locales', go: 'Pedir ahora'
+    });
+    if (totalDespensa) {
+      tarjetas.push({
+        clase: 'promo-verde', emoji: '🧺', titulo: 'Primera necesidad',
+        texto: totalDespensa + ' productos para tu casa', accion: 'despensa', go: 'Ver tienda'
+      });
+    }
+    if (rapidos) {
+      tarjetas.push({
+        clase: 'promo-naranja', emoji: '🍔', titulo: 'Comida rápida',
+        texto: rapidos + ' locales para pedir', accion: 'rapida', go: 'Ver locales'
+      });
+    }
+    cont.innerHTML = tarjetas.map(tarjetaPromo).join('');
+  }
+
+  function iniciarStrips() {
+    const novedades = document.getElementById('novedadesLista');
+    if (novedades) {
+      novedades.addEventListener('click', (e) => {
+        const card = e.target.closest('[data-local]');
+        if (card) abrirLocal(card.dataset.local);
+      });
+      novedades.addEventListener('keydown', (e) => {
+        if (e.key !== 'Enter' && e.key !== ' ') return;
+        const card = e.target.closest('[data-local]');
+        if (!card) return;
+        e.preventDefault();
+        abrirLocal(card.dataset.local);
+      });
+    }
+
+    const promos = document.getElementById('promosLista');
+    if (promos) {
+      promos.addEventListener('click', (e) => {
+        const boton = e.target.closest('[data-promo]');
+        if (!boton) return;
+        const accion = boton.dataset.promo;
+        const irA = (id) => {
+          const el = document.getElementById(id);
+          if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        };
+        if (accion === 'packs') {
+          activarMarket('licores');
+          state.catCatalogos.licores = 'packs';
+          renderCategorias();
+          irA('market');
+        } else if (accion === 'despensa') {
+          activarMarket('despensa');
+          irA('market');
+        } else if (accion === 'rapida') {
+          state.tab = 'todo';
+          state.catLocal = 'comida-rapida';
+          renderLocales();
+          irA('locales');
+        } else {
+          irA('locales');
+        }
+      });
+    }
+  }
+
   function renderTodo() {
     renderLocales();
     renderCategorias();
     renderResultados();
+    renderNovedades();
+    renderPromos();
     renderCart();
   }
 
@@ -3001,10 +3120,13 @@ function init() {
     renderChipsLocales();
     renderLocales();
     renderCategorias();
+    renderNovedades();
+    renderPromos();
     renderCart();
     enlazarEventos();
     iniciarAppbar();
     iniciarMarket();
+    iniciarStrips();
     iniciarInstalacion();
     activarServicios();
     activarAccesoOculto();

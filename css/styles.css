@@ -3670,4 +3670,226 @@ fieldset.when .field {
     width: 38px;
     height: 38px;
   }
+  body.en-busqueda .strip {
+    display: none;
+  }
+}
+
+/* Novedades y promos al inicio */
+.strip {
+  padding: 10px 0 2px;
+}
+.strip-head {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 10px;
+}
+.strip-head h2 {
+  font-size: clamp(20px, 5vw, 27px);
+  letter-spacing: -.03em;
+  line-height: 1.1;
+}
+.strip-head .section-kicker { margin-bottom: 3px; }
+.strip-link {
+  font-size: 12.5px;
+  font-weight: 800;
+  color: #8a6a00;
+  text-decoration: none;
+  white-space: nowrap;
+}
+.strip-row {
+  display: flex;
+  gap: 10px;
+  overflow-x: auto;
+  padding: 2px 2px 12px;
+  scroll-snap-type: x mandatory;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;
+}
+.strip-row::-webkit-scrollbar { display: none; }
+
+.promo-card {
+  position: relative;
+  overflow: hidden;
+  flex: 0 0 auto;
+  width: 228px;
+  min-height: 118px;
+  border: 0;
+  border-radius: 18px;
+  padding: 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  text-align: left;
+  font-family: inherit;
+  cursor: pointer;
+  scroll-snap-align: start;
+  box-shadow: 0 10px 24px rgba(30, 24, 10, .10);
+  transition: transform .15s ease;
+}
+.promo-card:active { transform: scale(.985); }
+.promo-card::after {
+  content: "";
+  position: absolute;
+  right: -34px;
+  top: -34px;
+  width: 120px;
+  height: 120px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, .3);
+  pointer-events: none;
+}
+.promo-card .promo-emoji { font-size: 25px; line-height: 1; }
+.promo-card b { font-size: 15.5px; line-height: 1.15; letter-spacing: -.01em; }
+.promo-card small { font-size: 11.5px; font-weight: 600; opacity: .72; }
+.promo-card .promo-go {
+  margin-top: auto;
+  padding-top: 8px;
+  font-size: 11px;
+  font-weight: 900;
+  letter-spacing: .02em;
+}
+.promo-amarillo { background: linear-gradient(135deg, #fdd303 0%, #ffb703 100%); color: #17140c; }
+.promo-negro { background: linear-gradient(135deg, #151515 0%, #3b3b3b 100%); color: #fff; }
+.promo-verde { background: linear-gradient(135deg, #dcf8e6 0%, #9fe9ba 100%); color: #0d3d22; }
+.promo-naranja { background: linear-gradient(135deg, #ffe3c7 0%, #ffb178 100%); color: #4a2103; }
+
+.novedad-card {
+  position: relative;
+  flex: 0 0 auto;
+  width: 152px;
+  border-radius: 16px;
+  overflow: hidden;
+  background: #fff;
+  border: 1px solid var(--line);
+  box-shadow: var(--shadow);
+  cursor: pointer;
+  scroll-snap-align: start;
+}
+.novedad-img {
+  height: 92px;
+  background: #f5efe8;
+  display: grid;
+  place-items: center;
+  overflow: hidden;
+}
+.novedad-img.has-img img { width: 100%; height: 100%; object-fit: cover; }
+.novedad-img .local-emoji { font-size: 30px; }
+.novedad-badge {
+  position: absolute;
+  top: 8px;
+  left: 8px;
+  z-index: 1;
+  background: var(--brand);
+  color: #17140c;
+  font-size: 9px;
+  font-weight: 900;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+  padding: 3px 7px;
+  border-radius: 999px;
+}
+.novedad-body { padding: 8px 9px 10px; }
+.novedad-body b {
+  display: block;
+  font-size: 12.5px;
+  line-height: 1.2;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.novedad-body small {
+  display: block;
+  margin-top: 2px;
+  font-size: 10.5px;
+  color: var(--muted);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+@media (min-width: 900px) {
+  .strip-row { overflow: visible; flex-wrap: wrap; }
+  .promo-card { width: calc(25% - 8px); }
+}
+
+/* Aviso de cookies compacto en celular: no tapa promos ni novedades */
+@media (max-width: 720px) {
+  .cookie-banner {
+    padding: 6px 8px;
+    background: rgba(16, 26, 32, .35);
+  }
+  .cookie-inner {
+    flex-wrap: wrap;
+    gap: 6px 8px;
+    padding: 8px 10px;
+    border-radius: 14px;
+  }
+  .cookie-text {
+    flex: 1 1 100%;
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 8px;
+    min-width: 0;
+  }
+  .cookie-text strong {
+    display: inline;
+    margin: 0;
+    font-size: 12.5px;
+  }
+  .cookie-text p { display: none; }
+  .cookie-more {
+    margin: 0;
+    font-size: 11px;
+    white-space: nowrap;
+  }
+  .cookie-actions {
+    width: 100%;
+    flex-wrap: nowrap;
+    gap: 6px;
+  }
+  .cookie-actions .btn {
+    flex: 1 1 0;
+    min-height: 36px;
+    padding: 0 10px;
+    font-size: 12px;
+  }
+  .cookie-actions .link-mini,
+  .cookie-config {
+    display: none;
+  }
+}
+
+/* Celular: hero compacto para que promos y novedades entren en la primera pantalla */
+@media (max-width: 720px) {
+  .hero {
+    padding: 14px 0 4px;
+  }
+  .hero .lead,
+  .hero .quick-chips,
+  .hero .stats {
+    display: none;
+  }
+  .hero h1 {
+    font-size: clamp(24px, 6.8vw, 31px);
+    line-height: 1.14;
+  }
+  .hero .eyebrow {
+    margin-bottom: 4px;
+  }
+  .search-hero {
+    margin: 12px 0 6px;
+  }
+  .strip {
+    padding: 8px 0 0;
+  }
+  .strip-head {
+    margin-bottom: 8px;
+  }
+  .strip-head h2 {
+    font-size: 20px;
+  }
 }

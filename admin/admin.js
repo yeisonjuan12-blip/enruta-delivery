@@ -448,9 +448,8 @@
       api('/api/admin/config').then((r) => { state.config = r.config || null; }).catch(() => { /* sin configuracion */ }),
       api('/api/admin/estado-sistema').then((r) => { state.sistema = r; }).catch(() => { state.sistema = null; })
     ];
-    if (state.sesion.rol === 'admin') {
-      tareas.push(api('/api/admin/categorias-locales').then((r) => { state.categorias = r; }).catch(() => { state.categorias = null; }));
-    }
+    // También los usuarios de local necesitan las categorías para editar su ficha.
+    tareas.push(api('/api/admin/categorias-locales').then((r) => { state.categorias = r; }).catch(() => { state.categorias = null; }));
     await Promise.all(tareas);
     if (!state.sistema) {
       state.sistema = { ocr: false, ocrMensaje: 'No se pudo consultar el estado del OCR.', iaConfigurada: false, iaMensaje: 'IA no disponible.' };
@@ -471,9 +470,29 @@
     return zonas.map((z) => '<option value="' + esc(z.id) + '"' + (z.id === actual ? ' selected' : '') + '>' + esc(z.nombre) + '</option>').join('');
   }
 
+  // La API devuelve una lista, pero algunas pantallas la guardan envuelta
+  // en { categorias: [...] }. Esto acepta las dos formas.
+  function listaCategorias() {
+    const c = state.categorias;
+    if (Array.isArray(c)) return c;
+    if (c && Array.isArray(c.categorias)) return c.categorias;
+    return [];
+  }
+
   function opcionesCategorias(seleccion) {
-    const cats = (state.categorias && state.categorias.categorias) || [];
-    return cats.map((c) => '<option value="' + esc(c.id) + '"' + (c.id === seleccion ? ' selected' : '') + '>' + esc(c.nombre) + '</option>').join('');
+    const cats = listaCategorias();
+    if (!cats.length && seleccion) {
+      return '<option value="' + esc(seleccion) + '" selected>' + esc(seleccion) + '</option>';
+    }
+    const existe = cats.some((c) => c.id === seleccion);
+    const opciones = cats.map((c) =>
+      '<option value="' + esc(c.id) + '"' + (c.id === seleccion ? ' selected' : '') + '>' + esc(c.nombre) + '</option>'
+    ).join('');
+    // Si la categoría guardada ya no existe, se muestra igual para no
+    // cambiarla sin querer al guardar.
+    return existe || !seleccion
+      ? opciones
+      : '<option value="' + esc(seleccion) + '" selected>' + esc(seleccion) + ' (actual)</option>' + opciones;
   }
 
   function avisoSistema() {
@@ -862,7 +881,13 @@
     return local;
   }
 
-  function modalNuevoLocal() {
+  async function modalNuevoLocal() {
+    if (!listaCategorias().length) {
+      try { state.categorias = await api('/api/admin/categorias-locales'); } catch { /* sin categorías */ }
+    }
+    if (!state.config) {
+      try { const cfg = await api('/api/admin/config'); state.config = cfg.config || null; } catch { /* sin zonas */ }
+    }
     const base = { tipo: 'comida', publicado: false, disponible: true, emoji: '🏪', colores: ['#fdd303', '#111111'] };
     abrirModal({
       titulo: 'Nuevo local',
@@ -905,6 +930,14 @@
     if (state.sesion.rol !== 'admin' && state.localTab === 'acceso') state.localTab = 'datos';
     const cont = $('#view-local');
     cont.innerHTML = '<div class="panel"><div class="panel-body muted">Cargando local…</div></div>';
+    // Si las categorías no cargaron al iniciar sesión, se piden aquí para
+    // que el desplegable de categoría nunca quede vacío.
+    if (!listaCategorias().length) {
+      try { state.categorias = await api('/api/admin/categorias-locales'); } catch { /* se muestra el aviso */ }
+    }
+    if (!state.config) {
+      try { const cfg = await api('/api/admin/config'); state.config = cfg.config || null; } catch { /* sin zonas */ }
+    }
     const [r, stats] = await Promise.all([
       api('/api/admin/locales/' + encodeURIComponent(carpeta)),
       api('/api/admin/estadisticas?local=' + encodeURIComponent(carpeta)).catch(() => null)
@@ -2727,7 +2760,7 @@
     const tiktok = redes.tiktok || {};
     const instagram = redes.instagram || {};
     const delivery = cfg.delivery || {};
-    const categorias = (state.categorias && state.categorias.categorias) || [];
+    const categorias = listaCategorias();
 
     cont.innerHTML = `
       <div class="page-head">
@@ -2834,9 +2867,28 @@
       </div>`);
       actualizarBotonesCategoria();
     });
+    function idDesdeNombre(texto) {
+      return String(texto || '')
+        .toLowerCase()
+        .normalize('NFD')
+        .replace(/[\u0300-\u036f]/g, '')
+        .replace(/[^a-z0-9]+/g, '-')
+        .replace(/^-+|-+$/g, '')
+        .slice(0, 48);
+    }
     function actualizarBotonesCategoria() {
       $$('[data-quitar-categoria]', $('#pgCategorias')).forEach((b) => {
         b.onclick = () => b.closest('[data-cat-row]').remove();
+      });
+      // Al escribir el nombre de una categoría nueva, el identificador se
+      // completa solo. Si ya existe, no se toca.
+      $$('[data-cat-row]', $('#pgCategorias')).forEach((fila) => {
+        const nombre = fila.querySelector('[data-cat-nombre]');
+        const id = fila.querySelector('[data-cat-id]');
+        if (!nombre || !id) return;
+        nombre.addEventListener('input', () => {
+          if (!id.value.trim()) id.value = idDesdeNombre(nombre.value);
+        });
       });
     }
     actualizarBotonesCategoria();
@@ -2886,10 +2938,11 @@
 
     $('#pgGuardarCategorias').addEventListener('click', async () => {
       const btn = $('#pgGuardarCategorias');
-      const categoriasNuevas = $$('[data-cat-row]', $('#pgCategorias')).map((fila) => ({
-        id: fila.querySelector('[data-cat-id]').value.trim(),
-        nombre: fila.querySelector('[data-cat-nombre]').value.trim()
-      })).filter((c) => c.nombre);
+      const categoriasNuevas = $$('[data-cat-row]', $('#pgCategorias')).map((fila) => {
+        const nombre = fila.querySelector('[data-cat-nombre]').value.trim();
+        const id = fila.querySelector('[data-cat-id]').value.trim() || idDesdeNombre(nombre);
+        return { id, nombre };
+      }).filter((c) => c.nombre);
       try {
         bloquear(btn, true);
         const res = await api('/api/admin/categorias-locales', { method: 'PUT', body: { categorias: categoriasNuevas } });

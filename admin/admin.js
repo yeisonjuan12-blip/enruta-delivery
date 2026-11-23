@@ -851,6 +851,7 @@
           <label class="check"><input id="lfPublicado" type="checkbox" ${l.publicado ? 'checked' : ''} ${admin ? '' : 'disabled'}> Publicado en la web</label>
           <label class="check"><input id="lfDisponible" type="checkbox" ${l.disponible !== false ? 'checked' : ''}> Aceptando pedidos</label>
           <label class="check"><input id="lfCerrado" type="checkbox" ${l.cerradoTemporal ? 'checked' : ''}> Cerrado temporalmente</label>
+          <label class="check"><input id="lfNuevo" type="checkbox" ${l.nuevo ? 'checked' : ''}> Mostrar en Novedades</label>
         </div>
         ${admin ? '' : '<p class="hint mt-8">La publicación la controla un administrador. Tú puedes gestionar disponibilidad, productos y horarios.</p>'}
       </div>`;
@@ -875,7 +876,8 @@
       colores,
       publicado: $('#lfPublicado').checked,
       disponible: $('#lfDisponible').checked,
-      cerradoTemporal: $('#lfCerrado').checked
+      cerradoTemporal: $('#lfCerrado').checked,
+      nuevo: $('#lfNuevo') ? $('#lfNuevo').checked : false
     });
     if (state.sesion.rol === 'admin') local.id = $('#lfId').value.trim();
     return local;

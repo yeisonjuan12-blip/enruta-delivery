@@ -196,6 +196,7 @@ export async function construirCatalogo(env) {
       pedidoMinimo: local.pedidoMinimo,
       horarioLocal: local.horarioLocal,
       etiquetas: local.etiquetas || [],
+      nuevo: local.nuevo === true,
       empaquetado: empaquetadoSalida(local),
       notas: local.notas,
       productos

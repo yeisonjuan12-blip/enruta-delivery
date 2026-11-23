@@ -360,6 +360,7 @@ export async function nuevoLocal(env, local, usuario, rol, ip) {
     telefono: String(local.telefono || ''),
     zonaId: String(local.zonaId || ''),
     etiquetas: Array.isArray(local.etiquetas) ? local.etiquetas : [],
+    nuevo: local.nuevo === true,
     empaquetado: {
       porUnidad: emp.porUnidad === true,
       aplica: emp.aplica === true,

@@ -1486,6 +1486,28 @@ fieldset.mode {
   margin: 22px 0 4px;
 }
 .menu { margin-top: 4px; }
+.menu-group { margin-bottom: 18px; }
+.menu-group:last-child { margin-bottom: 0; }
+.menu-group-title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 0 0 2px;
+  padding: 6px 0;
+  font-size: 12px;
+  font-weight: 900;
+  letter-spacing: .06em;
+  text-transform: uppercase;
+  color: #6b5a2e;
+  border-bottom: 1px solid var(--line);
+}
+.menu-group-title .count {
+  margin-left: auto;
+  font-size: 10.5px;
+  font-weight: 700;
+  letter-spacing: 0;
+  color: var(--muted);
+}
 .menu-row {
   display: flex;
   align-items: center;
@@ -3862,6 +3884,8 @@ fieldset.when .field {
     display: none;
   }
 }
+
+.services-head-after { margin-top: 34px; }
 
 /* Celular: hero compacto para que promos y novedades entren en la primera pantalla */
 @media (max-width: 720px) {

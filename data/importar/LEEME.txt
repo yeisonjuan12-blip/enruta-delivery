@@ -1,0 +1,69 @@
+CÓMO ENVIAR LA INFORMACIÓN DE TUS LOCALES
+==========================================
+
+Opción 1 (recomendada): copia tu carpeta aquí dentro
+----------------------------------------------------
+Pega tu carpeta (o el ZIP) dentro de:
+
+  enruta-delivery\data\importar\
+
+Puede ser tal como la tengas. No hace falta renombrar nada:
+yo reviso lo que hay y te digo qué falta.
+
+Opción 2: dime la ruta
+----------------------
+Si la carpeta ya está en tu PC, solo dime dónde, por ejemplo:
+
+  C:\Users\yeto\Downloads\locales
+  C:\Users\yeto\Desktop\cartas
+
+Yo la leo desde ahí, sin que muevas nada.
+
+Opción 3: un ZIP
+----------------
+Si es un ZIP, ponlo en data\importar\ y dime el nombre.
+Yo lo descomprimo y reviso las fotos y las cartas.
+
+
+QUÉ ME SIRVE ENCONTRAR
+======================
+
+Lo ideal, por cada local:
+
+  Nombre del local
+  Categoría (pollo a la brasa, chifa, pizzas, ceviche, etc.)
+  Dirección
+  Teléfono / WhatsApp
+  Horario
+  Tiempo de entrega
+  Pedido mínimo
+  Carta: foto, PDF, Excel o lista de platos con precios
+  Fotos: portada del local, logo y fotos de platos
+
+No importa si está desordenado, en Word, en Excel, en capturas de
+WhatsApp o en fotos de la carta. Yo lo ordeno.
+
+NOMBRES DE ARCHIVO QUE AYUDAN
+-----------------------------
+Si puedes, nombra las fotos con el nombre del local:
+
+  Al Cilindro - portada.jpg
+  Al Cilindro - carta.jpg
+  Al Cilindro - logo.png
+
+Así sé a qué local va cada imagen. Si no, igual lo reviso.
+
+
+QUÉ HARÉ CON ESO
+================
+1. Optimizo las fotos y las guardo dentro del sitio para que carguen rápido.
+2. Cargo la carta y los precios en la base de datos.
+3. Dejo cada local publicado, con su categoría, horario y tiempo de entrega.
+4. Te muestro el resultado en la web antes de darlo por terminado.
+
+IMPORTANTE
+----------
+- Los precios y horarios los tomo tal como vengan en tu información.
+- Si un local no tiene carta, se queda con productos referenciales hasta
+  que me pases la suya.
+- Las fotos deben ser tuyas o que tengas permiso de usarlas.

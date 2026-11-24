@@ -6,13 +6,13 @@
    se piden primero a la red y, si no hay, se usa la copia guardada.
    ============================================================ */
 
-const VERSION = 'enruta-v19';
+const VERSION = 'enruta-v23';
 const ARMAZON = [
   '/',
   '/index.html',
-  '/css/styles.css?v=34',
-  '/js/arranque.js?v=25',
-  '/js/app.js?v=25',
+  '/css/styles.css?v=36',
+  '/js/arranque.js?v=28',
+  '/js/app.js?v=28',
   '/js/catalogo.js',
   '/assets/marca.jpg',
   '/assets/app/icono-192.png',

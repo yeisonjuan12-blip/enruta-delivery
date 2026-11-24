@@ -16,7 +16,7 @@
     });
   }
 
-  var VERSION = '25';
+  var VERSION = '28';
   var SIGUIENTES = [
     'js/google-config.js',
     'js/google.js',

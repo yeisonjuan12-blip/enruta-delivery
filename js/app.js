@@ -1404,7 +1404,24 @@
     cuerpo += '<div class="modal-menu-head"><h3>Menú digital</h3><span class="count">' + productos.length + ' productos</span></div>';
 
     if (productos.length) {
-      cuerpo += '<div class="menu">' + productos.map((p) => filaProducto(local, p)).join('') + '</div>';
+      // Se agrupa la carta por secciones para que las cartas largas se lean.
+      const orden = ['Entradas', 'Sopas y caldos', 'Platos de fondo', 'Pollo', 'Carnes', 'Mariscos', 'Pizzas y pastas', 'Postres', 'Bebidas'];
+      const mapa = new Map();
+      productos.forEach((p) => {
+        const g = String(p.grupo || 'Carta').trim() || 'Carta';
+        if (!mapa.has(g)) mapa.set(g, []);
+        mapa.get(g).push(p);
+      });
+      const nombres = [...mapa.keys()].sort((a, b) => {
+        const ia = orden.indexOf(a); const ib = orden.indexOf(b);
+        return (ia < 0 ? 99 : ia) - (ib < 0 ? 99 : ib);
+      });
+      cuerpo += '<div class="menu">' + nombres.map((g) =>
+        '<div class="menu-group">' +
+          '<h4 class="menu-group-title">' + esc(g) + ' <span class="count">' + mapa.get(g).length + '</span></h4>' +
+          mapa.get(g).map((p) => filaProducto(local, p)).join('') +
+        '</div>'
+      ).join('') + '</div>';
       if (tieneCarta) {
         cuerpo += '<a class="carta-link" href="' + esc(local.cartaOriginal) + '" target="_blank" rel="noopener">Ver carta original (imagen)</a>';
       }
@@ -2914,6 +2931,15 @@ function filaResumenProducto(par) {
     '</div>';
 }
 
+function filaResumenPlato(l, p) {
+  return '<button type="button" class="res-item" data-local="' + esc(l.id) + '">' +
+    '<span class="res-thumb">' + esc(p.emoji || '🍽️') + '</span>' +
+    '<span class="res-info"><b>' + esc(p.nombre) + '</b><small>' + esc(l.nombre) + ' · ' + esc(p.grupo || 'Carta') + '</small></span>' +
+    '<span class="res-precio">' + money(p.precio) + '</span>' +
+    '<span class="res-ir">Ver</span>' +
+  '</button>';
+}
+
 function renderResultados() {
   const caja = document.getElementById('resultadosBusqueda');
   if (!caja) return;
@@ -2928,9 +2954,30 @@ function renderResultados() {
     });
   });
 
+  // Platos de las cartas de los locales.
+  const platos = [];
+  LOCALES.forEach((l) => {
+    (l.productos || []).forEach((p) => {
+      if (coincide([p.nombre, p.grupo, p.descripcion].join(' '))) platos.push({ l, p });
+    });
+  });
+  // Primero los platos cuyo nombre coincide; después los que coinciden
+  // solo por su sección (por ejemplo, "pizza" con "Pizzas y pastas").
+  const qn = norm(consulta);
+  platos.sort((a, b) => {
+    const an = norm(a.p.nombre).includes(qn) ? 0 : 1;
+    const bn = norm(b.p.nombre).includes(qn) ? 0 : 1;
+    return an - bn;
+  });
+
   const lista = document.getElementById('resLista');
   if (lista) {
     let html = '';
+    if (platos.length) {
+      html += '<p class="res-sub">🍽️ Platos · ' + platos.length + '</p>' +
+        platos.slice(0, 6).map(({ l, p }) => filaResumenPlato(l, p)).join('');
+      if (platos.length > 6) html += '<p class="res-mas">+' + (platos.length - 6) + ' platos más en las cartas</p>';
+    }
     if (productos.length) {
       html += '<p class="res-sub">🏪 En Ruta Market · ' + productos.length + '</p>' +
         productos.slice(0, 7).map(filaResumenProducto).join('');

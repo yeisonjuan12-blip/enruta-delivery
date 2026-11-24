@@ -460,6 +460,8 @@ async function manejarAdmin(env, request, ruta, seg, sesion) {
     } else if (tipo === 'catalogo') {
       exigirAdmin(sesion);
       if (!['licores', 'primera-necesidad'].includes(carpeta)) lanzar(400, 'Catalogo invalido.');
+    } else if (tipo === 'promo') {
+      exigirAdmin(sesion);
     } else {
       lanzar(400, 'Destino de imagen invalido.');
     }

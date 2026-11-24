@@ -3,6 +3,5 @@ Allow: /
 Disallow: /admin/
 Disallow: /server/
 Disallow: /tools/
-Disallow: /data/
 
 Sitemap: https://enrutadelivery.com/sitemap.xml

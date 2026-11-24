@@ -940,13 +940,22 @@
     if (!state.config) {
       try { const cfg = await api('/api/admin/config'); state.config = cfg.config || null; } catch { /* sin zonas */ }
     }
-    const [r, stats] = await Promise.all([
-      api('/api/admin/locales/' + encodeURIComponent(carpeta)),
-      api('/api/admin/estadisticas?local=' + encodeURIComponent(carpeta)).catch(() => null)
-    ]);
+    // El formulario se pinta apenas llega el local. Las estadísticas se
+    // cargan después, en segundo plano, para no bloquear la edición.
+    const r = await api('/api/admin/locales/' + encodeURIComponent(carpeta));
     state.local = r;
-    state.statsLocal = stats;
+    state.statsLocal = null;
     pintarLocalHead();
+    api('/api/admin/estadisticas?local=' + encodeURIComponent(carpeta))
+      .then((stats) => {
+        if (state.localCarpeta !== carpeta) return;
+        state.statsLocal = stats;
+        if (state.localTab === 'productos') {
+          const tab = $('#localTabContent');
+          if (tab) renderTabProductos(tab);
+        }
+      })
+      .catch(() => { /* las ventas son opcionales */ });
   }
 
   function pintarLocalHead() {
@@ -2763,6 +2772,7 @@
     const instagram = redes.instagram || {};
     const delivery = cfg.delivery || {};
     const categorias = listaCategorias();
+    const secciones = cfg.secciones || {};
 
     cont.innerHTML = `
       <div class="page-head">
@@ -2838,6 +2848,34 @@
             </div>`).join('') || '<p class="small muted">Sin categorías.</p>'}
           </div>
           <div class="row mt-16" style="justify-content:flex-end"><button class="btn" type="button" id="pgGuardarCategorias">Guardar categorías</button></div>
+        </div>
+      </div>
+
+      <div class="panel mt-16">
+        <div class="panel-head">
+          <div><h2>Promociones y novedades</h2><p>Son las tarjetas que aparecen arriba en la web. Si dejas una lista vacía, se usan las tarjetas automáticas.</p></div>
+        </div>
+        <div class="panel-body">
+          <div class="row" style="gap:18px;flex-wrap:wrap">
+            <label class="check"><input id="pgNovedadesActiva" type="checkbox" ${secciones.novedades !== false ? 'checked' : ''}> Mostrar Novedades en la web</label>
+            <label class="check"><input id="pgPromosActiva" type="checkbox" ${secciones.promociones !== false ? 'checked' : ''}> Mostrar Promociones en la web</label>
+          </div>
+
+          <div class="row mt-16" style="justify-content:space-between;align-items:center">
+            <h3 style="margin:0">Promociones</h3>
+            <button class="btn btn-sm" type="button" id="pgAgregarPromo">+ Agregar promo</button>
+          </div>
+          <div id="pgPromosLista" class="stack mt-8"></div>
+
+          <div class="row mt-16" style="justify-content:space-between;align-items:center">
+            <h3 style="margin:0">Novedades</h3>
+            <button class="btn btn-sm" type="button" id="pgAgregarNovedad">+ Agregar novedad</button>
+          </div>
+          <div id="pgNovedadesLista" class="stack mt-8"></div>
+
+          <div class="row mt-16" style="justify-content:flex-end">
+            <button class="btn btn-primary" type="button" id="pgGuardarPromos">Guardar promos y novedades</button>
+          </div>
         </div>
       </div>`;
 
@@ -2923,7 +2961,12 @@
           cierre: fila.querySelector('[data-zona-cierre]').value,
           nota: fila.querySelector('[data-zona-nota]').value.trim(),
           dias: $$('[data-zona-dia]', fila).filter((c) => c.checked).map((c) => Number(c.dataset.zonaDia))
-        }))
+        })),
+        // Se conservan tal como estén guardadas para no borrarlas al
+        // guardar el resto de la página. Se editan en su propio panel.
+        secciones: Object.assign({}, state.config && state.config.secciones),
+        promociones: (state.config && Array.isArray(state.config.promociones)) ? state.config.promociones : [],
+        novedades: (state.config && Array.isArray(state.config.novedades)) ? state.config.novedades : []
       };
       try {
         bloquear(btn, true);
@@ -2953,6 +2996,147 @@
         pintarPagina();
       } catch (e) {
         avisarError(e);
+        bloquear(btn, false);
+      }
+    });
+
+    /* ---------- Promociones y novedades ---------- */
+    function filaPromoHtml(p) {
+      const item = p || {};
+      const img = item.imagen
+        ? '<img src="' + esc(item.imagen) + '" alt="" style="width:64px;height:48px;object-fit:cover;border-radius:8px">'
+        : '<span class="small muted">Sin foto</span>';
+      return '<div class="row" data-promo-row data-id="' + esc(item.id || '') + '" style="gap:8px;flex-wrap:wrap;align-items:center;border:1px solid var(--line);border-radius:12px;padding:10px">' +
+        '<label class="check" title="Activa"><input type="checkbox" data-promo-activa ' + (item.activa !== false ? 'checked' : '') + '></label>' +
+        '<input data-promo-emoji value="' + esc(item.emoji || '🔥') + '" maxlength="8" title="Emoji" style="width:54px">' +
+        '<input data-promo-titulo value="' + esc(item.titulo || '') + '" placeholder="Título de la promo" maxlength="60" style="flex:1;min-width:150px">' +
+        '<input data-promo-texto value="' + esc(item.texto || '') + '" placeholder="Texto corto" maxlength="90" style="flex:1;min-width:150px">' +
+        '<span data-promo-preview>' + img + '</span>' +
+        '<label class="btn btn-sm" style="cursor:pointer">Foto<input class="file-input" type="file" accept="image/jpeg,image/png,image/webp" data-promo-archivo></label>' +
+        '<input type="hidden" data-promo-imagen value="' + esc(item.imagen || '') + '">' +
+        '<input data-promo-enlace value="' + esc(item.enlace || '') + '" placeholder="Enlace: local:cantoni o https://…" maxlength="200" style="flex:1;min-width:170px">' +
+        '<input data-promo-boton value="' + esc(item.boton || 'Ver más') + '" placeholder="Botón" maxlength="24" style="width:100px">' +
+        '<button class="icon-btn" type="button" data-quitar-promo title="Quitar promo">✕</button>' +
+      '</div>';
+    }
+
+    function filaNovedadHtml(n) {
+      const item = n || {};
+      const img = item.imagen
+        ? '<img src="' + esc(item.imagen) + '" alt="" style="width:64px;height:48px;object-fit:cover;border-radius:8px">'
+        : '<span class="small muted">Sin foto</span>';
+      return '<div class="row" data-novedad-row data-id="' + esc(item.id || '') + '" style="gap:8px;flex-wrap:wrap;align-items:center;border:1px solid var(--line);border-radius:12px;padding:10px">' +
+        '<label class="check" title="Activa"><input type="checkbox" data-novedad-activa ' + (item.activa !== false ? 'checked' : '') + '></label>' +
+        '<input data-novedad-etiqueta value="' + esc(item.etiqueta || 'Nuevo') + '" maxlength="14" style="width:86px" title="Etiqueta">' +
+        '<input data-novedad-titulo value="' + esc(item.titulo || '') + '" placeholder="Título de la novedad" maxlength="60" style="flex:1;min-width:150px">' +
+        '<input data-novedad-texto value="' + esc(item.texto || '') + '" placeholder="Texto corto" maxlength="90" style="flex:1;min-width:150px">' +
+        '<span data-novedad-preview>' + img + '</span>' +
+        '<label class="btn btn-sm" style="cursor:pointer">Foto<input class="file-input" type="file" accept="image/jpeg,image/png,image/webp" data-novedad-archivo></label>' +
+        '<input type="hidden" data-novedad-imagen value="' + esc(item.imagen || '') + '">' +
+        '<input data-novedad-enlace value="' + esc(item.enlace || '') + '" placeholder="Enlace: local:cantoni o https://…" maxlength="200" style="flex:1;min-width:170px">' +
+        '<button class="icon-btn" type="button" data-quitar-novedad title="Quitar novedad">✕</button>' +
+      '</div>';
+    }
+
+    const contPromosAdmin = $('#pgPromosLista');
+    const contNovedadesAdmin = $('#pgNovedadesLista');
+    const promosGuardadas = Array.isArray(cfg.promociones) ? cfg.promociones : [];
+    const novedadesGuardadas = Array.isArray(cfg.novedades) ? cfg.novedades : [];
+    contPromosAdmin.innerHTML = promosGuardadas.length
+      ? promosGuardadas.map(filaPromoHtml).join('')
+      : '<p class="small muted" data-vacio-promo>Sin promociones propias. Se muestran las tarjetas automáticas.</p>';
+    contNovedadesAdmin.innerHTML = novedadesGuardadas.length
+      ? novedadesGuardadas.map(filaNovedadHtml).join('')
+      : '<p class="small muted" data-vacio-novedad>Sin novedades propias. Se muestran los locales nuevos.</p>';
+
+    $('#pgAgregarPromo').addEventListener('click', () => {
+      const vacio = contPromosAdmin.querySelector('[data-vacio-promo]');
+      if (vacio) vacio.remove();
+      contPromosAdmin.insertAdjacentHTML('beforeend', filaPromoHtml(null));
+    });
+    $('#pgAgregarNovedad').addEventListener('click', () => {
+      const vacio = contNovedadesAdmin.querySelector('[data-vacio-novedad]');
+      if (vacio) vacio.remove();
+      contNovedadesAdmin.insertAdjacentHTML('beforeend', filaNovedadHtml(null));
+    });
+
+    async function subirImagenFila(input) {
+      const esPromo = input.hasAttribute('data-promo-archivo');
+      const fila = input.closest('[data-promo-row], [data-novedad-row]');
+      if (!fila) return;
+      const campo = fila.querySelector(esPromo ? '[data-promo-imagen]' : '[data-novedad-imagen]');
+      const preview = fila.querySelector(esPromo ? '[data-promo-preview]' : '[data-novedad-preview]');
+      const archivo = input.files && input.files[0];
+      if (!archivo) return;
+      try {
+        toast('Subiendo imagen…');
+        const res = await subirImagenArchivo(archivo, {
+          tipoDestino: 'promo', carpeta: 'promos', prefijo: esPromo ? 'promo' : 'novedad'
+        });
+        campo.value = res.ruta;
+        preview.innerHTML = '<img src="' + esc(res.ruta) + '" alt="" style="width:64px;height:48px;object-fit:cover;border-radius:8px">';
+        toast('Imagen lista.');
+      } catch (e) {
+        avisarError(e);
+      }
+    }
+
+    [contPromosAdmin, contNovedadesAdmin].forEach((cont) => {
+      cont.addEventListener('change', (e) => {
+        const input = e.target.closest('[data-promo-archivo], [data-novedad-archivo]');
+        if (input) subirImagenFila(input);
+      });
+      cont.addEventListener('click', (e) => {
+        const quitar = e.target.closest('[data-quitar-promo], [data-quitar-novedad]');
+        if (quitar) quitar.closest('[data-promo-row], [data-novedad-row]').remove();
+      });
+    });
+
+    $('#pgGuardarPromos').addEventListener('click', async () => {
+      const btn = $('#pgGuardarPromos');
+      const promociones = $$('[data-promo-row]', contPromosAdmin).map((fila) => {
+        const titulo = fila.querySelector('[data-promo-titulo]').value.trim();
+        return {
+          id: fila.dataset.id || idDesdeNombre(titulo) || 'promo-' + Date.now(),
+          activa: fila.querySelector('[data-promo-activa]').checked,
+          emoji: fila.querySelector('[data-promo-emoji]').value.trim(),
+          titulo,
+          texto: fila.querySelector('[data-promo-texto]').value.trim(),
+          imagen: fila.querySelector('[data-promo-imagen]').value.trim(),
+          enlace: fila.querySelector('[data-promo-enlace]').value.trim(),
+          boton: fila.querySelector('[data-promo-boton]').value.trim()
+        };
+      }).filter((p) => p.titulo);
+      const novedades = $$('[data-novedad-row]', contNovedadesAdmin).map((fila) => {
+        const titulo = fila.querySelector('[data-novedad-titulo]').value.trim();
+        return {
+          id: fila.dataset.id || idDesdeNombre(titulo) || 'novedad-' + Date.now(),
+          activa: fila.querySelector('[data-novedad-activa]').checked,
+          etiqueta: fila.querySelector('[data-novedad-etiqueta]').value.trim(),
+          titulo,
+          texto: fila.querySelector('[data-novedad-texto]').value.trim(),
+          imagen: fila.querySelector('[data-novedad-imagen]').value.trim(),
+          enlace: fila.querySelector('[data-novedad-enlace]').value.trim()
+        };
+      }).filter((n) => n.titulo);
+
+      const base = state.config || cfg;
+      const nuevas = Object.assign({}, base, {
+        secciones: Object.assign({}, base.secciones, {
+          novedades: $('#pgNovedadesActiva').checked,
+          promociones: $('#pgPromosActiva').checked
+        }),
+        promociones,
+        novedades
+      });
+      try {
+        bloquear(btn, true);
+        const res = await api('/api/admin/config', { method: 'PUT', body: { config: nuevas } });
+        state.config = res.config || nuevas;
+        toast('Promos y novedades actualizadas.');
+      } catch (e) {
+        avisarError(e);
+      } finally {
         bloquear(btn, false);
       }
     });

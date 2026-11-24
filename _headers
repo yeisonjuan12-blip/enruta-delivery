@@ -24,6 +24,16 @@
 /data/*
   Cache-Control: public, max-age=86400
 
+/local/*
+  Cache-Control: public, max-age=3600
+
+/locales.html
+  Cache-Control: public, max-age=3600
+
+/sitemap.xml
+  Content-Type: application/xml; charset=utf-8
+  Cache-Control: public, max-age=3600
+
 /sw.js
   Cache-Control: no-cache
 

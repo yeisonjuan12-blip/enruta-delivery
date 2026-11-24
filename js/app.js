@@ -1183,14 +1183,54 @@
     '</article>';
   }
 
+  function seccionActiva(nombre) {
+    const s = CONFIG.secciones || {};
+    return s[nombre] !== false;
+  }
+
+  function abrirDestino(enlace) {
+    const destino = String(enlace || '').trim();
+    if (!destino) return;
+    if (destino.startsWith('local:')) { abrirLocal(destino.slice(6)); return; }
+    if (/^https?:\/\//i.test(destino)) { window.open(destino, '_blank', 'noopener'); return; }
+    if (destino.startsWith('#')) {
+      const el = document.querySelector(destino);
+      if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      return;
+    }
+    window.location.href = destino;
+  }
+
+  function tarjetaNovedadCustom(n) {
+    const local = n.localId ? localesPorId.get(n.localId) : null;
+    const imagen = n.imagen || (local && local.portada) || '';
+    const enlace = n.enlace || (local ? 'local:' + local.id : '');
+    const media = imagen
+      ? '<div class="novedad-img"><img src="' + esc(imagen) + '" alt="' + esc(n.titulo) + '" loading="lazy" decoding="async"></div>'
+      : '<div class="novedad-img"><span class="local-emoji" aria-hidden="true">' + esc(n.emoji || '✨') + '</span></div>';
+    return '<article class="novedad-card" data-novedad-link="' + esc(enlace) + '" role="button" tabindex="0" aria-label="' + esc(n.titulo) + '">' +
+      '<span class="novedad-badge">' + esc(n.etiqueta || 'Nuevo') + '</span>' +
+      media +
+      '<div class="novedad-body"><b>' + esc(n.titulo) + '</b><small>' + esc(n.texto || '') + '</small></div>' +
+    '</article>';
+  }
+
   function renderNovedades() {
     const sec = document.getElementById('novedades');
     const cont = document.getElementById('novedadesLista');
     if (!sec || !cont) return;
-    const visibles = LOCALES.filter((l) => l.publicado !== false && l.disponible !== false);
+    if (!seccionActiva('novedades')) { sec.hidden = true; cont.innerHTML = ''; return; }
+
+    const propias = (CONFIG.novedades || []).filter((n) => n && n.activa !== false && n.titulo);
+    if (propias.length) {
+      sec.hidden = false;
+      cont.innerHTML = propias.slice(0, 12).map(tarjetaNovedadCustom).join('');
+      return;
+    }
+
+    // Sin novedades propias: se usan los locales nuevos que tengan foto real.
+    const visibles = LOCALES.filter((l) => l.publicado !== false && l.disponible !== false && l.portada);
     let nuevos = visibles.filter((l) => l.nuevo === true);
-    // Si todavía no hay locales marcados como nuevos, se muestran los
-    // últimos que se agregaron al catálogo.
     if (!nuevos.length) nuevos = visibles.slice(-8).reverse();
     const lista = nuevos.slice(0, 10);
     sec.hidden = lista.length === 0;
@@ -1206,9 +1246,33 @@
     '</button>';
   }
 
+  function tarjetaPromoCustom(p) {
+    const imagen = String(p.imagen || '').replace(/'/g, '%27').replace(/"/g, '%22');
+    const estilo = imagen
+      ? "background-image:linear-gradient(180deg, rgba(12,10,6,.10) 20%, rgba(12,10,6,.82) 100%),url('" + imagen + "');background-size:cover;background-position:center;color:#fff;"
+      : '';
+    return '<button type="button" class="promo-card promo-custom ' + esc(p.color || 'promo-amarillo') + '" data-promo-link="' + esc(p.enlace || '') + '" style="' + estilo + '">' +
+      (p.emoji ? '<span class="promo-emoji" aria-hidden="true">' + esc(p.emoji) + '</span>' : '') +
+      '<b>' + esc(p.titulo) + '</b>' +
+      (p.texto ? '<small>' + esc(p.texto) + '</small>' : '') +
+      '<span class="promo-go">' + esc(p.boton || 'Ver más') + ' →</span>' +
+    '</button>';
+  }
+
   function renderPromos() {
+    const sec = document.getElementById('promos');
     const cont = document.getElementById('promosLista');
-    if (!cont) return;
+    if (!sec || !cont) return;
+    if (!seccionActiva('promociones')) { sec.hidden = true; cont.innerHTML = ''; return; }
+
+    const propias = (CONFIG.promociones || []).filter((p) => p && p.activa !== false && p.titulo);
+    if (propias.length) {
+      sec.hidden = false;
+      cont.innerHTML = propias.slice(0, 12).map(tarjetaPromoCustom).join('');
+      return;
+    }
+
+    // Sin promos configuradas: se muestran accesos armados con datos reales.
     const licores = CATALOGOS.find((c) => c.id === 'licores') || { productos: [] };
     const packs = (licores.productos || []).filter((p) => /pack/i.test(String(p.nombre || '')));
     const precios = packs.map((p) => Number(p.precioVenta)).filter((n) => n > 0);
@@ -1240,28 +1304,66 @@
         texto: rapidos + ' locales para pedir', accion: 'rapida', go: 'Ver locales'
       });
     }
+    sec.hidden = false;
     cont.innerHTML = tarjetas.map(tarjetaPromo).join('');
+  }
+
+  function iniciarAnimaciones() {
+    if (!('IntersectionObserver' in window)) return;
+    const reducir = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    const objetivos = $$('.strip, .catalog-head, #localsGrid, #market .market-head, #market .tabs-market, .how .wrap, .about .wrap, .contact .wrap, .services-head-after, .custom-order');
+    if (reducir) {
+      objetivos.forEach((el) => el.classList.add('is-visible'));
+      return;
+    }
+    objetivos.forEach((el) => el.classList.add('reveal'));
+    const observador = new IntersectionObserver((entradas) => {
+      entradas.forEach((e) => {
+        if (!e.isIntersecting) return;
+        e.target.classList.add('is-visible');
+        observador.unobserve(e.target);
+      });
+    }, { rootMargin: '0px 0px -8% 0px', threshold: 0.05 });
+    objetivos.forEach((el) => observador.observe(el));
+  }
+
+  // Permite abrir la carta de un local desde un enlace: /?local=cantoni
+  function abrirDesdeEnlace() {
+    let id = '';
+    try {
+      const pedido = new URLSearchParams(window.location.search).get('local');
+      if (pedido) id = String(pedido).trim();
+      if (!id && window.location.hash.startsWith('#local/')) {
+        id = decodeURIComponent(window.location.hash.slice(7));
+      }
+    } catch (e) { /* enlace inválido */ }
+    if (!id || !localesPorId.has(id)) return;
+    window.setTimeout(() => abrirLocal(id), 160);
   }
 
   function iniciarStrips() {
     const novedades = document.getElementById('novedadesLista');
     if (novedades) {
-      novedades.addEventListener('click', (e) => {
-        const card = e.target.closest('[data-local]');
-        if (card) abrirLocal(card.dataset.local);
-      });
+      const abrirNovedad = (card) => {
+        if (!card) return;
+        if (card.dataset.novedadLink) { abrirDestino(card.dataset.novedadLink); return; }
+        if (card.dataset.local) abrirLocal(card.dataset.local);
+      };
+      novedades.addEventListener('click', (e) => abrirNovedad(e.target.closest('[data-novedad-link], [data-local]')));
       novedades.addEventListener('keydown', (e) => {
         if (e.key !== 'Enter' && e.key !== ' ') return;
-        const card = e.target.closest('[data-local]');
+        const card = e.target.closest('[data-novedad-link], [data-local]');
         if (!card) return;
         e.preventDefault();
-        abrirLocal(card.dataset.local);
+        abrirNovedad(card);
       });
     }
 
     const promos = document.getElementById('promosLista');
     if (promos) {
       promos.addEventListener('click', (e) => {
+        const propio = e.target.closest('[data-promo-link]');
+        if (propio) { abrirDestino(propio.dataset.promoLink); return; }
         const boton = e.target.closest('[data-promo]');
         if (!boton) return;
         const accion = boton.dataset.promo;
@@ -3042,33 +3144,63 @@ function iniciarMarket() {
 let promptInstalar = null;
 
 function iniciarInstalacion() {
-  const caja = document.getElementById('instalarApp');
-  if (!caja) return;
+  const modal = document.getElementById('installModal');
+  if (!modal) return;
   const independiente = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone === true;
-  if (independiente) return;
+  let visto = false;
+  try { visto = localStorage.getItem('enruta.instalar.visto') === '1'; } catch (e) { /* sin storage */ }
+  if (independiente || visto) return;
+
+  const hint = document.getElementById('installHint');
+  const cerrar = () => {
+    modal.hidden = true;
+    try { localStorage.setItem('enruta.instalar.visto', '1'); } catch (e) { /* sin storage */ }
+  };
 
   window.addEventListener('beforeinstallprompt', (e) => {
     e.preventDefault();
     promptInstalar = e;
-    caja.hidden = false;
   });
+  window.addEventListener('appinstalled', cerrar);
 
-  const cerrar = document.getElementById('instalarCerrar');
-  if (cerrar) cerrar.addEventListener('click', () => { caja.hidden = true; });
+  document.getElementById('installClose').addEventListener('click', cerrar);
+  document.getElementById('installLater').addEventListener('click', cerrar);
 
-  const boton = document.getElementById('instalarBtn');
+  const boton = document.getElementById('installGo');
   if (boton) {
     boton.addEventListener('click', async () => {
-      if (!promptInstalar) {
-        caja.hidden = true;
+      if (promptInstalar) {
+        promptInstalar.prompt();
+        try { await promptInstalar.userChoice; } catch (e) { /* sin eleccion */ }
+        promptInstalar = null;
+        cerrar();
         return;
       }
-      promptInstalar.prompt();
-      try { await promptInstalar.userChoice; } catch (e) { /* sin eleccion */ }
-      promptInstalar = null;
-      caja.hidden = true;
+      // Sin el aviso del navegador, se explican los pasos del sistema.
+      const esIOS = /iphone|ipad|ipod/i.test(navigator.userAgent);
+      if (hint) {
+        hint.hidden = false;
+        hint.textContent = esIOS
+          ? 'En iPhone: toca el botón Compartir y elige «Añadir a pantalla de inicio».'
+          : 'Abre el menú del navegador y elige «Instalar aplicación» o «Añadir a pantalla de inicio».';
+      }
     });
   }
+
+  // Se muestra una sola vez, después de la página y del aviso de cookies.
+  const mostrar = () => {
+    modal.hidden = false;
+    try { localStorage.setItem('enruta.instalar.visto', '1'); } catch (e) { /* sin storage */ }
+  };
+  let intentos = 0;
+  const esperar = window.setInterval(() => {
+    intentos++;
+    const cookies = document.getElementById('cookieBanner');
+    if (!cookies || intentos > 50) {
+      window.clearInterval(esperar);
+      mostrar();
+    }
+  }, 400);
 }
 
 function iniciarAppbar() {
@@ -3174,6 +3306,8 @@ function init() {
     iniciarAppbar();
     iniciarMarket();
     iniciarStrips();
+    iniciarAnimaciones();
+    abrirDesdeEnlace();
     iniciarInstalacion();
     activarServicios();
     activarAccesoOculto();

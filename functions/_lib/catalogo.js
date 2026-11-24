@@ -77,20 +77,20 @@ function productosDelLocal(productosRaw, carpeta) {
     if (publicado && !precioValido && variantes.length === 0) continue;
     if (!publicado || !disponible) continue;
 
-    salida.push({
+    // Se envían solo los campos que usa la web: el catálogo baja más rápido.
+    const producto = {
       id: p.id,
       nombre: p.nombre,
-      descripcion: p.descripcion,
       precio: precioValido ? precio : 0,
-      grupo: p.grupo,
-      subcategoria: p.subcategoria,
-      emoji: p.emoji,
-      etiqueta: p.etiqueta,
-      imagen: rutaImagenLocal(p.imagen, carpeta),
-      variantes,
-      extras,
-      origen: p.origen
-    });
+      grupo: p.grupo || 'Carta',
+      emoji: p.emoji || '🍽️'
+    };
+    if (p.descripcion) producto.descripcion = p.descripcion;
+    if (p.etiqueta) producto.etiqueta = p.etiqueta;
+    if (p.imagen) producto.imagen = rutaImagenLocal(p.imagen, carpeta);
+    if (variantes.length) producto.variantes = variantes;
+    if (extras.length) producto.extras = extras;
+    salida.push(producto);
   }
   return salida;
 }

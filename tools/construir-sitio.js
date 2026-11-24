@@ -13,6 +13,7 @@
 const fs = require('fs');
 const path = require('path');
 const { execFileSync } = require('child_process');
+const { generarSeo } = require('./generar-seo.js');
 
 const RAIZ = path.resolve(__dirname, '..');
 const DIST = path.join(RAIZ, 'dist');
@@ -129,7 +130,7 @@ function minificar() {
   return { hechos, ahorro };
 }
 
-function principal() {
+async function principal() {
   if (DIST === RAIZ || RAIZ.startsWith(DIST + path.sep)) {
     throw new Error('La carpeta dist no puede ser la raíz del proyecto.');
   }
@@ -170,6 +171,14 @@ function principal() {
     console.log('Minificados:', min.hechos, 'archivos · ahorro:', (min.ahorro / 1024).toFixed(0), 'KB');
   }
 
+  // Páginas por local, directorio, sitemap y datos estructurados.
+  const seo = await generarSeo(DIST);
+  if (seo.ok) {
+    console.log('SEO:', seo.locales, 'páginas de locales + directorio + sitemap.');
+  } else {
+    console.warn('SEO: no se pudieron generar las páginas de locales (sin conexión a la API).');
+  }
+
   console.log('\nListo.');
   console.log('Archivos copiados:', archivos);
   console.log('Tamaño total:', (bytes / 1024 / 1024).toFixed(2), 'MB');
@@ -177,9 +186,7 @@ function principal() {
   console.log('');
 }
 
-try {
-  principal();
-} catch (error) {
+principal().catch((error) => {
   console.error('\nError:', error.message, '\n');
   process.exit(1);
-}
+});

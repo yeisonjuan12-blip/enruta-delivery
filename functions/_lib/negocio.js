@@ -35,6 +35,22 @@ function plano(valor) {
   return valor === null || valor === undefined ? valor : JSON.parse(JSON.stringify(valor));
 }
 
+// Ejecuta tareas asincronas con un limite de concurrencia. Sirve para leer
+// muchos locales en paralelo sin saturar D1 (antes se leian uno por uno y
+// el panel tardaba varios segundos en abrir).
+async function mapaLimite(items, limite, tarea) {
+  const salida = new Array(items.length);
+  let siguiente = 0;
+  const trabajadores = Array.from({ length: Math.min(limite, items.length) }, async () => {
+    while (siguiente < items.length) {
+      const i = siguiente++;
+      salida[i] = await tarea(items[i], i);
+    }
+  });
+  await Promise.all(trabajadores);
+  return salida;
+}
+
 /* ============================================================
    Locales
    ============================================================ */
@@ -73,8 +89,10 @@ export async function obtenerLocalesAdmin(env, busqueda = '') {
   const indice = await leerIndiceLocales(env);
   const q = normalizarTexto(busqueda);
   const salida = [];
-  for (const carpeta of indice) {
-    const item = await obtenerLocalPorCarpeta(env, carpeta);
+  const items = await mapaLimite(indice, 8, (carpeta) => obtenerLocalPorCarpeta(env, carpeta));
+  for (let indiceActual = 0; indiceActual < indice.length; indiceActual++) {
+    const carpeta = indice[indiceActual];
+    const item = items[indiceActual];
     if (!item) continue;
     const productos = item.productos;
     const publicados = productos.filter((p) => p && p.publicado !== false).length;
@@ -109,6 +127,17 @@ export async function obtenerLocalesAdmin(env, busqueda = '') {
     });
   }
   return salida;
+}
+
+// Solo nombres, sin cargar los productos: se usa en estadisticas para no
+// recorrer todos los catalogos en cada consulta.
+async function obtenerNombresLocales(env) {
+  const indice = await leerIndiceLocales(env);
+  const pares = await mapaLimite(indice, 10, async (carpeta) => {
+    const local = await leerDoc(env, 'local:' + carpeta, null);
+    return [carpeta, local ? String(local.nombre || carpeta) : carpeta];
+  });
+  return Object.fromEntries(pares);
 }
 
 export async function obtenerCategoriasLocales(env) {
@@ -517,6 +546,61 @@ export async function obtenerConfigPublica(env) {
   return config;
 }
 
+function limpiarImagenConfig(valor) {
+  const s = String(valor || '').trim();
+  if (!s) return '';
+  if (!/^(https?:\/\/|\/)/i.test(s)) return '';
+  return s.slice(0, 400);
+}
+
+function limpiarEnlaceConfig(valor) {
+  const s = String(valor || '').trim();
+  if (!s) return '';
+  if (!/^(https?:\/\/|\/|#|local:)/i.test(s)) return '';
+  return s.slice(0, 400);
+}
+
+function limpiarPromociones(lista) {
+  const salida = [];
+  for (const p of Array.isArray(lista) ? lista : []) {
+    if (!p) continue;
+    const titulo = String(p.titulo || '').trim().slice(0, 60);
+    if (!titulo) continue;
+    salida.push({
+      id: convertirAId(String(p.id || titulo), 'promo').slice(0, 48),
+      activa: p.activa !== false,
+      emoji: String(p.emoji || '').trim().slice(0, 8),
+      titulo,
+      texto: String(p.texto || '').trim().slice(0, 90),
+      imagen: limpiarImagenConfig(p.imagen),
+      enlace: limpiarEnlaceConfig(p.enlace),
+      boton: String(p.boton || 'Ver más').trim().slice(0, 24)
+    });
+    if (salida.length >= 12) break;
+  }
+  return salida;
+}
+
+function limpiarNovedades(lista) {
+  const salida = [];
+  for (const n of Array.isArray(lista) ? lista : []) {
+    if (!n) continue;
+    const titulo = String(n.titulo || '').trim().slice(0, 60);
+    if (!titulo) continue;
+    salida.push({
+      id: convertirAId(String(n.id || titulo), 'novedad').slice(0, 48),
+      activa: n.activa !== false,
+      etiqueta: String(n.etiqueta || 'Nuevo').trim().slice(0, 14),
+      titulo,
+      texto: String(n.texto || '').trim().slice(0, 90),
+      imagen: limpiarImagenConfig(n.imagen),
+      enlace: limpiarEnlaceConfig(n.enlace)
+    });
+    if (salida.length >= 12) break;
+  }
+  return salida;
+}
+
 export async function guardarConfigPublica(env, config, usuario, rol, ip) {
   if (!config) lanzar(400, 'Faltan los datos de configuracion.');
   const actual = await leerDoc(env, 'config', null);
@@ -627,6 +711,12 @@ export async function guardarConfigPublica(env, config, usuario, rol, ip) {
     servicios: {
       taximoto: !!(config.servicios && config.servicios.taximoto === true)
     },
+    secciones: {
+      novedades: !(config.secciones && config.secciones.novedades === false),
+      promociones: !(config.secciones && config.secciones.promociones === false)
+    },
+    promociones: limpiarPromociones(config.promociones),
+    novedades: limpiarNovedades(config.novedades),
     plazavea: actual.plazavea
   };
 
@@ -784,6 +874,8 @@ export async function guardarImagenBase64(env, { tipo, carpeta, nombre, base64, 
   } else if (tipo === 'catalogo') {
     if (!CATALOGOS.includes(String(carpeta))) lanzar(400, 'Catalogo invalido.');
     ruta = `media/catalogo/${carpeta}/${archivo}`;
+  } else if (tipo === 'promo') {
+    ruta = `media/promos/${archivo}`;
   } else {
     lanzar(400, 'Destino de imagen invalido.');
   }
@@ -1317,8 +1409,7 @@ export async function obtenerEstadisticasVentas(env, sesion, desde = '', hasta =
   let filtroLocal = String(local || '');
   if (sesion.rol === 'local') filtroLocal = String(sesion.localCarpeta || '');
 
-  const nombresLocales = {};
-  for (const l of await obtenerLocalesAdmin(env)) nombresLocales[l.carpeta] = l.nombre;
+  const nombresLocales = await obtenerNombresLocales(env);
 
   const porDia = new Map();
   for (let f = dDesde; f <= dHasta; f = sumarDias(f, 1)) {

@@ -2875,6 +2875,12 @@
           <div class="row mt-16" style="justify-content:flex-end">
             <button class="btn btn-primary" type="button" id="pgGuardarPromos">Guardar promos y novedades</button>
           </div>
+          <div class="push-send-panel mt-16">
+            <div><b>Enviar recomendación ahora</b><p>Solo llega a personas que activaron las notificaciones.</p></div>
+            <input id="pgPushTitulo" maxlength="60" placeholder="Título del aviso" value="Promos de EnRuta para hoy">
+            <input id="pgPushTexto" maxlength="140" placeholder="Mensaje corto" value="Mira las promos y locales recomendados de Nuevo Chimbote.">
+            <button class="btn" type="button" id="pgEnviarNotificacion">🔔 Enviar aviso</button>
+          </div>
         </div>
       </div>`;
 
@@ -3005,17 +3011,30 @@
       const img = item.imagen
         ? '<img src="' + esc(item.imagen) + '" alt="" style="width:64px;height:48px;object-fit:cover;border-radius:8px">'
         : '<span class="small muted">Sin foto</span>';
-      return '<div class="row" data-promo-row data-id="' + esc(item.id || '') + '" style="gap:8px;flex-wrap:wrap;align-items:center;border:1px solid var(--line);border-radius:12px;padding:10px">' +
+      return '<div class="campaign-row" data-promo-row data-id="' + esc(item.id || '') + '">' +
         '<label class="check" title="Activa"><input type="checkbox" data-promo-activa ' + (item.activa !== false ? 'checked' : '') + '></label>' +
-        '<input data-promo-emoji value="' + esc(item.emoji || '🔥') + '" maxlength="8" title="Emoji" style="width:54px">' +
-        '<input data-promo-titulo value="' + esc(item.titulo || '') + '" placeholder="Título de la promo" maxlength="60" style="flex:1;min-width:150px">' +
-        '<input data-promo-texto value="' + esc(item.texto || '') + '" placeholder="Texto corto" maxlength="90" style="flex:1;min-width:150px">' +
-        '<span data-promo-preview>' + img + '</span>' +
-        '<label class="btn btn-sm" style="cursor:pointer">Foto<input class="file-input" type="file" accept="image/jpeg,image/png,image/webp" data-promo-archivo></label>' +
-        '<input type="hidden" data-promo-imagen value="' + esc(item.imagen || '') + '">' +
-        '<input data-promo-enlace value="' + esc(item.enlace || '') + '" placeholder="Enlace: local:cantoni o https://…" maxlength="200" style="flex:1;min-width:170px">' +
-        '<input data-promo-boton value="' + esc(item.boton || 'Ver más') + '" placeholder="Botón" maxlength="24" style="width:100px">' +
-        '<button class="icon-btn" type="button" data-quitar-promo title="Quitar promo">✕</button>' +
+        '<div class="campaign-main">' +
+          '<div class="campaign-fields">' +
+            '<input data-promo-titulo value="' + esc(item.titulo || '') + '" placeholder="Título de la promo" maxlength="60">' +
+            '<input data-promo-texto value="' + esc(item.texto || '') + '" placeholder="Texto corto / beneficio" maxlength="90">' +
+            '<input data-promo-enlace value="' + esc(item.enlace || '') + '" placeholder="Destino: local:canton o https://…" maxlength="200">' +
+          '</div>' +
+          '<div class="campaign-tools">' +
+            '<input data-promo-emoji value="' + esc(item.emoji || '🔥') + '" maxlength="8" title="Emoji" aria-label="Emoji de promo">' +
+            '<input data-promo-etiqueta value="' + esc(item.etiqueta || 'RECOMENDADO') + '" placeholder="Etiqueta" maxlength="20" aria-label="Etiqueta de promo">' +
+            '<select data-promo-color aria-label="Color de la promo">' +
+              [['promo-amarillo','Amarillo'],['promo-negro','Negro'],['promo-verde','Verde'],['promo-naranja','Naranja']].map(([v,t]) => '<option value="' + v + '"' + ((item.color || 'promo-amarillo') === v ? ' selected' : '') + '>' + t + '</option>').join('') +
+            '</select>' +
+            '<select data-promo-foco aria-label="Encuadre de la foto">' +
+              [['center','Centro'],['top','Arriba'],['bottom','Abajo']].map(([v,t]) => '<option value="' + v + '"' + ((item.foco || 'center') === v ? ' selected' : '') + '>' + t + '</option>').join('') +
+            '</select>' +
+            '<input data-promo-boton value="' + esc(item.boton || 'Ver promo') + '" placeholder="Texto del botón" maxlength="24">' +
+            '<span class="campaign-image" data-promo-preview>' + img + '</span>' +
+            '<label class="btn btn-sm campaign-upload">Cambiar foto<input class="file-input" type="file" accept="image/jpeg,image/png,image/webp" data-promo-archivo></label>' +
+            '<input type="hidden" data-promo-imagen value="' + esc(item.imagen || '') + '">' +
+          '</div>' +
+        '</div>' +
+        '<div class="campaign-actions"><button class="icon-btn" type="button" data-promo-subir title="Mover antes">↑</button><button class="icon-btn" type="button" data-promo-bajar title="Mover después">↓</button><button class="icon-btn" type="button" data-quitar-promo title="Quitar promo">✕</button></div>' +
       '</div>';
     }
 
@@ -3024,16 +3043,19 @@
       const img = item.imagen
         ? '<img src="' + esc(item.imagen) + '" alt="" style="width:64px;height:48px;object-fit:cover;border-radius:8px">'
         : '<span class="small muted">Sin foto</span>';
-      return '<div class="row" data-novedad-row data-id="' + esc(item.id || '') + '" style="gap:8px;flex-wrap:wrap;align-items:center;border:1px solid var(--line);border-radius:12px;padding:10px">' +
+      return '<div class="campaign-row" data-novedad-row data-id="' + esc(item.id || '') + '">' +
         '<label class="check" title="Activa"><input type="checkbox" data-novedad-activa ' + (item.activa !== false ? 'checked' : '') + '></label>' +
-        '<input data-novedad-etiqueta value="' + esc(item.etiqueta || 'Nuevo') + '" maxlength="14" style="width:86px" title="Etiqueta">' +
-        '<input data-novedad-titulo value="' + esc(item.titulo || '') + '" placeholder="Título de la novedad" maxlength="60" style="flex:1;min-width:150px">' +
-        '<input data-novedad-texto value="' + esc(item.texto || '') + '" placeholder="Texto corto" maxlength="90" style="flex:1;min-width:150px">' +
-        '<span data-novedad-preview>' + img + '</span>' +
-        '<label class="btn btn-sm" style="cursor:pointer">Foto<input class="file-input" type="file" accept="image/jpeg,image/png,image/webp" data-novedad-archivo></label>' +
-        '<input type="hidden" data-novedad-imagen value="' + esc(item.imagen || '') + '">' +
-        '<input data-novedad-enlace value="' + esc(item.enlace || '') + '" placeholder="Enlace: local:cantoni o https://…" maxlength="200" style="flex:1;min-width:170px">' +
-        '<button class="icon-btn" type="button" data-quitar-novedad title="Quitar novedad">✕</button>' +
+        '<div class="campaign-main"><div class="campaign-fields">' +
+          '<input data-novedad-titulo value="' + esc(item.titulo || '') + '" placeholder="Título de la novedad" maxlength="60">' +
+          '<input data-novedad-texto value="' + esc(item.texto || '') + '" placeholder="Texto corto" maxlength="90">' +
+          '<input data-novedad-enlace value="' + esc(item.enlace || '') + '" placeholder="Destino: local:canton o https://…" maxlength="200">' +
+        '</div><div class="campaign-tools">' +
+          '<input data-novedad-etiqueta value="' + esc(item.etiqueta || 'NUEVO') + '" maxlength="20" title="Etiqueta">' +
+          '<span class="campaign-image" data-novedad-preview>' + img + '</span>' +
+          '<label class="btn btn-sm campaign-upload">Cambiar foto<input class="file-input" type="file" accept="image/jpeg,image/png,image/webp" data-novedad-archivo></label>' +
+          '<input type="hidden" data-novedad-imagen value="' + esc(item.imagen || '') + '">' +
+        '</div></div>' +
+        '<div class="campaign-actions"><button class="icon-btn" type="button" data-novedad-subir title="Mover antes">↑</button><button class="icon-btn" type="button" data-novedad-bajar title="Mover después">↓</button><button class="icon-btn" type="button" data-quitar-novedad title="Quitar novedad">✕</button></div>' +
       '</div>';
     }
 
@@ -3047,6 +3069,13 @@
     contNovedadesAdmin.innerHTML = novedadesGuardadas.length
       ? novedadesGuardadas.map(filaNovedadHtml).join('')
       : '<p class="small muted" data-vacio-novedad>Sin novedades propias. Se muestran los locales nuevos.</p>';
+
+    const primerDestacado = promosGuardadas.find((p) => p && p.activa !== false && p.titulo) ||
+      novedadesGuardadas.find((n) => n && n.activa !== false && n.titulo);
+    if (primerDestacado) {
+      $('#pgPushTitulo').value = String(primerDestacado.titulo || '').slice(0, 60);
+      $('#pgPushTexto').value = String(primerDestacado.texto || 'Mira esta recomendación en EnRuta Delivery.').slice(0, 140);
+    }
 
     $('#pgAgregarPromo').addEventListener('click', () => {
       const vacio = contPromosAdmin.querySelector('[data-vacio-promo]');
@@ -3099,6 +3128,9 @@
           id: fila.dataset.id || idDesdeNombre(titulo) || 'promo-' + Date.now(),
           activa: fila.querySelector('[data-promo-activa]').checked,
           emoji: fila.querySelector('[data-promo-emoji]').value.trim(),
+          etiqueta: fila.querySelector('[data-promo-etiqueta]').value.trim(),
+          color: fila.querySelector('[data-promo-color]').value,
+          foco: fila.querySelector('[data-promo-foco]').value,
           titulo,
           texto: fila.querySelector('[data-promo-texto]').value.trim(),
           imagen: fila.querySelector('[data-promo-imagen]').value.trim(),
@@ -3134,6 +3166,43 @@
         const res = await api('/api/admin/config', { method: 'PUT', body: { config: nuevas } });
         state.config = res.config || nuevas;
         toast('Promos y novedades actualizadas.');
+      } catch (e) {
+        avisarError(e);
+      } finally {
+        bloquear(btn, false);
+      }
+    });
+
+    [contPromosAdmin, contNovedadesAdmin].forEach((cont) => {
+      cont.addEventListener('click', (e) => {
+        const arriba = e.target.closest('[data-promo-subir], [data-novedad-subir]');
+        const abajo = e.target.closest('[data-promo-bajar], [data-novedad-bajar]');
+        const mover = arriba || abajo;
+        if (!mover) return;
+        const fila = mover.closest('[data-promo-row], [data-novedad-row]');
+        if (!fila) return;
+        if (arriba && fila.previousElementSibling) cont.insertBefore(fila, fila.previousElementSibling);
+        if (abajo && fila.nextElementSibling) cont.insertBefore(fila.nextElementSibling, fila);
+      });
+    });
+
+    $('#pgEnviarNotificacion').addEventListener('click', async () => {
+      const btn = $('#pgEnviarNotificacion');
+      const title = $('#pgPushTitulo').value.trim();
+      const body = $('#pgPushTexto').value.trim();
+      if (!title || !body) return toast('Escribe el título y el mensaje del aviso.', 'err');
+      if (!window.confirm('¿Enviar esta recomendación a quienes aceptaron recibir notificaciones?')) return;
+      const primeraPromo = $$('[data-promo-row]', contPromosAdmin).find((fila) => fila.querySelector('[data-promo-activa]').checked);
+      const destino = primeraPromo ? primeraPromo.querySelector('[data-promo-enlace]').value.trim() : '';
+      let url = '/';
+      if (destino.startsWith('local:')) url = '/?local=' + encodeURIComponent(destino.slice(6));
+      else if (destino.startsWith('/') && !destino.startsWith('//')) url = destino;
+      else if (/^https:\/\/enrutadelivery\.com\//i.test(destino)) url = new URL(destino).pathname + new URL(destino).search;
+      try {
+        bloquear(btn, true);
+        const res = await api('/api/admin/push/enviar', { method: 'POST', body: { title, body, url } });
+        toast('Aviso enviado a ' + (res.enviados || 0) + ' suscriptores.');
+        if (!res.enviados) toast('Aún no hay suscriptores con notificaciones activadas.');
       } catch (e) {
         avisarError(e);
       } finally {

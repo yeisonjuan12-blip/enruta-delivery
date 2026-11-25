@@ -1263,14 +1263,18 @@
 
   function tarjetaPromoCustom(p) {
     const imagen = String(p.imagen || '').replace(/'/g, '%27').replace(/"/g, '%22');
+    const foco = ['center', 'top', 'bottom'].includes(p.foco) ? p.foco : 'center';
     const estilo = imagen
-      ? "background-image:linear-gradient(180deg, rgba(12,10,6,.10) 20%, rgba(12,10,6,.82) 100%),url('" + imagen + "');background-size:cover;background-position:center;color:#fff;"
+      ? "background-image:linear-gradient(180deg, rgba(12,10,6,.02) 8%, rgba(12,10,6,.82) 100%),url('" + imagen + "');background-size:cover;background-position:" + foco + ";color:#fff;"
       : '';
     return '<button type="button" class="promo-card promo-custom ' + esc(p.color || 'promo-amarillo') + '" data-promo-link="' + esc(p.enlace || '') + '" style="' + estilo + '">' +
-      (p.emoji ? '<span class="promo-emoji" aria-hidden="true">' + esc(p.emoji) + '</span>' : '') +
-      '<b>' + esc(p.titulo) + '</b>' +
-      (p.texto ? '<small>' + esc(p.texto) + '</small>' : '') +
-      '<span class="promo-go">' + esc(p.boton || 'Ver más') + ' →</span>' +
+      '<span class="promo-kicker">' + esc(p.etiqueta || 'RECOMENDADO') + '</span>' +
+      '<span class="promo-copy">' +
+        (p.emoji ? '<span class="promo-emoji" aria-hidden="true">' + esc(p.emoji) + '</span>' : '') +
+        '<b>' + esc(p.titulo) + '</b>' +
+        (p.texto ? '<small>' + esc(p.texto) + '</small>' : '') +
+        '<span class="promo-go">' + esc(p.boton || 'Ver más') + ' <span aria-hidden="true">↗</span></span>' +
+      '</span>' +
     '</button>';
   }
 
@@ -1423,6 +1427,81 @@
         }
       });
     }
+  }
+
+  function iniciarNotificacionesPush() {
+    const boton = document.getElementById('pushOptIn');
+    const nota = document.getElementById('pushPrivacy');
+    if (!boton || !('serviceWorker' in navigator) || !('PushManager' in window) || !('Notification' in window)) return;
+
+    const claveBytes = (valor) => {
+      const padding = '='.repeat((4 - valor.length % 4) % 4);
+      const base64 = (valor + padding).replace(/-/g, '+').replace(/_/g, '/');
+      const raw = atob(base64);
+      const bytes = new Uint8Array(raw.length);
+      for (let i = 0; i < raw.length; i++) bytes[i] = raw.charCodeAt(i);
+      return bytes;
+    };
+    const refrescar = async () => {
+      try {
+        const r = await fetch('/api/push/key', { cache: 'no-store' });
+        const d = await r.json();
+        if (!r.ok || !d.enabled || !d.publicKey) return;
+        boton.hidden = false;
+        const registration = await navigator.serviceWorker.ready;
+        const sub = await registration.pushManager.getSubscription();
+        if (sub) {
+          boton.classList.add('is-subscribed');
+          boton.innerHTML = '✓ <span>Avisos activados</span>';
+          if (nota) {
+            nota.hidden = false;
+            nota.textContent = 'Recibirás solo recomendaciones y promociones seleccionadas. Toca el botón para desactivarlas.';
+          }
+        }
+      } catch (e) { /* push opcional; no frenar la página */ }
+    };
+
+    boton.addEventListener('click', async () => {
+      boton.disabled = true;
+      try {
+        const r = await fetch('/api/push/key', { cache: 'no-store' });
+        const d = await r.json();
+        if (!r.ok || !d.enabled || !d.publicKey) throw new Error('Las alertas estarán disponibles pronto.');
+        const registration = await navigator.serviceWorker.ready;
+        let sub = await registration.pushManager.getSubscription();
+        if (sub) {
+          if (!window.confirm('Ya recibes avisos de EnRuta. ¿Quieres desactivarlos?')) return;
+          await fetch('/api/push/subscribe', {
+            method: 'DELETE', headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ endpoint: sub.endpoint })
+          });
+          await sub.unsubscribe();
+          boton.classList.remove('is-subscribed');
+          boton.innerHTML = '🔔 <span>Recibir avisos</span>';
+          if (nota) nota.hidden = true;
+          mostrarToast('Avisos desactivados');
+          return;
+        }
+        const permiso = Notification.permission === 'default' ? await Notification.requestPermission() : Notification.permission;
+        if (permiso !== 'granted') throw new Error('No se activaron los permisos. Puedes habilitarlos en los ajustes del navegador.');
+        sub = await registration.pushManager.subscribe({ userVisibleOnly: true, applicationServerKey: claveBytes(d.publicKey) });
+        const guardado = await fetch('/api/push/subscribe', {
+          method: 'POST', headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ subscription: sub.toJSON() })
+        });
+        const resultado = await guardado.json();
+        if (!guardado.ok) throw new Error(resultado.error || 'No se pudo activar la suscripción.');
+        boton.classList.add('is-subscribed');
+        boton.innerHTML = '✓ <span>Avisos activados</span>';
+        if (nota) { nota.hidden = false; nota.textContent = 'Listo. Te avisaremos solo de promociones y novedades importantes. Puedes desactivarlo aquí cuando quieras.'; }
+        mostrarToast('Recibirás novedades de EnRuta');
+      } catch (e) {
+        mostrarToast(e.message || 'No se pudieron activar las notificaciones');
+      } finally {
+        boton.disabled = false;
+      }
+    });
+    refrescar();
   }
 
   function renderTodo() {
@@ -3397,6 +3476,7 @@ function init() {
     iniciarStrips();
     iniciarAnimaciones();
     abrirDesdeEnlace();
+    iniciarNotificacionesPush();
     iniciarInstalacion();
     activarServicios();
     activarAccesoOculto();

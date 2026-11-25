@@ -33,6 +33,7 @@ import {
 } from '../_lib/auth.js';
 import { leerAuditoria, registrarAuditoria } from '../_lib/almacen.js';
 import { construirCatalogo } from '../_lib/catalogo.js';
+import { VAPID_PUBLIC_KEY, enviarPushALista, guardarSuscripcion, pushDisponible, quitarSuscripcion } from '../_lib/push.js';
 import {
   buscarCarpetaPorLocalId,
   cambiarEstadoPedido,
@@ -223,6 +224,24 @@ async function apiPassword(env, request) {
 async function manejarAdmin(env, request, ruta, seg, sesion) {
   const ip = ipCliente(request);
   const metodo = request.method.toUpperCase();
+
+  if (ruta === '/api/admin/push/enviar' && metodo === 'POST') {
+    exigirAdmin(sesion);
+    const cuerpo = leerCuerpo(await leerJson(request, 65536));
+    try {
+      const resultado = await enviarPushALista(env, cuerpo);
+      await registrarAuditoria(env, {
+        usuario: sesion.usuario,
+        rol: sesion.rol,
+        accion: 'push.enviar',
+        detalle: `Notificación enviada a ${resultado.enviados} suscriptores`,
+        ip
+      });
+      return json(resultado);
+    } catch (error) {
+      return json({ error: String(error && error.message || 'No se pudo enviar la notificación.') }, 503);
+    }
+  }
 
   if (ruta === '/api/admin/estado-sistema' && metodo === 'GET') {
     return json({
@@ -725,6 +744,25 @@ export async function onRequest(context) {
     /* Público */
     if (ruta === '/api/estado' && metodo === 'GET') return await apiEstado();
     if (ruta === '/api/catalogo' && metodo === 'GET') return await apiCatalogo(env);
+
+    if (ruta === '/api/push/key' && metodo === 'GET') {
+      return json({ enabled: pushDisponible(env), publicKey: pushDisponible(env) ? VAPID_PUBLIC_KEY : '' }, 200, {
+        'Cache-Control': 'public, max-age=300'
+      });
+    }
+    if (ruta === '/api/push/subscribe' && (metodo === 'POST' || metodo === 'DELETE')) {
+      const origen = request.headers.get('Origin');
+      if (origen && new URL(request.url).origin !== origen) lanzar(403, 'Origen no permitido.');
+      const cuerpo = leerCuerpo(await leerJson(request, 65536));
+      try {
+        const resultado = metodo === 'POST'
+          ? await guardarSuscripcion(env, cuerpo)
+          : await quitarSuscripcion(env, cuerpo);
+        return json(resultado);
+      } catch (error) {
+        return json({ error: String(error && error.message || 'No se pudo guardar la suscripción.') }, 400);
+      }
+    }
 
     if (ruta === '/api/pedidos' && metodo === 'POST') {
       const cuerpo = await leerJson(request, 1048576);

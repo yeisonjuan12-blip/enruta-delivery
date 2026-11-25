@@ -4080,6 +4080,185 @@ fieldset.when .field {
 .footer-seo { margin-top: 14px; font-size: 12.5px; }
 .footer-seo a { color: #6b5a2e; text-decoration: underline; text-underline-offset: 2px; }
 
+/* Recomendaciones: una sola fila editorial, con fotos y jerarquía clara. */
+.strip {
+  padding: 14px 0 5px;
+  background: linear-gradient(180deg, rgba(255,255,255,.35), transparent 90%);
+}
+.strip-head { align-items: center; margin-bottom: 12px; }
+.strip-head h2 { font-size: clamp(22px, 5vw, 29px); }
+.strip-subtitle { margin-top: 5px; color: var(--muted); font-size: 12.5px; }
+.push-optin {
+  flex: 0 0 auto;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  border: 1px solid #ecd990;
+  border-radius: 999px;
+  background: #fff9dc;
+  color: #5d4c00;
+  padding: 9px 12px;
+  font: inherit;
+  font-size: 11.5px;
+  font-weight: 850;
+  cursor: pointer;
+  box-shadow: 0 5px 14px rgba(93,76,0,.08);
+}
+.push-optin[hidden] { display: none; }
+.push-optin.is-subscribed { border-color: #b5e4c4; background: #effaf2; color: #176b38; }
+.push-optin:disabled { opacity: .65; cursor: wait; }
+.push-privacy { margin: -3px 2px 8px; color: var(--muted); font-size: 11px; }
+.strip-row { gap: 13px; padding: 2px 2px 15px; }
+.promo-card {
+  width: clamp(268px, 76vw, 320px);
+  min-height: 196px;
+  border-radius: 22px;
+  padding: 16px;
+  box-shadow: 0 14px 32px rgba(35,28,16,.13);
+}
+.promo-custom {
+  min-height: 196px;
+  justify-content: flex-end;
+  isolation: isolate;
+}
+.promo-custom::after { display: none; }
+.promo-kicker {
+  position: absolute;
+  z-index: 2;
+  top: 13px;
+  left: 14px;
+  border: 1px solid rgba(255,255,255,.46);
+  border-radius: 999px;
+  padding: 5px 9px;
+  background: rgba(18,17,14,.30);
+  color: #fff;
+  font-size: 9px;
+  line-height: 1;
+  font-weight: 950;
+  letter-spacing: .11em;
+  text-shadow: 0 1px 5px rgba(0,0,0,.3);
+  backdrop-filter: blur(5px);
+}
+.promo-copy {
+  position: relative;
+  z-index: 2;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 4px;
+  max-width: 100%;
+  text-shadow: 0 2px 9px rgba(0,0,0,.5);
+}
+.promo-custom .promo-emoji {
+  display: grid;
+  place-items: center;
+  width: 31px;
+  height: 31px;
+  margin-bottom: 2px;
+  border: 1px solid rgba(255,255,255,.36);
+  border-radius: 10px;
+  background: rgba(255,255,255,.20);
+  font-size: 17px;
+  line-height: 1;
+  backdrop-filter: blur(5px);
+}
+.promo-custom b { font-size: 19px; line-height: 1.12; letter-spacing: -.025em; }
+.promo-custom small { max-width: 95%; font-size: 12px; line-height: 1.3; opacity: .92; }
+.promo-custom .promo-go {
+  margin-top: 8px;
+  padding: 8px 11px;
+  border-radius: 999px;
+  background: #fff;
+  color: #17140c;
+  font-size: 11px;
+  text-shadow: none;
+}
+.novedad-card {
+  width: clamp(244px, 70vw, 286px);
+  border-radius: 22px;
+  box-shadow: 0 12px 28px rgba(35,28,16,.10);
+}
+.novedad-img { height: 112px; }
+.novedad-body { padding: 11px 12px 13px; }
+.novedad-body b { font-size: 14px; }
+.novedad-body small { margin-top: 4px; font-size: 11.5px; }
+.novedad-badge { padding: 5px 9px; font-size: 9px; box-shadow: 0 3px 10px rgba(0,0,0,.14); }
+
+/* El panel de campañas se puede editar cómodamente en móvil y escritorio. */
+.campaign-row {
+  display: grid;
+  grid-template-columns: 22px minmax(0,1fr) auto;
+  align-items: start;
+  gap: 10px;
+  border: 1px solid var(--line);
+  border-radius: 16px;
+  padding: 12px;
+  background: #fff;
+}
+.campaign-main { min-width: 0; display: grid; gap: 9px; }
+.campaign-fields { display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); gap: 8px; }
+.campaign-fields input { min-width: 0; width: 100%; }
+.campaign-fields input:first-child { font-weight: 800; }
+.campaign-fields input:last-child { grid-column: 1 / -1; }
+.campaign-tools { display: flex; align-items: center; gap: 7px; flex-wrap: wrap; }
+.campaign-tools input:not([type="file"]), .campaign-tools select {
+  min-height: 36px;
+  max-width: 150px;
+  border: 1px solid var(--line);
+  border-radius: 9px;
+  background: #fff;
+  color: var(--ink);
+  padding: 6px 9px;
+  font: inherit;
+  font-size: 12px;
+}
+.campaign-tools [data-promo-emoji] { width: 48px; }
+.campaign-tools [data-promo-etiqueta] { width: 126px; }
+.campaign-tools [data-promo-color], .campaign-tools [data-promo-foco] { width: 124px; }
+.campaign-tools [data-promo-boton] { flex: 1 1 120px; }
+.campaign-image { flex: 0 0 auto; width: 68px; height: 48px; display: grid; place-items: center; overflow: hidden; border: 1px solid var(--line); border-radius: 9px; background: #f7f1e8; font-size: 10px; }
+.campaign-image img { width: 100%; height: 100%; object-fit: cover; }
+.campaign-upload { cursor: pointer; }
+.campaign-actions { display: flex; gap: 4px; }
+.push-send-panel {
+  display: grid;
+  grid-template-columns: minmax(160px,1fr) minmax(150px,1fr) minmax(180px,1.2fr) auto;
+  align-items: center;
+  gap: 9px;
+  padding: 13px;
+  border: 1px solid #eadb9a;
+  border-radius: 14px;
+  background: linear-gradient(110deg,#fff9df,#fff);
+}
+.push-send-panel b { font-size: 13px; }
+.push-send-panel p { margin: 2px 0 0; color: var(--muted); font-size: 11px; }
+.push-send-panel input { min-width: 0; width: 100%; }
+
+/* Evitar trabajo de pintado en tarjetas fuera de pantalla. */
+@supports (content-visibility: auto) {
+  #localsGrid .local-card { content-visibility: auto; contain-intrinsic-size: auto 230px; }
+  #market, #servicios, #como-funciona, #nosotros, #contacto { content-visibility: auto; contain-intrinsic-size: auto 720px; }
+}
+
+@media (max-width: 720px) {
+  .strip { padding: 11px 0 3px; }
+  .strip-head { align-items: center; gap: 7px; }
+  .strip-head h2 { font-size: 22px; }
+  .strip-subtitle { max-width: 235px; font-size: 11.5px; }
+  .push-optin { padding: 8px 10px; font-size: 10.5px; }
+  .promo-card { width: min(80vw, 306px); min-height: 192px; }
+  .promo-custom { min-height: 192px; }
+  .novedad-card { width: min(73vw, 278px); }
+  .novedad-img { height: 116px; }
+  .campaign-row { grid-template-columns: 20px minmax(0,1fr); padding: 9px; gap: 7px; }
+  .campaign-main { grid-column: 2; }
+  .campaign-actions { grid-column: 1 / -1; justify-content: flex-end; }
+  .campaign-fields { grid-template-columns: minmax(0,1fr); }
+  .campaign-fields input:last-child { grid-column: auto; }
+  .campaign-tools { gap: 6px; }
+  .push-send-panel { grid-template-columns: 1fr; }
+}
+
 /* Aviso de instalar: una sola vez, al entrar */
 .install-modal {
   position: fixed;

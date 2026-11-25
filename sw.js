@@ -6,17 +6,17 @@
    se piden primero a la red y, si no hay, se usa la copia guardada.
    ============================================================ */
 
-const VERSION = 'enruta-v29';
+const VERSION = 'enruta-v32';
 const ARMAZON = [
   '/',
   '/index.html',
-  '/css/styles.css?v=40',
-  '/js/arranque.js?v=33',
-  '/js/app.js?v=33',
+  '/css/styles.css?v=42',
+  '/js/arranque.js?v=36',
+  '/js/app.js?v=36',
   '/js/catalogo.js',
   '/assets/marca.jpg',
-  '/assets/app/icono-192.png',
-  '/assets/app/icono-512.png',
+  '/assets/app/icono-192.png?v=2',
+  '/assets/app/icono-512.png?v=2',
   '/manifest.webmanifest'
 ];
 
@@ -67,4 +67,36 @@ self.addEventListener('fetch', (evento) => {
       })
       .catch(() => caches.match(peticion).then((guardada) => guardada || caches.match('/index.html')))
   );
+});
+
+// Notificaciones de promociones: solo llegan a quien activó las alertas.
+self.addEventListener('push', (evento) => {
+  let datos = {};
+  try { datos = evento.data ? evento.data.json() : {}; } catch (e) {
+    datos = { body: evento.data ? evento.data.text() : '' };
+  }
+  const titulo = String(datos.title || 'Novedades de EnRuta');
+  const opciones = {
+    body: String(datos.body || 'Mira las promos de hoy en EnRuta Delivery.'),
+    icon: datos.icon || '/assets/app/icono-192.png',
+    badge: datos.badge || '/assets/app/icono-192.png',
+    tag: 'enruta-promociones',
+    renotify: false,
+    data: { url: datos.url || '/' }
+  };
+  evento.waitUntil(self.registration.showNotification(titulo, opciones));
+});
+
+self.addEventListener('notificationclick', (evento) => {
+  evento.notification.close();
+  const destino = new URL(evento.notification.data && evento.notification.data.url || '/', self.location.origin).href;
+  evento.waitUntil(clients.matchAll({ type: 'window', includeUncontrolled: true }).then((ventanas) => {
+    for (const ventana of ventanas) {
+      if (ventana.url.startsWith(self.location.origin) && 'focus' in ventana) {
+        ventana.navigate(destino);
+        return ventana.focus();
+      }
+    }
+    return clients.openWindow(destino);
+  }));
 });

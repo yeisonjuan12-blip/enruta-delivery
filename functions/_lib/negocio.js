@@ -723,6 +723,7 @@ export async function guardarConfigPublica(env, config, usuario, rol, ip) {
     },
     promociones: limpiarPromociones(config.promociones),
     novedades: limpiarNovedades(config.novedades),
+    publicaciones: limpiarPromociones(config.publicaciones),
     plazavea: actual.plazavea
   };
 

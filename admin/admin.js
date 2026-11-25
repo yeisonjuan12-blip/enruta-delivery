@@ -351,6 +351,7 @@
     ventas: ['Ventas', 'Productos más vendidos e ingresos por fecha'],
     catalogos: ['Catálogos', 'Licores y primera necesidad'],
     pagina: ['Página', 'Marca, contacto, zonas y categorías de la web'],
+    portada: ['Portada', 'Promos, novedades y publicaciones de la web'],
     pedidos: ['Pedidos', 'Solicitudes recibidas desde la web'],
     envios: ['Recojo y envío', 'Solicitudes de recojo y entrega de productos'],
     taximotos: ['Taximoto', 'Solicitudes de transporte de personas'],
@@ -406,6 +407,9 @@
       } else if (vista === 'pagina') {
         if (state.sesion.rol !== 'admin') return ir('resumen');
         await vistaPagina();
+      } else if (vista === 'portada') {
+        if (state.sesion.rol !== 'admin') return ir('resumen');
+        await vistaPortada();
       } else if (vista === 'pedidos') {
         await vistaPedidos();
       } else if (vista === 'envios') {
@@ -2716,6 +2720,250 @@
   /* ============================================================
      PÁGINA · CONFIGURACIÓN EDITABLE DE LA WEB
      ============================================================ */
+  async function vistaPortada() {
+    mostrarVista('portada');
+    const cont = $('#view-portada');
+    cont.innerHTML = '<div class="panel"><div class="panel-body muted">Cargando portada…</div></div>';
+    let cfg;
+    try {
+      const res = await api('/api/admin/config');
+      cfg = res.config || {};
+    } catch (e) {
+      cont.innerHTML = '<div class="panel"><div class="panel-body"><p class="form-error">' + esc(e.message) + '</p></div></div>';
+      return;
+    }
+    state.config = cfg;
+
+    // Si todavía no hay lista única, se juntan promos y novedades existentes.
+    if (!Array.isArray(cfg.publicaciones) || !cfg.publicaciones.length) {
+      cfg.publicaciones = [...(cfg.promociones || []), ...(cfg.novedades || [])]
+        .filter((p) => p && p.titulo)
+        .map((p, i) => Object.assign({}, p, {
+          id: p.id || 'pub-' + (i + 1),
+          activa: p.activa !== false,
+          etiqueta: p.etiqueta || (i === 0 ? 'RECOMENDADO' : 'NUEVO'),
+          color: p.color || 'promo-amarillo',
+          foco: p.foco || 'center',
+          boton: p.boton || 'Ver más'
+        }));
+    }
+
+    const secciones = cfg.secciones || {};
+    const activa = !(secciones.promociones === false && secciones.novedades === false);
+    const lista = Array.isArray(cfg.publicaciones) ? cfg.publicaciones : [];
+
+    cont.innerHTML = `
+      <div class="page-head">
+        <div><h2>Portada</h2><p>Las tarjetas que se ven arriba en la web, en el orden que elijas.</p></div>
+        <div class="page-head-actions"><a class="btn" href="../index.html" target="_blank" rel="noopener">Ver portada ↗</a></div>
+      </div>
+
+      <div class="panel">
+        <div class="panel-body">
+          <label class="check"><input id="ptActiva" type="checkbox" ${activa ? 'checked' : ''}> Mostrar la franja de portada</label>
+
+          <div class="row mt-16" style="justify-content:space-between;align-items:center">
+            <div><h3 style="margin:0">Publicaciones</h3><p class="small muted" style="margin:2px 0 0">Promos, novedades o cualquier aviso. La posición 1 sale primero.</p></div>
+            <button class="btn btn-sm" type="button" id="ptAgregar">+ Nueva publicación</button>
+          </div>
+          <div id="ptLista" class="stack mt-8"></div>
+          <p class="hint mt-8">Después de estas publicaciones se agregan automáticamente los locales nuevos y el servicio de recojo y envío.</p>
+
+          <div class="row mt-16" style="justify-content:flex-end">
+            <button class="btn btn-primary" type="button" id="ptGuardar">Guardar portada</button>
+          </div>
+
+          <div class="push-send-panel mt-16">
+            <div><b>Recordar a quien no pide</b><p>Mensaje de antojo para clientes con avisos activados.</p></div>
+            <select id="ptPushPlantilla" aria-label="Mensaje de recordatorio">
+              <option value="0">🍕 ¿Se te antoja una pizza?</option>
+              <option value="1">🍗 Alitas, pizza o pollo</option>
+              <option value="2">🍽️ Hoy no cocines</option>
+              <option value="3">🌮 ¿Un antojo? Pide en EnRuta</option>
+              <option value="4">✨ Promos y locales nuevos</option>
+            </select>
+            <button class="btn" type="button" id="ptEnviarRecordatorio">📣 Enviar recordatorio</button>
+          </div>
+        </div>
+      </div>`;
+
+    function idDesdeNombre(texto) {
+      return String(texto || '')
+        .toLowerCase()
+        .normalize('NFD')
+        .replace(/[\u0300-\u036f]/g, '')
+        .replace(/[^a-z0-9]+/g, '-')
+        .replace(/^-+|-+$/g, '')
+        .slice(0, 48);
+    }
+
+    function colorOptions(valor) {
+      return [['promo-amarillo', 'Amarillo'], ['promo-negro', 'Negro'], ['promo-verde', 'Verde'], ['promo-naranja', 'Naranja']]
+        .map(([v, t]) => '<option value="' + v + '"' + ((valor || 'promo-amarillo') === v ? ' selected' : '') + '>' + t + '</option>').join('');
+    }
+    function focoOptions(valor) {
+      return [['center', 'Centro'], ['top', 'Arriba'], ['bottom', 'Abajo']]
+        .map(([v, t]) => '<option value="' + v + '"' + ((valor || 'center') === v ? ' selected' : '') + '>' + t + '</option>').join('');
+    }
+    function filaPub(p, i) {
+      const item = p || {};
+      const img = item.imagen
+        ? '<img src="' + esc(item.imagen) + '" alt="" style="width:76px;height:52px;object-fit:cover">'
+        : '<span>Sin foto</span>';
+      const destinoLocal = String(item.enlace || '').match(/^local:(.+)$/);
+      const localDestino = destinoLocal ? (state.locales || []).find((l) => l.id === destinoLocal[1]) : null;
+      const avisoOculto = destinoLocal && (!localDestino || !localDestino.publicado)
+        ? '<p class="small" style="color:#b96b00;margin:2px 0 0">Ese local está oculto: esta tarjeta no se muestra en la web.</p>'
+        : '';
+      return '<div class="campaign-row" data-pub-row data-id="' + esc(item.id || '') + '">' +
+        '<label class="check" title="Activa"><input type="checkbox" data-pub-activa ' + (item.activa !== false ? 'checked' : '') + '></label>' +
+        '<div class="campaign-main">' +
+          '<div class="campaign-fields">' +
+            '<input data-pub-titulo value="' + esc(item.titulo || '') + '" placeholder="Título de la publicación" maxlength="60">' +
+            '<input data-pub-texto value="' + esc(item.texto || '') + '" placeholder="Texto o beneficio" maxlength="90">' +
+            '<input data-pub-enlace value="' + esc(item.enlace || '') + '" placeholder="Destino: local:canton o https://…" maxlength="300">' +
+            avisoOculto +
+          '</div>' +
+          '<div class="campaign-tools">' +
+            '<input data-pub-pos type="number" min="1" value="' + (i + 1) + '" title="Posición" aria-label="Posición" style="width:62px">' +
+            '<input data-pub-etiqueta value="' + esc(item.etiqueta || 'RECOMENDADO') + '" maxlength="20" placeholder="Etiqueta">' +
+            '<input data-pub-emoji value="' + esc(item.emoji || '🔥') + '" maxlength="8" title="Emoji" style="width:48px">' +
+            '<select data-pub-color aria-label="Color">' + colorOptions(item.color) + '</select>' +
+            '<select data-pub-foco aria-label="Encuadre">' + focoOptions(item.foco) + '</select>' +
+            '<input data-pub-boton value="' + esc(item.boton || 'Ver más') + '" maxlength="24" placeholder="Botón">' +
+            '<span class="campaign-image" data-pub-preview>' + img + '</span>' +
+            '<label class="btn btn-sm campaign-upload">Foto<input class="file-input" type="file" accept="image/jpeg,image/png,image/webp" data-pub-archivo></label>' +
+            '<input type="hidden" data-pub-imagen value="' + esc(item.imagen || '') + '">' +
+          '</div>' +
+        '</div>' +
+        '<div class="campaign-actions">' +
+          '<button class="icon-btn" type="button" data-pub-subir title="Subir">↑</button>' +
+          '<button class="icon-btn" type="button" data-pub-bajar title="Bajar">↓</button>' +
+          '<button class="icon-btn" type="button" data-quitar-pub title="Quitar">✕</button>' +
+        '</div>' +
+      '</div>';
+    }
+
+    const contLista = $('#ptLista');
+    function pintarPortada(items) {
+      contLista.innerHTML = items.length
+        ? items.map(filaPub).join('')
+        : '<p class="small muted" data-vacio-pub>Sin publicaciones propias. Se mostrarán los locales nuevos automáticamente.</p>';
+    }
+    pintarPortada(lista);
+
+    function renumerar() {
+      $$('[data-pub-row]', contLista).forEach((fila, i) => {
+        const pos = fila.querySelector('[data-pub-pos]');
+        if (pos) pos.value = String(i + 1);
+      });
+    }
+
+    $('#ptAgregar').addEventListener('click', () => {
+      const vacio = contLista.querySelector('[data-vacio-pub]');
+      if (vacio) vacio.remove();
+      contLista.insertAdjacentHTML('beforeend', filaPub({}, $$('[data-pub-row]', contLista).length));
+      renumerar();
+    });
+
+    contLista.addEventListener('click', (e) => {
+      const fila = e.target.closest('[data-pub-row]');
+      if (!fila) return;
+      if (e.target.closest('[data-quitar-pub]')) { fila.remove(); renumerar(); return; }
+      const subir = e.target.closest('[data-pub-subir]');
+      const bajar = e.target.closest('[data-pub-bajar]');
+      if (subir && fila.previousElementSibling) { contLista.insertBefore(fila, fila.previousElementSibling); renumerar(); }
+      if (bajar && fila.nextElementSibling) { contLista.insertBefore(fila.nextElementSibling, fila); renumerar(); }
+    });
+
+    contLista.addEventListener('change', async (e) => {
+      const fila = e.target.closest('[data-pub-row]');
+      if (!fila) return;
+      if (e.target.matches('[data-pub-pos]')) {
+        const destino = Math.max(0, Math.min($$('[data-pub-row]', contLista).length - 1, Number(e.target.value) - 1));
+        const filas = $$('[data-pub-row]', contLista);
+        const actual = filas.indexOf(fila);
+        if (destino !== actual) {
+          const referencia = filas[destino];
+          if (destino < actual) contLista.insertBefore(fila, referencia);
+          else contLista.insertBefore(fila, referencia.nextElementSibling);
+        }
+        renumerar();
+        return;
+      }
+      const input = e.target.closest('[data-pub-archivo]');
+      if (!input) return;
+      const archivo = input.files && input.files[0];
+      if (!archivo) return;
+      try {
+        toast('Subiendo foto…');
+        const res = await subirImagenArchivo(archivo, { tipoDestino: 'promo', carpeta: 'promos', prefijo: 'portada' });
+        fila.querySelector('[data-pub-imagen]').value = res.ruta;
+        fila.querySelector('[data-pub-preview]').innerHTML = '<img src="' + esc(res.ruta) + '" alt="" style="width:76px;height:52px;object-fit:cover">';
+        toast('Foto lista.');
+      } catch (err) {
+        avisarError(err);
+      }
+    });
+
+    $('#ptGuardar').addEventListener('click', async () => {
+      const btn = $('#ptGuardar');
+      const publicaciones = $$('[data-pub-row]', contLista).map((fila) => {
+        const titulo = fila.querySelector('[data-pub-titulo]').value.trim();
+        return {
+          id: fila.dataset.id || idDesdeNombre(titulo) || 'pub-' + Date.now(),
+          activa: fila.querySelector('[data-pub-activa]').checked,
+          etiqueta: fila.querySelector('[data-pub-etiqueta]').value.trim(),
+          emoji: fila.querySelector('[data-pub-emoji]').value.trim(),
+          color: fila.querySelector('[data-pub-color]').value,
+          foco: fila.querySelector('[data-pub-foco]').value,
+          titulo,
+          texto: fila.querySelector('[data-pub-texto]').value.trim(),
+          imagen: fila.querySelector('[data-pub-imagen]').value.trim(),
+          enlace: fila.querySelector('[data-pub-enlace]').value.trim(),
+          boton: fila.querySelector('[data-pub-boton]').value.trim()
+        };
+      }).filter((p) => p.titulo);
+      const activo = $('#ptActiva').checked;
+      const nuevas = Object.assign({}, cfg, {
+        secciones: Object.assign({}, cfg.secciones, { novedades: activo, promociones: activo }),
+        publicaciones
+      });
+      try {
+        bloquear(btn, true);
+        const res = await api('/api/admin/config', { method: 'PUT', body: { config: nuevas } });
+        state.config = res.config || nuevas;
+        toast('Portada actualizada. La web ya muestra el nuevo orden.');
+      } catch (e) {
+        avisarError(e);
+      } finally {
+        bloquear(btn, false);
+      }
+    });
+
+    const RECORDATORIOS = [
+      { title: '¿Se te antoja una pizza? 🍕', body: 'Pide en EnRuta: pizzas, alitas y más en Nuevo Chimbote.' },
+      { title: 'Alitas, pizza o pollo 🍗', body: 'Tus locales de Nuevo Chimbote están listos. Pide por EnRuta.' },
+      { title: 'Hoy no cocines 🍽️', body: 'Elige tu local favorito y pide por WhatsApp con EnRuta.' },
+      { title: '¿Un antojo? Pide en EnRuta', body: 'Chifa, parrillas, alitas, pizzas y postres con delivery.' },
+      { title: 'Promos y locales nuevos', body: 'Entra a EnRuta y mira lo nuevo de Nuevo Chimbote.' }
+    ];
+    $('#ptEnviarRecordatorio').addEventListener('click', async () => {
+      const btn = $('#ptEnviarRecordatorio');
+      const mensaje = RECORDATORIOS[Number($('#ptPushPlantilla').value) || 0] || RECORDATORIOS[0];
+      if (!window.confirm('¿Enviar «' + mensaje.title + '» a quienes aceptaron avisos?')) return;
+      try {
+        bloquear(btn, true);
+        const res = await api('/api/admin/push/enviar', { method: 'POST', body: Object.assign({}, mensaje, { url: '/' }) });
+        toast('Recordatorio enviado a ' + (res.enviados || 0) + ' suscriptores.');
+      } catch (e) {
+        avisarError(e);
+      } finally {
+        bloquear(btn, false);
+      }
+    });
+  }
+
   async function vistaPagina() {
     mostrarVista('pagina');
     const cont = $('#view-pagina');
@@ -2851,7 +3099,7 @@
         </div>
       </div>
 
-      <div class="panel mt-16">
+      <div class="panel mt-16" id="panelPortadaPagina">
         <div class="panel-head">
           <div><h2>Promociones y novedades</h2><p>Todo aparece en una sola franja arriba en la web. Si dejas las listas vacías, se usan las tarjetas automáticas y los locales nuevos.</p></div>
         </div>
@@ -2983,7 +3231,8 @@
         // guardar el resto de la página. Se editan en su propio panel.
         secciones: Object.assign({}, state.config && state.config.secciones),
         promociones: (state.config && Array.isArray(state.config.promociones)) ? state.config.promociones : [],
-        novedades: (state.config && Array.isArray(state.config.novedades)) ? state.config.novedades : []
+        novedades: (state.config && Array.isArray(state.config.novedades)) ? state.config.novedades : [],
+        publicaciones: (state.config && Array.isArray(state.config.publicaciones)) ? state.config.publicaciones : []
       };
       try {
         bloquear(btn, true);

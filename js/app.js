@@ -1231,22 +1231,23 @@
   function tarjetaDestacada(t) {
     const imagen = String(t.imagen || '').replace(/'/g, '%27').replace(/"/g, '%22');
     const foco = ['center', 'top', 'bottom'].includes(t.foco) ? t.foco : 'center';
-    const estilo = imagen
-      ? "background-image:linear-gradient(180deg, rgba(12,10,6,.02) 8%, rgba(12,10,6,.84) 100%),url('" + imagen + "');background-size:cover;background-position:" + foco + ";"
+    const mediaEstilo = imagen
+      ? "background-image:url('" + imagen + "');background-size:cover;background-position:" + foco + ";"
       : '';
     let atributo = '';
     if (t.servicio) atributo = ' data-service-open="' + esc(t.servicio) + '"';
     else if (t.accion) atributo = ' data-promo="' + esc(t.accion) + '"';
     else if (t.local) atributo = ' data-local="' + esc(t.local) + '"';
     else atributo = ' data-promo-link="' + esc(t.enlace || '') + '"';
-    return '<button type="button" class="promo-card reco-card ' + (imagen ? 'promo-custom ' : 'reco-solid ') +
-      esc(t.color || 'promo-amarillo') + '"' + atributo + ' style="' + estilo + '">' +
-      '<span class="promo-kicker">' + esc(t.etiqueta || 'RECOMENDADO') + '</span>' +
-      '<span class="promo-copy">' +
-        '<span class="promo-emoji" aria-hidden="true">' + esc(t.emoji || '✨') + '</span>' +
+    return '<button type="button" class="reco-card" ' + atributo + '>' +
+      '<span class="reco-media ' + esc(t.color || 'promo-amarillo') + (imagen ? ' reco-media-img' : '') + '" style="' + mediaEstilo + '">' +
+        '<span class="reco-kicker">' + esc(t.etiqueta || 'RECOMENDADO') + '</span>' +
+        (imagen ? '' : '<span class="reco-emoji" aria-hidden="true">' + esc(t.emoji || '✨') + '</span>') +
+      '</span>' +
+      '<span class="reco-body">' +
         '<b>' + esc(t.titulo) + '</b>' +
         (t.texto ? '<small>' + esc(t.texto) + '</small>' : '') +
-        '<span class="promo-go">' + esc(t.boton || 'Ver más') + ' ↗</span>' +
+        '<span class="reco-go">' + esc(t.boton || 'Ver más') + ' <span aria-hidden="true">↗</span></span>' +
       '</span>' +
     '</button>';
   }
@@ -1265,48 +1266,61 @@
     const vistos = new Set();
     const agregar = (t) => {
       if (!t || !t.titulo) return;
+      // Si la tarjeta apunta a un local oculto o eliminado, no se muestra.
+      const enlace = String(t.enlace || '');
+      if (enlace.startsWith('local:') && !localesPorId.has(enlace.slice(6))) return;
       const clave = norm(t.titulo);
       if (vistos.has(clave)) return;
       vistos.add(clave);
       tarjetas.push(t);
     };
 
-    // 1) Promos del panel (o accesos automáticos si no hay).
     const propias = (CONFIG.promociones || []).filter((p) => p && p.activa !== false && p.titulo);
-    if (propias.length) {
-      propias.slice(0, 12).forEach((p) => agregar({
+    const novedades = (CONFIG.novedades || []).filter((n) => n && n.activa !== false && n.titulo);
+    const publicaciones = (CONFIG.publicaciones || []).filter((p) => p && p.activa !== false && p.titulo);
+
+    if (publicaciones.length) {
+      // Lista única de portada, en el orden elegido en el panel.
+      publicaciones.slice(0, 20).forEach((p) => agregar({
         imagen: p.imagen, foco: p.foco, color: p.color,
         etiqueta: p.etiqueta || 'RECOMENDADO', emoji: p.emoji,
         titulo: p.titulo, texto: p.texto, boton: p.boton || 'Ver más', enlace: p.enlace
       }));
     } else {
-      const licores = CATALOGOS.find((c) => c.id === 'licores') || { productos: [] };
-      const packs = (licores.productos || []).filter((p) => /pack/i.test(String(p.nombre || '')));
-      const precios = packs.map((p) => Number(p.precioVenta)).filter((n) => n > 0);
-      const minPack = precios.length ? Math.min.apply(null, precios) : 0;
-      const rapidos = LOCALES.filter((l) => l.categoriaId === 'comida-rapida' && l.publicado !== false).length;
+      // Compatibilidad con la configuración anterior.
+      if (propias.length) {
+        propias.slice(0, 12).forEach((p) => agregar({
+          imagen: p.imagen, foco: p.foco, color: p.color,
+          etiqueta: p.etiqueta || 'RECOMENDADO', emoji: p.emoji,
+          titulo: p.titulo, texto: p.texto, boton: p.boton || 'Ver más', enlace: p.enlace
+        }));
+      } else {
+        const licores = CATALOGOS.find((c) => c.id === 'licores') || { productos: [] };
+        const packs = (licores.productos || []).filter((p) => /pack/i.test(String(p.nombre || '')));
+        const precios = packs.map((p) => Number(p.precioVenta)).filter((n) => n > 0);
+        const minPack = precios.length ? Math.min.apply(null, precios) : 0;
+        const rapidos = LOCALES.filter((l) => l.categoriaId === 'comida-rapida' && l.publicado !== false).length;
 
-      if (minPack > 0) agregar({
-        color: 'promo-amarillo', emoji: '🍻', etiqueta: 'PRECIO REAL', titulo: 'Packs de licores',
-        texto: 'Desde ' + money(minPack), boton: 'Ver packs', accion: 'packs'
-      });
-      if (rapidos) agregar({
-        color: 'promo-naranja', emoji: '🍔', etiqueta: 'COMIDA', titulo: 'Comida rápida',
-        texto: rapidos + ' locales para pedir', boton: 'Ver locales', accion: 'rapida'
-      });
+        if (minPack > 0) agregar({
+          color: 'promo-amarillo', emoji: '🍻', etiqueta: 'PRECIO REAL', titulo: 'Packs de licores',
+          texto: 'Desde ' + money(minPack), boton: 'Ver packs', accion: 'packs'
+        });
+        if (rapidos) agregar({
+          color: 'promo-naranja', emoji: '🍔', etiqueta: 'COMIDA', titulo: 'Comida rápida',
+          texto: rapidos + ' locales para pedir', boton: 'Ver locales', accion: 'rapida'
+        });
+      }
+
+      novedades.slice(0, 8).forEach((n) => agregar({
+        imagen: n.imagen, foco: n.foco, color: n.color,
+        etiqueta: n.etiqueta || 'NUEVO', emoji: n.emoji || '✨',
+        titulo: n.titulo, texto: n.texto, boton: n.boton || 'Ver más', enlace: n.enlace
+      }));
     }
-
-    // 2) Novedades del panel.
-    const novedades = (CONFIG.novedades || []).filter((n) => n && n.activa !== false && n.titulo);
-    novedades.slice(0, 8).forEach((n) => agregar({
-      imagen: n.imagen, foco: n.foco, color: n.color,
-      etiqueta: n.etiqueta || 'NUEVO', emoji: n.emoji || '✨',
-      titulo: n.titulo, texto: n.texto, boton: n.boton || 'Ver más', enlace: n.enlace
-    }));
 
     // 3) Locales nuevos siempre, sin repetir los que ya estén enlazados.
     const enlazados = new Set();
-    [...propias, ...novedades].forEach((x) => {
+    [...publicaciones, ...propias, ...novedades].forEach((x) => {
       const enlace = String(x.enlace || '');
       if (enlace.startsWith('local:')) enlazados.add(enlace.slice(6));
     });

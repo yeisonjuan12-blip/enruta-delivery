@@ -566,6 +566,9 @@ code, .mono { font-family: var(--mono); font-size: .88em; }
   .chart { height: 150px; }
 }
 
+/* La portada se edita en su propia pestaña */
+#panelPortadaPagina { display: none !important; }
+
 /* Editor visual de promociones y novedades */
 .campaign-row {
   display: grid;

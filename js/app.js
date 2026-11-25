@@ -67,6 +67,8 @@
     marketTab: 'licores',
     resTab: 'locales',
     catCatalogos: {},
+    ordenCatalogos: {},
+    limitesCatalogos: {},
     q: '',
     cart: [],
     activeLocal: null,
@@ -1057,6 +1059,21 @@
     }).map((x) => x.p);
   }
 
+  function ordenarCatalogo(catalogoId, lista) {
+    const orden = state.ordenCatalogos[catalogoId] || 'reco';
+    const copia = lista.slice();
+    if (orden === 'precio-asc') {
+      return copia.sort((a, b) => (Number(a.precioVenta) || 0) - (Number(b.precioVenta) || 0));
+    }
+    if (orden === 'precio-desc') {
+      return copia.sort((a, b) => (Number(b.precioVenta) || 0) - (Number(a.precioVenta) || 0));
+    }
+    if (orden === 'nombre') {
+      return copia.sort((a, b) => String(a.nombre || '').localeCompare(String(b.nombre || ''), 'es'));
+    }
+    return ordenarProductos(catalogoId, lista);
+  }
+
   function bloqueCategoria(sec, cat, categoria, items) {
     const catId = categoria ? categoria.id : 'otros';
     const abierto = !!(state.expandidos[sec.id] && state.expandidos[sec.id][catId]);
@@ -1092,9 +1109,18 @@
       // Los packs (six pack, four pack, twelve pack) ya vienen con su
       // precio real de Tambo; este filtro los reúne sin alterar el resto.
       if (sec.id === 'licores') chips.splice(1, 0, { id: 'packs', nombre: '🍻 Packs' });
+      let extra = '';
+      if (sec.id === 'licores') {
+        const orden = state.ordenCatalogos.licores || 'reco';
+        extra = '<select class="sort-select" id="ordenLicores" aria-label="Ordenar licores">' +
+          [['reco', 'Recomendados'], ['precio-asc', 'Menor precio'], ['precio-desc', 'Mayor precio'], ['nombre', 'Nombre A-Z']]
+            .map(([v, t]) => '<option value="' + v + '"' + (orden === v ? ' selected' : '') + '>' + t + '</option>')
+            .join('') +
+        '</select>';
+      }
       cont.innerHTML = chips.map((c) =>
         '<button type="button" class="chip' + (chipsActivo === c.id ? ' is-active' : '') + '" data-cat="' + esc(c.id) + '">' + esc(c.nombre) + '</button>'
-      ).join('');
+      ).join('') + extra;
     }
 
     const esPacks = seleccion === 'packs';
@@ -1105,7 +1131,17 @@
       return productoCatalogoCoincide(cat, p);
     });
 
-    if (state.q) {
+    if (!state.q && sec.id === 'licores') {
+      // Licores: lista plana, ordenada y con "Ver más" para no alargar la página.
+      const ordenada = ordenarCatalogo(sec.id, lista);
+      const limite = state.limitesCatalogos.licores || 12;
+      const visibles = ordenada.slice(0, limite);
+      const restantes = ordenada.length - visibles.length;
+      grid.innerHTML = visibles.map((p) => tarjetaCatalogo(cat, p)).join('') +
+        (restantes > 0
+          ? '<div class="cat-more cat-more-global"><button type="button" class="btn btn-ghost" data-catalogo-mas="licores">Ver más · ' + restantes + ' restantes</button></div>'
+          : '');
+    } else if (state.q) {
       // Resultados de búsqueda: lista plana completa en todas las categorías.
       grid.innerHTML = ordenarProductos(sec.id, lista).map((p) => tarjetaCatalogo(cat, p)).join('');
     } else if (seleccion !== 'todo') {
@@ -1215,27 +1251,6 @@
     '</article>';
   }
 
-  function renderNovedades() {
-    const sec = document.getElementById('novedades');
-    const cont = document.getElementById('novedadesLista');
-    if (!sec || !cont) return;
-    if (!seccionActiva('novedades')) { sec.hidden = true; cont.innerHTML = ''; return; }
-
-    const propias = (CONFIG.novedades || []).filter((n) => n && n.activa !== false && n.titulo);
-    if (propias.length) {
-      sec.hidden = false;
-      cont.innerHTML = propias.slice(0, 12).map(tarjetaNovedadCustom).join('');
-      return;
-    }
-
-    // Sin novedades propias: se usan los locales nuevos que tengan foto real.
-    const visibles = LOCALES.filter((l) => l.publicado !== false && l.disponible !== false && l.portada);
-    let nuevos = visibles.filter((l) => l.nuevo === true);
-    if (!nuevos.length) nuevos = visibles.slice(-8).reverse();
-    const lista = nuevos.slice(0, 10);
-    sec.hidden = lista.length === 0;
-    cont.innerHTML = lista.map(tarjetaNovedad).join('');
-  }
 
   function tarjetaPromo(p) {
     return '<button type="button" class="promo-card ' + p.clase + '" data-promo="' + esc(p.accion) + '">' +
@@ -1263,49 +1278,68 @@
     const sec = document.getElementById('promos');
     const cont = document.getElementById('promosLista');
     if (!sec || !cont) return;
-    if (!seccionActiva('promociones')) { sec.hidden = true; cont.innerHTML = ''; return; }
-
-    const propias = (CONFIG.promociones || []).filter((p) => p && p.activa !== false && p.titulo);
-    if (propias.length) {
-      sec.hidden = false;
-      cont.innerHTML = propias.slice(0, 12).map(tarjetaPromoCustom).join('');
+    if (!seccionActiva('promociones') && !seccionActiva('novedades')) {
+      sec.hidden = true;
+      cont.innerHTML = '';
       return;
     }
 
-    // Sin promos configuradas: se muestran accesos armados con datos reales.
-    const licores = CATALOGOS.find((c) => c.id === 'licores') || { productos: [] };
-    const packs = (licores.productos || []).filter((p) => /pack/i.test(String(p.nombre || '')));
-    const precios = packs.map((p) => Number(p.precioVenta)).filter((n) => n > 0);
-    const minPack = precios.length ? Math.min.apply(null, precios) : 0;
-    const despensa = CATALOGOS.find((c) => c.id === 'primera-necesidad');
-    const totalDespensa = (despensa && despensa.productos ? despensa.productos.length : 0);
-    const rapidos = LOCALES.filter((l) => l.categoriaId === 'comida-rapida' && l.publicado !== false).length;
+    let html = '';
 
-    const tarjetas = [];
-    if (minPack > 0) {
+    // 1) Promos propias del panel.
+    const propias = (CONFIG.promociones || []).filter((p) => p && p.activa !== false && p.titulo);
+    if (propias.length) {
+      html += propias.slice(0, 12).map(tarjetaPromoCustom).join('');
+    } else {
+      // Sin promos propias: accesos armados con datos reales.
+      const licores = CATALOGOS.find((c) => c.id === 'licores') || { productos: [] };
+      const packs = (licores.productos || []).filter((p) => /pack/i.test(String(p.nombre || '')));
+      const precios = packs.map((p) => Number(p.precioVenta)).filter((n) => n > 0);
+      const minPack = precios.length ? Math.min.apply(null, precios) : 0;
+      const despensa = CATALOGOS.find((c) => c.id === 'primera-necesidad');
+      const totalDespensa = (despensa && despensa.productos ? despensa.productos.length : 0);
+      const rapidos = LOCALES.filter((l) => l.categoriaId === 'comida-rapida' && l.publicado !== false).length;
+
+      const tarjetas = [];
+      if (minPack > 0) {
+        tarjetas.push({
+          clase: 'promo-amarillo', emoji: '🍻', titulo: 'Packs de licores',
+          texto: 'Desde ' + money(minPack) + ' · precio real', accion: 'packs', go: 'Ver packs'
+        });
+      }
       tarjetas.push({
-        clase: 'promo-amarillo', emoji: '🍻', titulo: 'Packs de licores',
-        texto: 'Desde ' + money(minPack) + ' · precio real', accion: 'packs', go: 'Ver packs'
+        clase: 'promo-negro', emoji: '🛵', titulo: 'Delivery 10–20 min',
+        texto: 'En Nuevo Chimbote', accion: 'locales', go: 'Pedir ahora'
       });
+      if (totalDespensa) {
+        tarjetas.push({
+          clase: 'promo-verde', emoji: '🧺', titulo: 'Primera necesidad',
+          texto: totalDespensa + ' productos para tu casa', accion: 'despensa', go: 'Ver tienda'
+        });
+      }
+      if (rapidos) {
+        tarjetas.push({
+          clase: 'promo-naranja', emoji: '🍔', titulo: 'Comida rápida',
+          texto: rapidos + ' locales para pedir', accion: 'rapida', go: 'Ver locales'
+        });
+      }
+      html += tarjetas.map(tarjetaPromo).join('');
     }
-    tarjetas.push({
-      clase: 'promo-negro', emoji: '🛵', titulo: 'Delivery 10–20 min',
-      texto: 'En Nuevo Chimbote', accion: 'locales', go: 'Pedir ahora'
-    });
-    if (totalDespensa) {
-      tarjetas.push({
-        clase: 'promo-verde', emoji: '🧺', titulo: 'Primera necesidad',
-        texto: totalDespensa + ' productos para tu casa', accion: 'despensa', go: 'Ver tienda'
-      });
+
+    // 2) Novedades propias, en la misma franja.
+    const novedades = (CONFIG.novedades || []).filter((n) => n && n.activa !== false && n.titulo);
+    if (novedades.length) {
+      html += novedades.slice(0, 8).map(tarjetaNovedadCustom).join('');
+    } else {
+      // Sin novedades propias: locales nuevos con foto real.
+      const nuevos = LOCALES
+        .filter((l) => l.publicado !== false && l.disponible !== false && l.portada && l.nuevo === true)
+        .slice(0, 8);
+      html += nuevos.map(tarjetaNovedad).join('');
     }
-    if (rapidos) {
-      tarjetas.push({
-        clase: 'promo-naranja', emoji: '🍔', titulo: 'Comida rápida',
-        texto: rapidos + ' locales para pedir', accion: 'rapida', go: 'Ver locales'
-      });
-    }
-    sec.hidden = false;
-    cont.innerHTML = tarjetas.map(tarjetaPromo).join('');
+
+    sec.hidden = !html;
+    cont.innerHTML = html;
   }
 
   function iniciarAnimaciones() {
@@ -1395,7 +1429,6 @@
     renderLocales();
     renderCategorias();
     renderResultados();
-    renderNovedades();
     renderPromos();
     renderCart();
   }
@@ -1518,12 +1551,24 @@
         const ia = orden.indexOf(a); const ib = orden.indexOf(b);
         return (ia < 0 ? 99 : ia) - (ib < 0 ? 99 : ib);
       });
+      const slugMenu = (texto) => String(texto).toLowerCase().normalize('NFD')
+        .replace(/[\u0300-\u036f]/g, '').replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
+      const chipsMenu = nombres.map((g) =>
+        '<button type="button" class="menu-chip" data-menu-goto="menu-' + esc(slugMenu(g)) + '">' +
+          esc(g) + ' <span>' + mapa.get(g).length + '</span>' +
+        '</button>'
+      ).join('');
+      cuerpo += '<div class="menu-nav">' +
+        '<input id="menuBuscar" type="search" placeholder="Buscar en la carta…" autocomplete="off" aria-label="Buscar un plato en esta carta">' +
+        '<div class="menu-chips">' + chipsMenu + '</div>' +
+      '</div>';
       cuerpo += '<div class="menu">' + nombres.map((g) =>
-        '<div class="menu-group">' +
+        '<div class="menu-group" id="menu-' + esc(slugMenu(g)) + '" data-grupo="' + esc(slugMenu(g)) + '">' +
           '<h4 class="menu-group-title">' + esc(g) + ' <span class="count">' + mapa.get(g).length + '</span></h4>' +
           mapa.get(g).map((p) => filaProducto(local, p)).join('') +
         '</div>'
-      ).join('') + '</div>';
+      ).join('') + '</div>' +
+      '<p class="menu-vacio" id="menuVacio" hidden>No encontramos ese plato en esta carta.</p>';
       if (tieneCarta) {
         cuerpo += '<a class="carta-link" href="' + esc(local.cartaOriginal) + '" target="_blank" rel="noopener">Ver carta original (imagen)</a>';
       }
@@ -1546,6 +1591,36 @@
 
     const scrollPrevio = resetScroll ? 0 : cont.scrollTop;
     cont.innerHTML = cuerpo;
+
+    // Navegación rápida dentro de la carta: saltar a una sección o buscar un plato.
+    const chipsMenu = cont.querySelector('.menu-chips');
+    if (chipsMenu) {
+      chipsMenu.addEventListener('click', (e) => {
+        const boton = e.target.closest('[data-menu-goto]');
+        if (!boton) return;
+        const destino = cont.querySelector('#' + boton.dataset.menuGoto);
+        if (destino) destino.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      });
+    }
+    const buscarMenu = cont.querySelector('#menuBuscar');
+    if (buscarMenu) {
+      buscarMenu.addEventListener('input', () => {
+        const consulta = norm(buscarMenu.value.trim());
+        let visibles = 0;
+        cont.querySelectorAll('.menu-group').forEach((grupo) => {
+          let enGrupo = 0;
+          grupo.querySelectorAll('.menu-row').forEach((fila) => {
+            const coincide = !consulta || norm(fila.textContent).includes(consulta);
+            fila.style.display = coincide ? '' : 'none';
+            if (coincide) enGrupo++;
+          });
+          grupo.style.display = enGrupo ? '' : 'none';
+          visibles += enGrupo;
+        });
+        const vacio = cont.querySelector('#menuVacio');
+        if (vacio) vacio.hidden = visibles > 0;
+      });
+    }
 
     const titulo = document.getElementById('modalTitle');
     if (titulo) modal.setAttribute('aria-labelledby', 'modalTitle');
@@ -2740,6 +2815,13 @@
         const chip = e.target.closest('.chip');
         if (!chip) return;
         state.catCatalogos[sec.id] = chip.dataset.cat || 'todo';
+        state.limitesCatalogos[sec.id] = 12;
+        renderCatalogo(sec);
+      });
+      cont.addEventListener('change', (e) => {
+        if (e.target.id !== 'ordenLicores') return;
+        state.ordenCatalogos.licores = e.target.value;
+        state.limitesCatalogos.licores = 12;
         renderCatalogo(sec);
       });
     });
@@ -2818,6 +2900,14 @@
     }
 
     document.addEventListener('click', (e) => {
+      const global = e.target.closest('[data-catalogo-mas]');
+      if (global) {
+        const sec = SECCIONES.find((s) => s.id === global.dataset.catalogoMas);
+        if (!sec) return;
+        state.limitesCatalogos[sec.id] = (state.limitesCatalogos[sec.id] || 12) + 12;
+        renderCatalogo(sec);
+        return;
+      }
       const more = e.target.closest('[data-cat-more]');
       if (!more) return;
       const sec = SECCIONES.find((s) => s.id === more.dataset.sec);
@@ -3299,7 +3389,6 @@ function init() {
     renderChipsLocales();
     renderLocales();
     renderCategorias();
-    renderNovedades();
     renderPromos();
     renderCart();
     enlazarEventos();

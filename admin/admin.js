@@ -2853,12 +2853,11 @@
 
       <div class="panel mt-16">
         <div class="panel-head">
-          <div><h2>Promociones y novedades</h2><p>Son las tarjetas que aparecen arriba en la web. Si dejas una lista vacía, se usan las tarjetas automáticas.</p></div>
+          <div><h2>Promociones y novedades</h2><p>Todo aparece en una sola franja arriba en la web. Si dejas las listas vacías, se usan las tarjetas automáticas y los locales nuevos.</p></div>
         </div>
         <div class="panel-body">
           <div class="row" style="gap:18px;flex-wrap:wrap">
-            <label class="check"><input id="pgNovedadesActiva" type="checkbox" ${secciones.novedades !== false ? 'checked' : ''}> Mostrar Novedades en la web</label>
-            <label class="check"><input id="pgPromosActiva" type="checkbox" ${secciones.promociones !== false ? 'checked' : ''}> Mostrar Promociones en la web</label>
+            <label class="check"><input id="pgDestacadosActiva" type="checkbox" ${!(secciones.novedades === false && secciones.promociones === false) ? 'checked' : ''}> Mostrar la franja de promos y novedades</label>
           </div>
 
           <div class="row mt-16" style="justify-content:space-between;align-items:center">
@@ -3121,10 +3120,11 @@
       }).filter((n) => n.titulo);
 
       const base = state.config || cfg;
+      const activa = $('#pgDestacadosActiva').checked;
       const nuevas = Object.assign({}, base, {
         secciones: Object.assign({}, base.secciones, {
-          novedades: $('#pgNovedadesActiva').checked,
-          promociones: $('#pgPromosActiva').checked
+          novedades: activa,
+          promociones: activa
         }),
         promociones,
         novedades

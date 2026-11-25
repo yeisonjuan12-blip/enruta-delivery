@@ -3849,6 +3849,15 @@ fieldset.when .field {
 }
 .promo-custom small { opacity: .9; }
 .promo-custom .promo-emoji { position: relative; z-index: 2; }
+.service-anchor { display: block; scroll-margin-top: 90px; }
+
+/* Todas las tarjetas de la franja miden igual */
+.promo-card.reco-card {
+  width: clamp(258px, 78vw, 304px);
+  min-height: 204px;
+}
+.reco-solid { justify-content: flex-end; }
+.reco-solid .promo-copy { margin-top: auto; }
 
 .promo-amarillo { background: linear-gradient(135deg, #fdd303 0%, #ffb703 100%); color: #17140c; }
 .promo-negro { background: linear-gradient(135deg, #151515 0%, #3b3b3b 100%); color: #fff; }
@@ -4136,6 +4145,7 @@ fieldset.when .field {
   line-height: 1;
   font-weight: 950;
   letter-spacing: .11em;
+  text-transform: uppercase;
   text-shadow: 0 1px 5px rgba(0,0,0,.3);
   backdrop-filter: blur(5px);
 }
@@ -4247,6 +4257,7 @@ fieldset.when .field {
   .strip-subtitle { max-width: 235px; font-size: 11.5px; }
   .push-optin { padding: 8px 10px; font-size: 10.5px; }
   .promo-card { width: min(80vw, 306px); min-height: 192px; }
+  .promo-card.reco-card { width: min(82vw, 304px); min-height: 200px; }
   .promo-custom { min-height: 192px; }
   .novedad-card { width: min(73vw, 278px); }
   .novedad-img { height: 116px; }

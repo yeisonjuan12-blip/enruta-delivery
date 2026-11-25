@@ -593,7 +593,10 @@ function limpiarNovedades(lista) {
     salida.push({
       id: convertirAId(String(n.id || titulo), 'novedad').slice(0, 48),
       activa: n.activa !== false,
-      etiqueta: String(n.etiqueta || 'Nuevo').trim().slice(0, 14),
+      etiqueta: String(n.etiqueta || 'NUEVO').trim().slice(0, 20),
+      color: ['promo-amarillo', 'promo-negro', 'promo-verde', 'promo-naranja'].includes(String(n.color)) ? String(n.color) : 'promo-amarillo',
+      foco: ['center', 'top', 'bottom'].includes(String(n.foco)) ? String(n.foco) : 'center',
+      boton: String(n.boton || 'Ver más').trim().slice(0, 24),
       titulo,
       texto: String(n.texto || '').trim().slice(0, 90),
       imagen: limpiarImagenConfig(n.imagen),

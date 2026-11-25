@@ -1208,17 +1208,6 @@
     renderTodo();
   }
 
-  function tarjetaNovedad(l) {
-    return '<article class="novedad-card" data-local="' + esc(l.id) + '" role="button" tabindex="0" aria-label="Ver la carta de ' + esc(l.nombre) + '">' +
-      '<span class="novedad-badge">Nuevo</span>' +
-      portadaHTML(l, 'novedad-img') +
-      '<div class="novedad-body">' +
-        '<b>' + esc(l.nombre) + '</b>' +
-        '<small>' + esc(l.categoriaNombre || categoriaLocal(l.categoriaId)) + (l.tiempo ? ' · ⏱ ' + esc(l.tiempo) : '') + '</small>' +
-      '</div>' +
-    '</article>';
-  }
-
   function seccionActiva(nombre) {
     const s = CONFIG.secciones || {};
     return s[nombre] !== false;
@@ -1237,43 +1226,27 @@
     window.location.href = destino;
   }
 
-  function tarjetaNovedadCustom(n) {
-    const local = n.localId ? localesPorId.get(n.localId) : null;
-    const imagen = n.imagen || (local && local.portada) || '';
-    const enlace = n.enlace || (local ? 'local:' + local.id : '');
-    const media = imagen
-      ? '<div class="novedad-img"><img src="' + esc(imagen) + '" alt="' + esc(n.titulo) + '" loading="lazy" decoding="async"></div>'
-      : '<div class="novedad-img"><span class="local-emoji" aria-hidden="true">' + esc(n.emoji || '✨') + '</span></div>';
-    return '<article class="novedad-card" data-novedad-link="' + esc(enlace) + '" role="button" tabindex="0" aria-label="' + esc(n.titulo) + '">' +
-      '<span class="novedad-badge">' + esc(n.etiqueta || 'Nuevo') + '</span>' +
-      media +
-      '<div class="novedad-body"><b>' + esc(n.titulo) + '</b><small>' + esc(n.texto || '') + '</small></div>' +
-    '</article>';
-  }
-
-
-  function tarjetaPromo(p) {
-    return '<button type="button" class="promo-card ' + p.clase + '" data-promo="' + esc(p.accion) + '">' +
-      '<span class="promo-emoji" aria-hidden="true">' + esc(p.emoji) + '</span>' +
-      '<b>' + esc(p.titulo) + '</b>' +
-      '<small>' + esc(p.texto) + '</small>' +
-      '<span class="promo-go">' + esc(p.go) + ' →</span>' +
-    '</button>';
-  }
-
-  function tarjetaPromoCustom(p) {
-    const imagen = String(p.imagen || '').replace(/'/g, '%27').replace(/"/g, '%22');
-    const foco = ['center', 'top', 'bottom'].includes(p.foco) ? p.foco : 'center';
+  // Todas las tarjetas de la franja usan la misma medida y la misma
+  // composición: etiqueta, foto, título, texto y botón.
+  function tarjetaDestacada(t) {
+    const imagen = String(t.imagen || '').replace(/'/g, '%27').replace(/"/g, '%22');
+    const foco = ['center', 'top', 'bottom'].includes(t.foco) ? t.foco : 'center';
     const estilo = imagen
-      ? "background-image:linear-gradient(180deg, rgba(12,10,6,.02) 8%, rgba(12,10,6,.82) 100%),url('" + imagen + "');background-size:cover;background-position:" + foco + ";color:#fff;"
+      ? "background-image:linear-gradient(180deg, rgba(12,10,6,.02) 8%, rgba(12,10,6,.84) 100%),url('" + imagen + "');background-size:cover;background-position:" + foco + ";"
       : '';
-    return '<button type="button" class="promo-card promo-custom ' + esc(p.color || 'promo-amarillo') + '" data-promo-link="' + esc(p.enlace || '') + '" style="' + estilo + '">' +
-      '<span class="promo-kicker">' + esc(p.etiqueta || 'RECOMENDADO') + '</span>' +
+    let atributo = '';
+    if (t.servicio) atributo = ' data-service-open="' + esc(t.servicio) + '"';
+    else if (t.accion) atributo = ' data-promo="' + esc(t.accion) + '"';
+    else if (t.local) atributo = ' data-local="' + esc(t.local) + '"';
+    else atributo = ' data-promo-link="' + esc(t.enlace || '') + '"';
+    return '<button type="button" class="promo-card reco-card ' + (imagen ? 'promo-custom ' : 'reco-solid ') +
+      esc(t.color || 'promo-amarillo') + '"' + atributo + ' style="' + estilo + '">' +
+      '<span class="promo-kicker">' + esc(t.etiqueta || 'RECOMENDADO') + '</span>' +
       '<span class="promo-copy">' +
-        (p.emoji ? '<span class="promo-emoji" aria-hidden="true">' + esc(p.emoji) + '</span>' : '') +
-        '<b>' + esc(p.titulo) + '</b>' +
-        (p.texto ? '<small>' + esc(p.texto) + '</small>' : '') +
-        '<span class="promo-go">' + esc(p.boton || 'Ver más') + ' <span aria-hidden="true">↗</span></span>' +
+        '<span class="promo-emoji" aria-hidden="true">' + esc(t.emoji || '✨') + '</span>' +
+        '<b>' + esc(t.titulo) + '</b>' +
+        (t.texto ? '<small>' + esc(t.texto) + '</small>' : '') +
+        '<span class="promo-go">' + esc(t.boton || 'Ver más') + ' ↗</span>' +
       '</span>' +
     '</button>';
   }
@@ -1288,14 +1261,17 @@
       return;
     }
 
-    let html = '';
+    const tarjetas = [];
 
-    // 1) Promos propias del panel.
+    // 1) Promos del panel (o accesos automáticos si no hay).
     const propias = (CONFIG.promociones || []).filter((p) => p && p.activa !== false && p.titulo);
     if (propias.length) {
-      html += propias.slice(0, 12).map(tarjetaPromoCustom).join('');
+      propias.slice(0, 12).forEach((p) => tarjetas.push({
+        imagen: p.imagen, foco: p.foco, color: p.color,
+        etiqueta: p.etiqueta || 'RECOMENDADO', emoji: p.emoji,
+        titulo: p.titulo, texto: p.texto, boton: p.boton || 'Ver más', enlace: p.enlace
+      }));
     } else {
-      // Sin promos propias: accesos armados con datos reales.
       const licores = CATALOGOS.find((c) => c.id === 'licores') || { productos: [] };
       const packs = (licores.productos || []).filter((p) => /pack/i.test(String(p.nombre || '')));
       const precios = packs.map((p) => Number(p.precioVenta)).filter((n) => n > 0);
@@ -1304,46 +1280,58 @@
       const totalDespensa = (despensa && despensa.productos ? despensa.productos.length : 0);
       const rapidos = LOCALES.filter((l) => l.categoriaId === 'comida-rapida' && l.publicado !== false).length;
 
-      const tarjetas = [];
-      if (minPack > 0) {
-        tarjetas.push({
-          clase: 'promo-amarillo', emoji: '🍻', titulo: 'Packs de licores',
-          texto: 'Desde ' + money(minPack) + ' · precio real', accion: 'packs', go: 'Ver packs'
-        });
-      }
-      tarjetas.push({
-        clase: 'promo-negro', emoji: '🛵', titulo: 'Delivery 10–20 min',
-        texto: 'En Nuevo Chimbote', accion: 'locales', go: 'Pedir ahora'
+      if (minPack > 0) tarjetas.push({
+        color: 'promo-amarillo', emoji: '🍻', etiqueta: 'PRECIO REAL', titulo: 'Packs de licores',
+        texto: 'Desde ' + money(minPack), boton: 'Ver packs', accion: 'packs'
       });
-      if (totalDespensa) {
-        tarjetas.push({
-          clase: 'promo-verde', emoji: '🧺', titulo: 'Primera necesidad',
-          texto: totalDespensa + ' productos para tu casa', accion: 'despensa', go: 'Ver tienda'
-        });
-      }
-      if (rapidos) {
-        tarjetas.push({
-          clase: 'promo-naranja', emoji: '🍔', titulo: 'Comida rápida',
-          texto: rapidos + ' locales para pedir', accion: 'rapida', go: 'Ver locales'
-        });
-      }
-      html += tarjetas.map(tarjetaPromo).join('');
+      tarjetas.push({
+        color: 'promo-negro', emoji: '🛵', etiqueta: 'DELIVERY', titulo: '10–20 min',
+        texto: 'En Nuevo Chimbote', boton: 'Pedir ahora', accion: 'locales'
+      });
+      if (totalDespensa) tarjetas.push({
+        color: 'promo-verde', emoji: '🧺', etiqueta: 'TIENDA', titulo: 'Primera necesidad',
+        texto: totalDespensa + ' productos para tu casa', boton: 'Ver tienda', accion: 'despensa'
+      });
+      if (rapidos) tarjetas.push({
+        color: 'promo-naranja', emoji: '🍔', etiqueta: 'COMIDA', titulo: 'Comida rápida',
+        texto: rapidos + ' locales para pedir', boton: 'Ver locales', accion: 'rapida'
+      });
     }
 
-    // 2) Novedades propias, en la misma franja.
+    // 2) Novedades del panel (o locales nuevos con foto real).
     const novedades = (CONFIG.novedades || []).filter((n) => n && n.activa !== false && n.titulo);
     if (novedades.length) {
-      html += novedades.slice(0, 8).map(tarjetaNovedadCustom).join('');
+      novedades.slice(0, 8).forEach((n) => tarjetas.push({
+        imagen: n.imagen, foco: n.foco, color: n.color,
+        etiqueta: n.etiqueta || 'NUEVO', emoji: n.emoji || '✨',
+        titulo: n.titulo, texto: n.texto, boton: n.boton || 'Ver más', enlace: n.enlace
+      }));
     } else {
-      // Sin novedades propias: locales nuevos con foto real.
-      const nuevos = LOCALES
+      LOCALES
         .filter((l) => l.publicado !== false && l.disponible !== false && l.portada && l.nuevo === true)
-        .slice(0, 8);
-      html += nuevos.map(tarjetaNovedad).join('');
+        .slice(0, 8)
+        .forEach((l) => tarjetas.push({
+          imagen: l.portada, color: 'promo-amarillo', foco: 'center',
+          etiqueta: 'NUEVO', emoji: l.emoji || '🍽️', titulo: l.nombre,
+          texto: (l.categoriaNombre || categoriaLocal(l.categoriaId)) + (l.tiempo ? ' · ⏱ ' + l.tiempo : ''),
+          boton: 'Ver carta', local: l.id
+        }));
     }
 
-    sec.hidden = !html;
-    cont.innerHTML = html;
+    // 3) Servicios, ahora como tarjetas compactas de la misma franja.
+    if (CONFIG.servicios && CONFIG.servicios.taximoto === true) {
+      tarjetas.push({
+        color: 'promo-negro', emoji: '🛵', etiqueta: 'SERVICIO', titulo: 'Taximoto',
+        texto: 'Moto para moverte por Nuevo Chimbote', boton: 'Pedir moto', servicio: 'taximoto'
+      });
+    }
+    tarjetas.push({
+      color: 'promo-verde', emoji: '📦', etiqueta: 'SERVICIO', titulo: 'Recojo y envío',
+      texto: 'Paquetes y compras de un punto a otro', boton: 'Solicitar', servicio: 'envio'
+    });
+
+    sec.hidden = tarjetas.length === 0;
+    cont.innerHTML = tarjetas.map(tarjetaDestacada).join('');
   }
 
   function iniciarAnimaciones() {
@@ -1400,6 +1388,10 @@
     const promos = document.getElementById('promosLista');
     if (promos) {
       promos.addEventListener('click', (e) => {
+        const servicio = e.target.closest('[data-service-open]');
+        if (servicio) { abrirSheet(servicio.dataset.serviceOpen); return; }
+        const local = e.target.closest('[data-local]');
+        if (local) { abrirLocal(local.dataset.local); return; }
         const propio = e.target.closest('[data-promo-link]');
         if (propio) { abrirDestino(propio.dataset.promoLink); return; }
         const boton = e.target.closest('[data-promo]');
@@ -2822,6 +2814,9 @@
     if (dosHoras) dosHoras.addEventListener('click', () => programarTaximoto(2));
 
     $$('[data-service-open]').forEach((btn) => {
+      // Las tarjetas de la franja se manejan con un listener delegado,
+      // porque se vuelven a pintar cuando cambian las promos.
+      if (btn.closest('#promosLista')) return;
       btn.addEventListener('click', () => abrirSheet(btn.dataset.serviceOpen));
     });
 

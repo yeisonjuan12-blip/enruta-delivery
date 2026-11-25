@@ -34,7 +34,7 @@
   <link rel="icon" type="image/jpeg" href="assets/marca.jpg">
   <link rel="apple-touch-icon" href="assets/app/icono-192.png?v=2">
   <link rel="icon" type="image/png" sizes="192x192" href="assets/app/icono-192.png?v=2">
-  <link rel="stylesheet" href="css/styles.css?v=42">
+  <link rel="stylesheet" href="css/styles.css?v=44">
 </head>
 <body id="inicio">
 
@@ -134,13 +134,14 @@
       </div>
     </section>
 
-    <section class="strip" id="promos" aria-label="Promociones">
+    <section class="strip" id="promos" aria-label="Promociones y novedades">
+      <span id="servicios" class="service-anchor" aria-hidden="true"></span>
       <div class="wrap">
         <div class="strip-head">
           <div>
             <p class="section-kicker">Selección EnRuta</p>
-            <h2>Recomendado para hoy</h2>
-            <p class="strip-subtitle">Promos, locales nuevos y favoritos de Nuevo Chimbote.</p>
+            <h2>Promos y novedades</h2>
+            <p class="strip-subtitle">Recomendados, servicios y locales nuevos de Nuevo Chimbote.</p>
           </div>
           <button class="push-optin" id="pushOptIn" type="button" aria-label="Activar notificaciones de promociones de EnRuta" title="Solo enviaremos avisos seleccionados; puedes desactivarlos aquí." hidden>🔔 <span>Recibir avisos</span></button>
         </div>
@@ -197,32 +198,6 @@
           <a class="btn btn-wa" id="customWa" href="#" target="_blank" rel="noopener">Pedir algo específico</a>
         </div>
 
-        <div class="services-head services-head-after">
-          <p class="section-kicker">Servicios</p>
-          <h2>Taximoto y encomiendas</h2>
-        </div>
-
-        <div class="services" id="servicios" aria-label="Servicios EnRuta">
-          <button type="button" class="service-card service-taxi" data-service-open="taximoto" aria-label="Pedir taximoto" aria-haspopup="dialog" aria-controls="serviceSheet">
-            <img class="service-photo" src="assets/servicios/taxi-moto-2.jpg" alt="" width="1024" height="623" loading="lazy" decoding="async">
-            <span class="service-copy">
-              <span class="service-kicker">Taximoto</span>
-              <strong class="service-title">Pide tu moto en minutos</strong>
-              <span class="service-text">De un punto A a un punto B, rápido y seguro.</span>
-            </span>
-            <span class="service-cta">Pedir moto <span aria-hidden="true">→</span></span>
-          </button>
-
-          <button type="button" class="service-card service-envio" data-service-open="envio" aria-haspopup="dialog" aria-controls="serviceSheet">
-            <img class="service-photo" src="assets/servicios/envio.jpg" alt="" width="1600" height="1066" loading="lazy" decoding="async">
-            <span class="service-copy">
-              <span class="service-kicker">Recojo y envío</span>
-              <strong class="service-title">Lo recogemos y lo llevamos</strong>
-              <span class="service-text">Documentos, paquetes y compras de un punto a otro.</span>
-            </span>
-            <span class="service-cta">Solicitar <span aria-hidden="true">→</span></span>
-          </button>
-        </div>
       </div>
     </section>
 
@@ -739,6 +714,6 @@
     </div>
   </noscript>
 
-  <script src="js/arranque.js?v=36" defer></script>
+  <script src="js/arranque.js?v=38" defer></script>
 </body>
 </html>

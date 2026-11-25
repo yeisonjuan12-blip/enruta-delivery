@@ -3051,6 +3051,13 @@
           '<input data-novedad-enlace value="' + esc(item.enlace || '') + '" placeholder="Destino: local:canton o https://…" maxlength="200">' +
         '</div><div class="campaign-tools">' +
           '<input data-novedad-etiqueta value="' + esc(item.etiqueta || 'NUEVO') + '" maxlength="20" title="Etiqueta">' +
+          '<select data-novedad-color aria-label="Color de la novedad">' +
+            [['promo-amarillo','Amarillo'],['promo-negro','Negro'],['promo-verde','Verde'],['promo-naranja','Naranja']].map(([v,t]) => '<option value="' + v + '"' + ((item.color || 'promo-amarillo') === v ? ' selected' : '') + '>' + t + '</option>').join('') +
+          '</select>' +
+          '<select data-novedad-foco aria-label="Encuadre de la foto">' +
+            [['center','Centro'],['top','Arriba'],['bottom','Abajo']].map(([v,t]) => '<option value="' + v + '"' + ((item.foco || 'center') === v ? ' selected' : '') + '>' + t + '</option>').join('') +
+          '</select>' +
+          '<input data-novedad-boton value="' + esc(item.boton || 'Ver más') + '" placeholder="Texto del botón" maxlength="24">' +
           '<span class="campaign-image" data-novedad-preview>' + img + '</span>' +
           '<label class="btn btn-sm campaign-upload">Cambiar foto<input class="file-input" type="file" accept="image/jpeg,image/png,image/webp" data-novedad-archivo></label>' +
           '<input type="hidden" data-novedad-imagen value="' + esc(item.imagen || '') + '">' +
@@ -3144,6 +3151,9 @@
           id: fila.dataset.id || idDesdeNombre(titulo) || 'novedad-' + Date.now(),
           activa: fila.querySelector('[data-novedad-activa]').checked,
           etiqueta: fila.querySelector('[data-novedad-etiqueta]').value.trim(),
+          color: fila.querySelector('[data-novedad-color]').value,
+          foco: fila.querySelector('[data-novedad-foco]').value,
+          boton: fila.querySelector('[data-novedad-boton]').value.trim(),
           titulo,
           texto: fila.querySelector('[data-novedad-texto]').value.trim(),
           imagen: fila.querySelector('[data-novedad-imagen]').value.trim(),

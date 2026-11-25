@@ -165,7 +165,13 @@ a { color: inherit; text-decoration: none; }
   font-size: 14.5px;
 }
 .search input::placeholder { color: #a2abb1; }
-.search input::-webkit-search-cancel-button { cursor: pointer; }
+.search input::-webkit-search-cancel-button,
+.search input::-webkit-search-decoration {
+  -webkit-appearance: none;
+  appearance: none;
+  display: none;
+}
+.search input::-ms-clear { display: none; }
 .search-top { flex: 1; max-width: 520px; margin-inline: auto; }
 
 .search-status {
@@ -3850,6 +3856,28 @@ fieldset.when .field {
 .promo-custom small { opacity: .9; }
 .promo-custom .promo-emoji { position: relative; z-index: 2; }
 .service-anchor { display: block; scroll-margin-top: 90px; }
+
+/* La barra de búsqueda no debe crecer con los resultados en celular */
+.hero-grid,
+.hero-copy {
+  min-width: 0;
+}
+.search.search-hero {
+  width: 100%;
+  max-width: 100%;
+  min-width: 0;
+}
+.resultados {
+  width: 100%;
+  max-width: 100%;
+  min-width: 0;
+}
+.res-lista {
+  overflow-x: hidden;
+}
+.res-item {
+  max-width: 100%;
+}
 
 /* Todas las tarjetas de la franja miden igual */
 .promo-card.reco-card {

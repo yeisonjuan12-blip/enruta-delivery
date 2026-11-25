@@ -2881,6 +2881,18 @@
             <input id="pgPushTexto" maxlength="140" placeholder="Mensaje corto" value="Mira las promos y locales recomendados de Nuevo Chimbote.">
             <button class="btn" type="button" id="pgEnviarNotificacion">🔔 Enviar aviso</button>
           </div>
+
+          <div class="push-send-panel mt-16">
+            <div><b>Recordar a quien no pide</b><p>Mensaje de antojo para clientes que ya aceptaron avisos.</p></div>
+            <select id="pgPushPlantilla" aria-label="Mensaje de recordatorio">
+              <option value="0">🍕 ¿Se te antoja una pizza?</option>
+              <option value="1">🍗 Alitas, pizza o pollo</option>
+              <option value="2">🍽️ Hoy no cocines</option>
+              <option value="3">🌮 ¿Un antojo? Pide en EnRuta</option>
+              <option value="4">✨ Promos y locales nuevos</option>
+            </select>
+            <button class="btn" type="button" id="pgEnviarRecordatorio">📣 Enviar recordatorio</button>
+          </div>
         </div>
       </div>`;
 
@@ -3213,6 +3225,30 @@
         const res = await api('/api/admin/push/enviar', { method: 'POST', body: { title, body, url } });
         toast('Aviso enviado a ' + (res.enviados || 0) + ' suscriptores.');
         if (!res.enviados) toast('Aún no hay suscriptores con notificaciones activadas.');
+      } catch (e) {
+        avisarError(e);
+      } finally {
+        bloquear(btn, false);
+      }
+    });
+
+    const RECORDATORIOS = [
+      { title: '¿Se te antoja una pizza? 🍕', body: 'Pide en EnRuta: pizzas, alitas y más en Nuevo Chimbote.' },
+      { title: 'Alitas, pizza o pollo 🍗', body: 'Tus locales de Nuevo Chimbote están listos. Pide por EnRuta.' },
+      { title: 'Hoy no cocines 🍽️', body: 'Elige tu local favorito y pide por WhatsApp con EnRuta.' },
+      { title: '¿Un antojo? Pide en EnRuta', body: 'Chifa, parrillas, alitas, pizzas y postres con delivery.' },
+      { title: 'Promos y locales nuevos', body: 'Entra a EnRuta y mira lo nuevo de Nuevo Chimbote.' }
+    ];
+    $('#pgEnviarRecordatorio').addEventListener('click', async () => {
+      const btn = $('#pgEnviarRecordatorio');
+      const indice = Number($('#pgPushPlantilla').value) || 0;
+      const mensaje = RECORDATORIOS[indice] || RECORDATORIOS[0];
+      if (!window.confirm('¿Enviar «' + mensaje.title + '» a quienes aceptaron avisos?')) return;
+      try {
+        bloquear(btn, true);
+        const res = await api('/api/admin/push/enviar', { method: 'POST', body: { ...mensaje, url: '/' } });
+        toast('Recordatorio enviado a ' + (res.enviados || 0) + ' suscriptores.');
+        if (!res.enviados) toast('Aún no hay suscriptores. El botón «Recibir avisos» ya está en la web.');
       } catch (e) {
         avisarError(e);
       } finally {

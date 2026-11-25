@@ -34,7 +34,7 @@
   <link rel="icon" type="image/jpeg" href="assets/marca.jpg">
   <link rel="apple-touch-icon" href="assets/app/icono-192.png?v=2">
   <link rel="icon" type="image/png" sizes="192x192" href="assets/app/icono-192.png?v=2">
-  <link rel="stylesheet" href="css/styles.css?v=44">
+  <link rel="stylesheet" href="css/styles.css?v=46">
 </head>
 <body id="inicio">
 
@@ -374,6 +374,18 @@
         <p class="footer-text small">Enruta Delivery · <span id="year">2026</span><button type="button" class="admin-dot" id="adminDot" tabindex="-1" aria-label="Acceso al panel de administración"></button></p>
       </div>
     </div>
+    <div class="wrap">
+      <div class="install-footer" id="installFooter" hidden>
+        <div class="install-footer-copy">
+          <img src="assets/app/icono-192.png?v=2" alt="" width="44" height="44" loading="lazy">
+          <div>
+            <b>Ten EnRuta en tu inicio</b>
+            <p>Se abre como una app, sin buscar la página cada vez.</p>
+          </div>
+        </div>
+        <button class="btn btn-brand" type="button" id="installFooterBtn">Añadir EnRuta</button>
+      </div>
+    </div>
   </footer>
 
   <div class="overlay" id="overlay" hidden></div>
@@ -680,7 +692,7 @@
       <p class="install-hint" id="installHint" hidden></p>
       <button class="btn btn-brand btn-block" type="button" id="installGo">Añadir EnRuta</button>
       <button class="btn btn-ghost btn-block" type="button" id="installLater">Ahora no</button>
-      <p class="install-small">Solo te lo mostramos una vez.</p>
+      <p class="install-small">Quedará como un icono en tu pantalla de inicio.</p>
     </div>
   </div>
 
@@ -714,6 +726,6 @@
     </div>
   </noscript>
 
-  <script src="js/arranque.js?v=38" defer></script>
+  <script src="js/arranque.js?v=40" defer></script>
 </body>
 </html>

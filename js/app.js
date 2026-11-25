@@ -1262,11 +1262,19 @@
     }
 
     const tarjetas = [];
+    const vistos = new Set();
+    const agregar = (t) => {
+      if (!t || !t.titulo) return;
+      const clave = norm(t.titulo);
+      if (vistos.has(clave)) return;
+      vistos.add(clave);
+      tarjetas.push(t);
+    };
 
     // 1) Promos del panel (o accesos automáticos si no hay).
     const propias = (CONFIG.promociones || []).filter((p) => p && p.activa !== false && p.titulo);
     if (propias.length) {
-      propias.slice(0, 12).forEach((p) => tarjetas.push({
+      propias.slice(0, 12).forEach((p) => agregar({
         imagen: p.imagen, foco: p.foco, color: p.color,
         etiqueta: p.etiqueta || 'RECOMENDADO', emoji: p.emoji,
         titulo: p.titulo, texto: p.texto, boton: p.boton || 'Ver más', enlace: p.enlace
@@ -1276,56 +1284,50 @@
       const packs = (licores.productos || []).filter((p) => /pack/i.test(String(p.nombre || '')));
       const precios = packs.map((p) => Number(p.precioVenta)).filter((n) => n > 0);
       const minPack = precios.length ? Math.min.apply(null, precios) : 0;
-      const despensa = CATALOGOS.find((c) => c.id === 'primera-necesidad');
-      const totalDespensa = (despensa && despensa.productos ? despensa.productos.length : 0);
       const rapidos = LOCALES.filter((l) => l.categoriaId === 'comida-rapida' && l.publicado !== false).length;
 
-      if (minPack > 0) tarjetas.push({
+      if (minPack > 0) agregar({
         color: 'promo-amarillo', emoji: '🍻', etiqueta: 'PRECIO REAL', titulo: 'Packs de licores',
         texto: 'Desde ' + money(minPack), boton: 'Ver packs', accion: 'packs'
       });
-      tarjetas.push({
-        color: 'promo-negro', emoji: '🛵', etiqueta: 'DELIVERY', titulo: '10–20 min',
-        texto: 'En Nuevo Chimbote', boton: 'Pedir ahora', accion: 'locales'
-      });
-      if (totalDespensa) tarjetas.push({
-        color: 'promo-verde', emoji: '🧺', etiqueta: 'TIENDA', titulo: 'Primera necesidad',
-        texto: totalDespensa + ' productos para tu casa', boton: 'Ver tienda', accion: 'despensa'
-      });
-      if (rapidos) tarjetas.push({
+      if (rapidos) agregar({
         color: 'promo-naranja', emoji: '🍔', etiqueta: 'COMIDA', titulo: 'Comida rápida',
         texto: rapidos + ' locales para pedir', boton: 'Ver locales', accion: 'rapida'
       });
     }
 
-    // 2) Novedades del panel (o locales nuevos con foto real).
+    // 2) Novedades del panel.
     const novedades = (CONFIG.novedades || []).filter((n) => n && n.activa !== false && n.titulo);
-    if (novedades.length) {
-      novedades.slice(0, 8).forEach((n) => tarjetas.push({
-        imagen: n.imagen, foco: n.foco, color: n.color,
-        etiqueta: n.etiqueta || 'NUEVO', emoji: n.emoji || '✨',
-        titulo: n.titulo, texto: n.texto, boton: n.boton || 'Ver más', enlace: n.enlace
+    novedades.slice(0, 8).forEach((n) => agregar({
+      imagen: n.imagen, foco: n.foco, color: n.color,
+      etiqueta: n.etiqueta || 'NUEVO', emoji: n.emoji || '✨',
+      titulo: n.titulo, texto: n.texto, boton: n.boton || 'Ver más', enlace: n.enlace
+    }));
+
+    // 3) Locales nuevos siempre, sin repetir los que ya estén enlazados.
+    const enlazados = new Set();
+    [...propias, ...novedades].forEach((x) => {
+      const enlace = String(x.enlace || '');
+      if (enlace.startsWith('local:')) enlazados.add(enlace.slice(6));
+    });
+    LOCALES
+      .filter((l) => l.publicado !== false && l.disponible !== false && l.portada && l.nuevo === true && !enlazados.has(l.id))
+      .slice(0, 8)
+      .forEach((l) => agregar({
+        imagen: l.portada, color: 'promo-amarillo', foco: 'center',
+        etiqueta: 'NUEVO', emoji: l.emoji || '🍽️', titulo: l.nombre,
+        texto: (l.categoriaNombre || categoriaLocal(l.categoriaId)) + (l.tiempo ? ' · ⏱ ' + l.tiempo : ''),
+        boton: 'Ver carta', local: l.id
       }));
-    } else {
-      LOCALES
-        .filter((l) => l.publicado !== false && l.disponible !== false && l.portada && l.nuevo === true)
-        .slice(0, 8)
-        .forEach((l) => tarjetas.push({
-          imagen: l.portada, color: 'promo-amarillo', foco: 'center',
-          etiqueta: 'NUEVO', emoji: l.emoji || '🍽️', titulo: l.nombre,
-          texto: (l.categoriaNombre || categoriaLocal(l.categoriaId)) + (l.tiempo ? ' · ⏱ ' + l.tiempo : ''),
-          boton: 'Ver carta', local: l.id
-        }));
-    }
 
     // 3) Servicios, ahora como tarjetas compactas de la misma franja.
     if (CONFIG.servicios && CONFIG.servicios.taximoto === true) {
-      tarjetas.push({
+      agregar({
         color: 'promo-negro', emoji: '🛵', etiqueta: 'SERVICIO', titulo: 'Taximoto',
         texto: 'Moto para moverte por Nuevo Chimbote', boton: 'Pedir moto', servicio: 'taximoto'
       });
     }
-    tarjetas.push({
+    agregar({
       color: 'promo-verde', emoji: '📦', etiqueta: 'SERVICIO', titulo: 'Recojo y envío',
       texto: 'Paquetes y compras de un punto a otro', boton: 'Solicitar', servicio: 'envio'
     });
@@ -1494,6 +1496,41 @@
       }
     });
     refrescar();
+
+    // Recordatorio suave para quien tiene avisos activos y no ha pedido
+    // en varios días. Se muestra al abrir la app, como máximo cada 3 días.
+    const recordar = async () => {
+      try {
+        if (Notification.permission !== 'granted') return;
+        const registration = await navigator.serviceWorker.ready;
+        const sub = await registration.pushManager.getSubscription();
+        if (!sub) return;
+        const ahora = Date.now();
+        let ultimo = 0;
+        try { ultimo = new Date(localStorage.getItem('enruta.ultimoPedido') || 0).getTime() || 0; } catch (e) { ultimo = 0; }
+        if (ultimo && ahora - ultimo < 5 * 86400000) return;
+        let visto = 0;
+        try { visto = Number(localStorage.getItem('enruta.recordatorio.visto') || 0) || 0; } catch (e) { visto = 0; }
+        if (visto && ahora - visto < 3 * 86400000) return;
+        const mensajes = [
+          { title: '¿Se te antoja una pizza? 🍕', body: 'Pide en EnRuta: pizzas, alitas y más en Nuevo Chimbote.' },
+          { title: 'Alitas, pizza o pollo 🍗', body: 'Tus locales de Nuevo Chimbote están listos. Pide por EnRuta.' },
+          { title: 'Hoy no cocines 🍽️', body: 'Elige tu local favorito y pide por WhatsApp con EnRuta.' },
+          { title: '¿Un antojo? Pide en EnRuta', body: 'Chifa, parrillas, alitas, pizzas y postres con delivery.' },
+          { title: 'Promos y locales nuevos', body: 'Entra a EnRuta y mira lo nuevo de Nuevo Chimbote.' }
+        ];
+        const m = mensajes[Math.floor(Math.random() * mensajes.length)];
+        await registration.showNotification(m.title, {
+          body: m.body,
+          icon: '/assets/app/icono-192.png',
+          badge: '/assets/app/icono-192.png',
+          tag: 'enruta-recordatorio',
+          data: { url: '/' }
+        });
+        try { localStorage.setItem('enruta.recordatorio.visto', String(ahora)); } catch (e) { /* sin storage */ }
+      } catch (e) { /* recordatorio opcional */ }
+    };
+    window.setTimeout(recordar, 3500);
   }
 
   function renderTodo() {
@@ -2360,6 +2397,7 @@
     }
 
     const abierto = abrirWhatsApp(waLink(mensaje));
+    try { localStorage.setItem('enruta.ultimoPedido', new Date().toISOString()); } catch (e) { /* sin storage */ }
     registrarVenta(state.cart);
     state.cart = [];
     guardarCarrito();
@@ -3309,26 +3347,28 @@ let promptInstalar = null;
 
 function iniciarInstalacion() {
   const modal = document.getElementById('installModal');
-  if (!modal) return;
+  const footer = document.getElementById('installFooter');
+  if (!modal || !footer) return;
   const independiente = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone === true;
-  let visto = false;
-  try { visto = localStorage.getItem('enruta.instalar.visto') === '1'; } catch (e) { /* sin storage */ }
-  if (independiente || visto) return;
+  if (independiente) { footer.hidden = true; return; }
 
+  // La opción vive al final de la página para no interrumpir al entrar.
+  footer.hidden = false;
   const hint = document.getElementById('installHint');
-  const cerrar = () => {
-    modal.hidden = true;
-    try { localStorage.setItem('enruta.instalar.visto', '1'); } catch (e) { /* sin storage */ }
-  };
+  const cerrar = () => { modal.hidden = true; };
 
   window.addEventListener('beforeinstallprompt', (e) => {
     e.preventDefault();
     promptInstalar = e;
   });
-  window.addEventListener('appinstalled', cerrar);
+  window.addEventListener('appinstalled', () => {
+    modal.hidden = true;
+    footer.hidden = true;
+  });
 
   document.getElementById('installClose').addEventListener('click', cerrar);
   document.getElementById('installLater').addEventListener('click', cerrar);
+  document.getElementById('installFooterBtn').addEventListener('click', () => { modal.hidden = false; });
 
   const boton = document.getElementById('installGo');
   if (boton) {
@@ -3350,21 +3390,6 @@ function iniciarInstalacion() {
       }
     });
   }
-
-  // Se muestra una sola vez, después de la página y del aviso de cookies.
-  const mostrar = () => {
-    modal.hidden = false;
-    try { localStorage.setItem('enruta.instalar.visto', '1'); } catch (e) { /* sin storage */ }
-  };
-  let intentos = 0;
-  const esperar = window.setInterval(() => {
-    intentos++;
-    const cookies = document.getElementById('cookieBanner');
-    if (!cookies || intentos > 50) {
-      window.clearInterval(esperar);
-      mostrar();
-    }
-  }, 400);
 }
 
 function iniciarAppbar() {

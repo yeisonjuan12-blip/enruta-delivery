@@ -4346,6 +4346,40 @@ fieldset.when .field {
   color: #9a9285;
 }
 
+/* Instalar al final de la página, sin interrumpir al entrar */
+.install-footer {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  margin-top: 22px;
+  padding: 14px 16px;
+  border-radius: 16px;
+  background: #141414;
+  color: #fff;
+  border: 1px solid #2c2c2c;
+}
+.install-footer[hidden] { display: none; }
+.install-footer-copy {
+  display: flex;
+  align-items: center;
+  gap: 11px;
+  flex: 1 1 auto;
+  min-width: 0;
+}
+.install-footer-copy img {
+  width: 44px;
+  height: 44px;
+  border-radius: 10px;
+  flex: 0 0 auto;
+}
+.install-footer b { display: block; font-size: 14px; letter-spacing: -.01em; }
+.install-footer p { margin: 2px 0 0; font-size: 11.5px; color: #b9b9b9; line-height: 1.35; }
+.install-footer .btn { flex: 0 0 auto; min-height: 40px; padding: 0 15px; font-size: 12.5px; }
+@media (max-width: 560px) {
+  .install-footer { flex-wrap: wrap; gap: 10px; }
+  .install-footer .btn { width: 100%; }
+}
+
 /* Menos movimiento si el sistema lo pide */
 @media (prefers-reduced-motion: reduce) {
   .reveal { opacity: 1; transform: none; transition: none; }

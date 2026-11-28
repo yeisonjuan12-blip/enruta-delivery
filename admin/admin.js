@@ -1818,9 +1818,9 @@
       <div class="ocr-layout">
         <div class="stack">
           <div class="panel">
-            <div class="panel-head"><div><h2>1 · Elige el local y sube la carta</h2><p>Una imagen por página o un PDF con varias páginas.</p></div></div>
+            <div class="panel-head"><div><h2>1 · Elige el local y sube la carta</h2><p>Sube una foto por página. Si tienes PDF, convierte cada página a JPG o PNG.</p></div></div>
             <div class="panel-body">
-              ${ocrOk ? '' : `<p class="form-error mb-16">El OCR de Windows no está disponible. ${esc((state.sistema && state.sistema.ocrMensaje) || '')}</p>`}
+              ${ocrOk ? '' : `<p class="form-error mb-16">El OCR no está disponible. ${esc((state.sistema && state.sistema.ocrMensaje) || '')}</p>`}
               <label class="field mb-16">
                 <span>Local destino *</span>
                 <select id="ocrLocal" class="input" ${locales.length ? '' : 'disabled'}>
@@ -1831,8 +1831,8 @@
               <div class="dropzone" id="ocrDrop">
                 <div class="big">📄</div>
                 <b>Arrastra aquí tus cartas</b>
-                <p>JPG, PNG, WEBP o PDF · hasta 15 MB por archivo</p>
-                <label class="btn btn-primary" style="cursor:pointer">Elegir archivos<input class="file-input" id="ocrFileInput" type="file" multiple accept="image/jpeg,image/png,image/webp,application/pdf,.jpg,.jpeg,.png,.webp,.pdf" ${locales.length ? '' : 'disabled'}></label>
+                <p>JPG, PNG o WEBP · hasta 15 MB por archivo</p>
+                <label class="btn btn-primary" style="cursor:pointer">Elegir archivos<input class="file-input" id="ocrFileInput" type="file" multiple accept="image/jpeg,image/png,image/webp,.jpg,.jpeg,.png,.webp" ${locales.length ? '' : 'disabled'}></label>
               </div>
 
               <ul class="file-list" id="ocrFileList"></ul>
@@ -1844,7 +1844,7 @@
                 <button class="btn btn-primary" id="ocrProcesarBtn" disabled>Procesar cartas</button>
                 <button class="btn" id="ocrLimpiarBtn" disabled>Limpiar</button>
               </div>
-              <p class="small muted mt-8">Se procesa en este servidor local. Las fotos se reducen y WEBP se convierte antes de enviarse. El texto y los borradores quedan en <code>server/datos/importaciones</code>.</p>
+              <p class="small muted mt-8">Se procesa en tu navegador. La primera vez descarga el idioma español; puede tardar unos segundos. Revisa y corrige los productos antes de publicarlos.</p>
             </div>
           </div>
 
@@ -1889,8 +1889,8 @@
     if (!archivos.length) return;
     for (const f of archivos) {
       const ext = (f.name.split('.').pop() || '').toLowerCase();
-      if (!['jpg', 'jpeg', 'png', 'webp', 'pdf'].includes(ext)) {
-        toast('Archivo omitido: ' + f.name + ' (usa JPG, PNG, WEBP o PDF).', 'err');
+      if (!['jpg', 'jpeg', 'png', 'webp'].includes(ext)) {
+        toast('Archivo omitido: ' + f.name + ' (usa JPG, PNG o WEBP).', 'err');
         continue;
       }
       if (f.size > 15 * 1024 * 1024) {
@@ -1942,6 +1942,94 @@
     pintarResultadoOcr();
   }
 
+  let tesseractPromesa = null;
+  function cargarTesseract() {
+    if (window.Tesseract) return Promise.resolve(window.Tesseract);
+    if (tesseractPromesa) return tesseractPromesa;
+    tesseractPromesa = new Promise((resolve, reject) => {
+      const s = document.createElement('script');
+      s.src = 'https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js';
+      s.async = true;
+      s.onload = () => (window.Tesseract ? resolve(window.Tesseract) : reject(new Error('No se pudo iniciar el OCR.')));
+      s.onerror = () => reject(new Error('No se pudo descargar el OCR. Revisa tu conexión.'));
+      document.head.appendChild(s);
+    });
+    return tesseractPromesa;
+  }
+
+  function limpiarNombreOcr(nombre) {
+    let n = String(nombre || '')
+      .replace(/[“”"'`´]/g, '')
+      .replace(/\b(?:S\/|\$\/?)\s*\d*[.,]?\d*\s*$/i, '')
+      .replace(/\b(?:S\/|\$)\b/gi, ' ')
+      .replace(/^[^A-Za-zÁÉÍÓÚÜÑáéíóúüñ0-9]+/, '')
+      .replace(/[^A-Za-zÁÉÍÓÚÜÑáéíóúüñ0-9)]+$/, '')
+      .replace(/\s+\d{1,3}\s*\/?\s*$/, '')
+      .replace(/^\d+[.)]\s*/, '')
+      .replace(/[\/|=]+$/, '')
+      .replace(/\s+/g, ' ')
+      .trim();
+    // Ruido típico al inicio de una línea OCR: "BT A", "“2 A ".
+    n = n.replace(/^[A-Z]{1,3}\s+[A-Z]\s+/i, '');
+    return n;
+  }
+
+  function parsearTextoOcr(texto) {
+    const lineas = String(texto || '').split(/\r?\n/).map((l) => l.replace(/\s+/g, ' ').trim()).filter(Boolean);
+    const productos = [];
+    let grupo = 'Carta';
+    let pendiente = '';
+    // Precios con decimales: 18.00, 5,50. Se evita confundir cantidades.
+    const precios = /(?:S\/?\s*)?(\d{1,3}[.,]\d{2})(?=\s|$)/gi;
+
+    for (const linea of lineas) {
+      const encontrados = [...linea.matchAll(precios)];
+      if (!encontrados.length) {
+        if (
+          linea.length <= 34 && !/\d/.test(linea) &&
+          /^[A-ZÁÉÍÓÚÜÑ][A-ZÁÉÍÓÚÜÑ0-9 .&/()-]+$/.test(linea) &&
+          !/^(CARTA|MENU|MENÚ|PRECIOS?|DELIVERY|PEDIDOS?)$/i.test(linea)
+        ) {
+          grupo = limpiarNombreOcr(linea);
+          pendiente = '';
+        } else {
+          const limpia = limpiarNombreOcr(linea);
+          if (limpia.length >= 3 && limpia.length <= 70) pendiente = limpia;
+        }
+        continue;
+      }
+
+      let inicio = 0;
+      for (const m of encontrados) {
+        let nombre = limpiarNombreOcr(linea.slice(inicio, m.index));
+        if (!nombre && pendiente) nombre = pendiente;
+        pendiente = '';
+        const precio = Number(m[1].replace(',', '.'));
+        if (nombre.length >= 3 && /[A-Za-zÁÉÍÓÚÜÑáéíóúüñ]/.test(nombre) && precio > 0 && precio < 1000) {
+          productos.push({
+            nombre: nombre.slice(0, 90),
+            precio,
+            grupo,
+            accion: 'agregar',
+            revisar: false,
+            camposDudosos: []
+          });
+        }
+        inicio = m.index + m[0].length;
+      }
+      const resto = limpiarNombreOcr(linea.slice(inicio));
+      if (resto.length >= 3 && resto.length <= 70) pendiente = resto;
+    }
+
+    const vistos = new Set();
+    return productos.filter((p) => {
+      const clave = norm(p.nombre) + '|' + p.precio;
+      if (vistos.has(clave)) return false;
+      vistos.add(clave);
+      return true;
+    });
+  }
+
   async function prepararArchivoOcr(f) {
     const ext = (f.nombre.split('.').pop() || '').toLowerCase();
     if (ext === 'pdf') {
@@ -1983,28 +2071,37 @@
       if (txt) txt.textContent = 'Procesando ' + f.nombre + ' (' + (completados + 1) + ' de ' + total + ')…';
       if (barra) barra.style.width = Math.round((completados / total) * 100) + '%';
       try {
+        if (f.tipo === 'pdf') {
+          throw new Error('PDF aún no compatible. Convierte la carta a JPG o PNG y vuelve a intentarlo.');
+        }
         const prep = await prepararArchivoOcr(f);
-        const res = await api('/api/admin/ocr/procesar', {
-          method: 'POST',
-          body: { localCarpeta: state.ocr.carpeta, nombre: prep.nombre, datosBase64: prep.dataUrl }
+        const Tesseract = await cargarTesseract();
+        if (txt) txt.textContent = 'Leyendo ' + f.nombre + ' con OCR…';
+        const { data } = await Tesseract.recognize(prep.dataUrl, 'spa', {
+          logger: (m) => {
+            if (m && m.status === 'recognizing text' && txt) {
+              txt.textContent = 'Leyendo ' + f.nombre + '… ' + Math.round((m.progress || 0) * 100) + '%';
+            }
+          }
         });
+        const texto = String((data && data.text) || '');
+        const detectados = parsearTextoOcr(texto);
         f.estado = 'ok';
-        f.paginas = Number(res.totalPaginas) || 1;
-        paginasTotal += f.paginas;
-        archivosMeta.push({ nombre: f.nombre, paginas: f.paginas });
-        const detectados = Array.isArray(res.productos) ? res.productos : [];
+        f.paginas = 1;
+        paginasTotal += 1;
+        archivosMeta.push({ nombre: f.nombre, paginas: 1 });
         detectados.forEach((p) => {
           p._key = 'ocr-' + (++ocrKeySeq);
           p._archivo = f.nombre;
-          p._pagina = p.pagina || 1;
+          p._pagina = 1;
           p._seleccionado = p.accion !== 'omitir';
           p._dudoso = Array.isArray(p.camposDudosos) ? p.camposDudosos.slice() : [];
           p._imagenPreview = '';
           if (!p.accion) p.accion = 'revisar';
           state.ocr.productos.push(p);
         });
-        if (res.texto) {
-          state.ocr.texto += '\n\n===== ' + f.nombre + ' (' + (res.totalPaginas || 1) + ' pág.) =====\n' + res.texto;
+        if (texto) {
+          state.ocr.texto += '\n\n===== ' + f.nombre + ' =====\n' + texto;
         }
       } catch (e) {
         f.estado = 'error';

@@ -246,7 +246,7 @@ async function manejarAdmin(env, request, ruta, seg, sesion) {
   if (ruta === '/api/admin/estado-sistema' && metodo === 'GET') {
     return json({
       ocr: true,
-      ocrMensaje: 'El OCR se ejecuta en tu navegador (fase 2).',
+      ocrMensaje: 'El OCR se ejecuta en tu navegador al procesar fotos JPG, PNG o WEBP.',
       iaConfigurada: false,
       iaMensaje: 'No hay proveedor ni credenciales configuradas.',
       version: '2.0'

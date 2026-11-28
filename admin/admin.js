@@ -1985,12 +1985,11 @@
     for (const linea of lineas) {
       const encontrados = [...linea.matchAll(precios)];
       if (!encontrados.length) {
-        if (
-          linea.length <= 34 && !/\d/.test(linea) &&
-          /^[A-ZÁÉÍÓÚÜÑ][A-ZÁÉÍÓÚÜÑ0-9 .&/()-]+$/.test(linea) &&
-          !/^(CARTA|MENU|MENÚ|PRECIOS?|DELIVERY|PEDIDOS?)$/i.test(linea)
-        ) {
-          grupo = limpiarNombreOcr(linea);
+        const seccionTexto = linea === linea.toUpperCase() && linea.length <= 34 && !/\d/.test(linea)
+          ? mapearSeccion(linea)
+          : '';
+        if (seccionTexto) {
+          grupo = seccionTexto;
           pendiente = '';
         } else {
           const limpia = limpiarNombreOcr(linea);
@@ -2006,18 +2005,121 @@
         pendiente = '';
         const precio = Number(m[1].replace(',', '.'));
         if (nombre.length >= 3 && /[A-Za-zÁÉÍÓÚÜÑáéíóúüñ]/.test(nombre) && precio > 0 && precio < 1000) {
+          const dudoso = [];
+          if (precio > 300) dudoso.push('precio alto: confírmalo');
+          if (/\d{2,}/.test(nombre)) dudoso.push('el nombre contiene números: revísalo');
           productos.push({
             nombre: nombre.slice(0, 90),
             precio,
-            grupo,
-            accion: 'agregar',
-            revisar: false,
-            camposDudosos: []
+            grupo: grupo !== 'Carta' ? grupo : inferirGrupo(nombre),
+            accion: dudoso.length ? 'revisar' : 'agregar',
+            revisar: dudoso.length > 0,
+            camposDudosos: dudoso
           });
         }
         inicio = m.index + m[0].length;
       }
       const resto = limpiarNombreOcr(linea.slice(inicio));
+      if (resto.length >= 3 && resto.length <= 70) pendiente = resto;
+    }
+
+    const vistos = new Set();
+    return productos.filter((p) => {
+      const clave = norm(p.nombre) + '|' + p.precio;
+      if (vistos.has(clave)) return false;
+      vistos.add(clave);
+      return true;
+    });
+  }
+
+  function mapearSeccion(texto) {
+    const n = norm(texto);
+    if (/(sopa|caldo|aguadito|chupe|parihuela|patasca)/.test(n)) return 'Sopas y caldos';
+    if (/(bebida|jugo|refresco|gaseosa|chicha|limonada|cerveza|vino|infusion|cafe|chocolate)/.test(n)) return 'Bebidas';
+    if (/(entrada|picaron|wantan|rollito|tequeno|alita|papas|chicharron)/.test(n)) return 'Entradas';
+    if (/(postre|dulce|torta|helado|brownie|galleta)/.test(n)) return 'Postres';
+    if (/(pizza|pasta|lasagna|spaghetti|ravioli)/.test(n)) return 'Pizzas y pastas';
+    if (/(pollo|brasa|broaster)/.test(n)) return 'Pollo';
+    if (/(marisco|pescado|ceviche|camarones|pulpo)/.test(n)) return 'Mariscos';
+    if (/(carne|parrilla|chuleta|chancho|bife|\bres\b|churrasco|lomo)/.test(n)) return 'Carnes';
+    return '';
+  }
+
+  function inferirGrupo(nombre) {
+    return mapearSeccion(nombre) || 'Platos de fondo';
+  }
+
+  function precioDePalabra(palabra) {
+    const original = String(palabra || '');
+    const limpio = original.replace(/[S$]/gi, '').replace(/[^\d.,OoIlSsBb]/g, '');
+    const norm = limpio
+      .replace(/[Oo]/g, '0')
+      .replace(/[Il|]/g, '1')
+      .replace(/[Ss]/g, '5')
+      .replace(/B/g, '8');
+    const m = norm.match(/^(\d{1,3})([.,](\d{1,2}))?$/);
+    if (!m) return null;
+    const valor = Number(m[1] + (m[2] ? '.' + m[3] : ''));
+    if (!(valor > 0 && valor < 1000)) return null;
+    const tieneMoneda = /[S$]/i.test(original);
+    const tieneDecimal = Boolean(m[2]);
+    return { valor, confiable: tieneMoneda || tieneDecimal };
+  }
+
+  function parsearDatosOcr(data) {
+    const lineas = Array.isArray(data && data.lines) ? data.lines : [];
+    if (!lineas.length) return parsearTextoOcr(data && data.text);
+
+    const productos = [];
+    let grupo = 'Carta';
+    let pendiente = '';
+
+    for (const linea of lineas) {
+      const palabras = (linea.words || []).filter((w) => w && String(w.text || '').trim());
+      const texto = String(linea.text || '').replace(/\s+/g, ' ').trim();
+      if (!texto) continue;
+
+      const mayusculas = texto === texto.toUpperCase();
+      const seccion = mayusculas && texto.length <= 34 && !/\d/.test(texto) ? mapearSeccion(texto) : '';
+      if (seccion) {
+        grupo = seccion;
+        pendiente = '';
+        continue;
+      }
+
+      const indices = [];
+      for (let i = 0; i < palabras.length; i++) {
+        const precio = precioDePalabra(palabras[i].text);
+        if (precio) indices.push({ i, ...precio, confianza: Number(palabras[i].confidence) || 0 });
+      }
+      if (!indices.length) {
+        const limpia = limpiarNombreOcr(texto);
+        if (limpia.length >= 3 && limpia.length <= 70) pendiente = limpia;
+        continue;
+      }
+
+      let inicio = 0;
+      for (const pr of indices) {
+        let nombre = limpiarNombreOcr(palabras.slice(inicio, pr.i).map((w) => w.text).join(' '));
+        if (!nombre && pendiente) nombre = pendiente;
+        pendiente = '';
+        if (nombre.length >= 3 && /[A-Za-zÁÉÍÓÚÜÑáéíóúüñ]/.test(nombre)) {
+          const dudoso = [];
+          if (!pr.confiable) dudoso.push('precio sin decimales: confírmalo');
+          if (pr.valor > 300) dudoso.push('precio alto: confírmalo');
+          if (pr.confianza && pr.confianza < 60) dudoso.push('precio con poca confianza');
+          productos.push({
+            nombre: nombre.slice(0, 90),
+            precio: pr.valor,
+            grupo: grupo !== 'Carta' ? grupo : inferirGrupo(nombre),
+            accion: dudoso.length ? 'revisar' : 'agregar',
+            revisar: dudoso.length > 0,
+            camposDudosos: dudoso
+          });
+        }
+        inicio = pr.i + 1;
+      }
+      const resto = limpiarNombreOcr(palabras.slice(inicio).map((w) => w.text).join(' '));
       if (resto.length >= 3 && resto.length <= 70) pendiente = resto;
     }
 
